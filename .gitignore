@@ -1,0 +1,8 @@
+#QtCreator specific files that are highly depending on the PC#
+*.pro.user*
+.qtc_*
+
+#macOS file system files
+*.DS_Store
+Thumbs.db
+~$*

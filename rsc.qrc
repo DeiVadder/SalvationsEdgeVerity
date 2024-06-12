@@ -1,0 +1,13 @@
+<RCC>
+    <qresource prefix="/">
+        <file>images/Kegel.png</file>
+        <file>images/Kugel.png</file>
+        <file>images/Prisma.png</file>
+        <file>images/Pyramide.png</file>
+        <file>images/Wuerfel.png</file>
+        <file>images/Zylinder.png</file>
+        <file>images/Dreieck.png</file>
+        <file>images/Kreis.png</file>
+        <file>images/Viereck.png</file>
+    </qresource>
+</RCC>

@@ -1,0 +1,12 @@
+<RCC>
+    <qresource prefix="/">
+        <file>main.qml</file>
+        <file>OutsideRoom.qml</file>
+        <file>ShapePopup3d.qml</file>
+        <file>ShapePopup2d.qml</file>
+        <file>Selection2d.qml</file>
+        <file>Selection3dShape.qml</file>
+        <file>StepX.qml</file>
+        <file>StatueStateMachine.qml</file>
+    </qresource>
+</RCC>
