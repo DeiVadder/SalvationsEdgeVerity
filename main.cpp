@@ -12,11 +12,7 @@ int main(int argc, char *argv[])
     QGuiApplication app(argc, argv);
 
     qmlRegisterType<CalculateSteps>("CalculateSteps", 1, 0, "CalculateSteps");
-    qmlRegisterUncreatableType<CalculateSteps>("SymbolEnums",
-                                                   1,
-                                                   0,
-                                                   "Symbols",
-                                                   "Enum for Symbols");
+    qmlRegisterUncreatableType<CalculateSteps>("SymbolEnums", 1, 0, "Symbols", "Enum for Symbols");
 
     QQmlApplicationEngine engine;
     const QUrl url(QStringLiteral("qrc:/main.qml"));
@@ -30,7 +26,6 @@ int main(int argc, char *argv[])
         },
         Qt::QueuedConnection);
     engine.load(url);
-
 
     return app.exec();
 }

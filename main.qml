@@ -23,7 +23,7 @@ Window {
             left: parent.left
         }
         text: qsTr("Reset")
-        width:70
+        width:height * 2
 
         z:1
         onClicked: {
@@ -31,6 +31,7 @@ Window {
             statueStateMachine1.reset()
             statueStateMachine2.reset()
             statueStateMachine3.reset()
+            flickAble.contentY = 0
         }
     }
 
@@ -39,14 +40,6 @@ Window {
     }
 
     function checkBeforCalculation() {
-        console.log("checkBeforCalculation")
-
-        console.log(statueStateMachine1.insideSymbol,
-                    statueStateMachine2.insideSymbol,
-                    statueStateMachine3.insideSymbol,
-                    statueStateMachine1.outSideSymbol,
-                    statueStateMachine2.outSideSymbol,
-                    statueStateMachine3.outSideSymbol)
         if(statueStateMachine1.insideSymbol <= 0 ||
                 statueStateMachine2.insideSymbol <= 0 ||
                 statueStateMachine3.insideSymbol <= 0 ||
@@ -78,6 +71,7 @@ Window {
 
 
     Flickable {
+        id:flickAble
         anchors.fill: parent
         contentHeight: statueStateMachine1.height
 
