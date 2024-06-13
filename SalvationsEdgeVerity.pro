@@ -42,8 +42,8 @@ HEADERS += \
     calculatesteps.h
 
 DISTFILES += \
-    docs/SalvationsEdgeVerity.html \
     docs/SalvationsEdgeVerity.js \
+    docs/index.html \
     docs/salvationsEdgeVerity.js_plugin_import.cpp \
     docs/salvationsEdgeVerity.js_qml_plugin_import.cpp \
     docs/SalvationsEdgeVerity.wasm \
