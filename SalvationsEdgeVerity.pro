@@ -42,8 +42,10 @@ HEADERS += \
     calculatesteps.h
 
 DISTFILES += \
-    build/docs/SalvationsEdgeVerity.html \
-    build/docs/SalvationsEdgeVerity.js \
-    build/docs/SalvationsEdgeVerity.wasm \
-    build/docs/qtloader.js \
-    build/docs/qtlogo.svg
+    docs/SalvationsEdgeVerity.html \
+    docs/SalvationsEdgeVerity.js \
+    docs/salvationsEdgeVerity.js_plugin_import.cpp \
+    docs/salvationsEdgeVerity.js_qml_plugin_import.cpp \
+    docs/SalvationsEdgeVerity.wasm \
+    docs/qtloader.js \
+    docs/qtlogo.svg
