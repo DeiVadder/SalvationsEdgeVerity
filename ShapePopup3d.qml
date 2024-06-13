@@ -20,8 +20,6 @@ Rectangle {
             height: gView.cellHeight
 
             property bool hoveredOrClicked: false
-            // border.color: (delegate.hoveredOrClicked ? "white" : "black")
-            // border.width: 2
 
 
             Image {

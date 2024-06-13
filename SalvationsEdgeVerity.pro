@@ -11,6 +11,12 @@ SOURCES += \
 RESOURCES += qml.qrc \
     rsc.qrc
 
+OBJECTS_DIR = generated/obj
+MOC_DIR = generated/moc
+RCC_DIR = generated/rsc
+UI_DIR = generated/ui
+QMLCACHE_DIR = generated/qml
+
 # Additional import path used to resolve QML modules in Qt Creator's code model
 QML_IMPORT_PATH =
 
@@ -24,3 +30,10 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 
 HEADERS += \
     calculatesteps.h
+
+DISTFILES += \
+    build/WebView/SalvationsEdgeVerity.html \
+    build/WebView/SalvationsEdgeVerity.js \
+    build/WebView/SalvationsEdgeVerity.wasm \
+    build/WebView/qtloader.js \
+    build/WebView/qtlogo.svg

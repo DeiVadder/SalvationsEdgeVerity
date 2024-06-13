@@ -19,8 +19,6 @@ Rectangle {
         anchors.top: parent.top
         height: contentHeight * 1.2
         width: parent.width
-
-        font.pixelSize: 20
     }
 
     Rectangle {
@@ -72,11 +70,12 @@ Rectangle {
 
             Text{
                 width: selectedSymbol.width
-                height: contentHeight * 1.2
+                height: contentHeight
                 anchors.horizontalCenter: selectedSymbol.horizontalCenter
                 anchors.bottom: selectedSymbol.top
-                text: qsTr("Dunk symbol at statue:")
+                text: qsTr("Dunk at statue:")
                 wrapMode: Text.WordWrap
+                font.pixelSize: 14
 
                 verticalAlignment: Text.AlignVCenter
                 horizontalAlignment: Text.AlignHCenter

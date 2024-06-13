@@ -9,5 +9,6 @@
         <file>images/Dreieck.png</file>
         <file>images/Kreis.png</file>
         <file>images/Viereck.png</file>
+        <file>images/reset.svg</file>
     </qresource>
 </RCC>

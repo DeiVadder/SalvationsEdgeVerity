@@ -8,6 +8,8 @@ Item {
 
     height: finsihed.y + finsihed.height
 
+    property int headerHeight: header.height
+
     property int statueIndex: 1
     property int itemHeight: width
 
@@ -27,6 +29,7 @@ Item {
 
     Column {
         Text {
+            id:header
             text: qsTr("Statue %1").arg(statueIndex)
 
             horizontalAlignment: Text.AlignHCenter
@@ -125,14 +128,14 @@ Item {
 
             Text {
                 id: idText
-                text: qsTr("Final Symbol")
+                text: qsTr("Finished symbol")
                 horizontalAlignment: Text.AlignHCenter
                 verticalAlignment: Text.AlignVCenter
                 anchors.top: parent.top
                 height: contentHeight * 2
                 width: parent.width
 
-                font.pixelSize: 20
+                font.pixelSize: 15
             }
 
             Rectangle {

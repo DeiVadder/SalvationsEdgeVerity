@@ -12,11 +12,6 @@ Item {
         border.color: "black"
         border.width: shape3dSelection.source != ""? 0 : 1
 
-        Text {
-            text:  qsTr("Click to Select")
-            anchors.centerIn: parent
-        }
-
         Image {
             id:shape3dSelection
             anchors.fill: parent

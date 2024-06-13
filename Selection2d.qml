@@ -43,6 +43,7 @@ Rectangle {
                 anchors.top: parent.top
                 text: qsTr("Inside Symbol:")
 
+
                 verticalAlignment: Text.AlignVCenter
                 horizontalAlignment: Text.AlignHCenter
             }

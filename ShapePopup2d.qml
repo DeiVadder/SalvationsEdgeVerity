@@ -59,6 +59,7 @@ Rectangle {
         anchors.top: parent.top
         anchors.horizontalCenter: parent.horizontalCenter
         text: qsTr("Select inside symbol")
+        font.pixelSize: 15
         topPadding: 5
     }
 

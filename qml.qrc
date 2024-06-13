@@ -8,5 +8,6 @@
         <file>Selection3dShape.qml</file>
         <file>StepX.qml</file>
         <file>StatueStateMachine.qml</file>
+        <file>IconButton.qml</file>
     </qresource>
 </RCC>

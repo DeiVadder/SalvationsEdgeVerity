@@ -15,38 +15,9 @@ Window {
 
     property bool verbose: false
 
-    Button {
-        id:btnReset
-        anchors{
-            top: parent.top
-            topMargin: 2
-            left: parent.left
-        }
-        text: qsTr("Reset")
-        width:70
-
-        z:1
-        onClicked: {
-            stepCalculator.reset()
-            statueStateMachine1.reset()
-            statueStateMachine2.reset()
-            statueStateMachine3.reset()
-        }
-    }
-
-    CalculateSteps{
-        id:stepCalculator
-    }
-
     function checkBeforCalculation() {
         console.log("checkBeforCalculation")
 
-        console.log(statueStateMachine1.insideSymbol,
-                    statueStateMachine2.insideSymbol,
-                    statueStateMachine3.insideSymbol,
-                    statueStateMachine1.outSideSymbol,
-                    statueStateMachine2.outSideSymbol,
-                    statueStateMachine3.outSideSymbol)
         if(statueStateMachine1.insideSymbol <= 0 ||
                 statueStateMachine2.insideSymbol <= 0 ||
                 statueStateMachine3.insideSymbol <= 0 ||
@@ -55,7 +26,7 @@ Window {
                 statueStateMachine3.outSideSymbol <= 0)
             return
         if(stepCalculator.checkIsValid(statueStateMachine1.insideSymbol, statueStateMachine2.insideSymbol, statueStateMachine3.insideSymbol,
-                        statueStateMachine1.outSideSymbol, statueStateMachine2.outSideSymbol, statueStateMachine3.outSideSymbol)) {
+                                       statueStateMachine1.outSideSymbol, statueStateMachine2.outSideSymbol, statueStateMachine3.outSideSymbol)) {
             stepCalculator.calculateSteps(statueStateMachine1.insideSymbol, statueStateMachine2.insideSymbol, statueStateMachine3.insideSymbol,
                                           statueStateMachine1.outSideSymbol, statueStateMachine2.outSideSymbol, statueStateMachine3.outSideSymbol)
 
@@ -76,79 +47,112 @@ Window {
         }
     }
 
+    Item {
+        id: appFrame
+        height: root.height
+        width: Math.min(root.width, root.height)
 
-    Flickable {
-        anchors.fill: parent
-        contentHeight: statueStateMachine1.height
+        IconButton {
+            id:btnReset
+            anchors{
+                top: parent.top
+                left: parent.left
+            }
+            width:statueStateMachine1.headerHeight * 0.6
+            height: width
+            imgMargin: height * 0.1
 
-        Row {
-            id:row
-            spacing: 10
-            property int itemWidth: (root.width - 20) / 3
-            StatueStateMachine {
-                id: statueStateMachine1
-                width: row.itemWidth
+            // border.color: "black"
+            // border.width: 1
+            colorNormal: "white"
+            colorPressed: "grey"
 
-                statueIndex: 1
+            source: "qrc:/images/reset.svg"
+            z:1
+            onClicked: {
+                stepCalculator.reset()
+                statueStateMachine1.reset()
+                statueStateMachine2.reset()
+                statueStateMachine3.reset()
+            }
+        }
 
-                onInsideSymbolChanged: checkBeforCalculation()
-                onOutSideSymbolChanged: checkBeforCalculation()
+        CalculateSteps{
+            id:stepCalculator
+        }
+
+        Flickable {
+            anchors.fill: parent
+            contentHeight: statueStateMachine1.height
+
+            Row {
+                id:row
+                spacing: 10
+                property int itemWidth: (appFrame.width - 20) / 3
+                StatueStateMachine {
+                    id: statueStateMachine1
+                    width: row.itemWidth
+
+                    statueIndex: 1
+
+                    onInsideSymbolChanged: checkBeforCalculation()
+                    onOutSideSymbolChanged: checkBeforCalculation()
+                }
+
+                StatueStateMachine {
+                    id: statueStateMachine2
+                    width: row.itemWidth
+
+                    statueIndex: 2
+
+                    onInsideSymbolChanged: checkBeforCalculation()
+                    onOutSideSymbolChanged: checkBeforCalculation()
+                }
+
+                StatueStateMachine {
+                    id: statueStateMachine3
+                    width: row.itemWidth
+
+                    statueIndex: 3
+
+
+                    onInsideSymbolChanged: checkBeforCalculation()
+                    onOutSideSymbolChanged: checkBeforCalculation()
+                }
+            }
+        }
+
+
+    }
+    Popup {
+        id: popup
+        x: (root.width - width) /2
+        y: (root.height - height) / 4
+        width: root.width / 3
+        height: root.width / 5
+        modal: true
+        visible: false
+
+        Rectangle {
+            width: parent.width
+            height: parent.height
+            color: "lightgrey"
+
+            Text {
+                anchors.centerIn: parent
+                text: "Invalid input"
+                font.pixelSize: 16
             }
 
-            StatueStateMachine {
-                id: statueStateMachine2
-                width: row.itemWidth
-
-                statueIndex: 2
-
-                onInsideSymbolChanged: checkBeforCalculation()
-                onOutSideSymbolChanged: checkBeforCalculation()
-            }
-
-            StatueStateMachine {
-                id: statueStateMachine3
-                width: row.itemWidth
-
-                statueIndex: 3
-
-
-                onInsideSymbolChanged: checkBeforCalculation()
-                onOutSideSymbolChanged: checkBeforCalculation()
+            Button {
+                anchors {
+                    horizontalCenter: parent.horizontalCenter
+                    bottom: parent.bottom
+                    bottomMargin: 10
+                }
+                text: "OK"
+                onClicked: popup.close()
             }
         }
     }
-
-
-    Popup {
-            id: popup
-            x: (root.width - width) /2
-            y: (root.height - height) / 4
-            width: root.width / 3
-            height: root.width / 5
-            modal: true
-            visible: false
-
-            Rectangle {
-                width: parent.width
-                height: parent.height
-                color: "lightgrey"
-
-                Text {
-                    anchors.centerIn: parent
-                    text: "Invalid input"
-                    font.pixelSize: 16
-                }
-
-                Button {
-                    anchors {
-                        horizontalCenter: parent.horizontalCenter
-                        bottom: parent.bottom
-                        bottomMargin: 10
-                    }
-                    text: "OK"
-                    onClicked: popup.close()
-                }
-            }
-        }
-
 }
