@@ -10,5 +10,8 @@
         <file>images/Kreis.png</file>
         <file>images/Viereck.png</file>
         <file>images/reset.svg</file>
+        <file>images/orientationCol.png</file>
+        <file>images/orientationRow.png</file>
+        <file>images/orientationRowCol.png</file>
     </qresource>
 </RCC>

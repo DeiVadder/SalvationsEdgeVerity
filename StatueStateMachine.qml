@@ -22,7 +22,6 @@ Item {
     property int insideSymbol: 0
     property int outSideSymbol: 0
 
-    property int steps: 0
     property var toDunk: []
     property var result: []
     // property var stepPairs: [[1,5], [2,6], [0,0]]
@@ -109,14 +108,7 @@ Item {
                     orientation: Qt.Horizontal
                 }
             }
-
         }
-
-
-        // ToolSeparator {
-        //     width: statueStateMachine.width
-        //     orientation: Qt.Horizontal
-        // }
 
         Rectangle {
             id:finsihed

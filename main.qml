@@ -6,6 +6,8 @@ import QtQuick.Controls 2.15
 import CalculateSteps 1.0
 import SymbolEnums 1.0
 
+import "qml/Layouts"
+
 Window {
     id:root
     width: 750
@@ -14,6 +16,7 @@ Window {
     title: qsTr("Salvations Edge Verity Encounter")
 
     property bool verbose: false
+    property int layoutOrientation: 0
 
     function checkBeforCalculation() {
         console.log("checkBeforCalculation")
@@ -47,33 +50,76 @@ Window {
         }
     }
 
+    signal reset()
+
+
     Item {
         id: appFrame
         height: root.height
-        width: Math.min(root.width, root.height)
+        width: root.width/*Math.min(root.width, root.height)*/
+        y: smallestSide - height
+        // anchors.right: parent.top
+
+
+        property int smallestSide: Math.min(root.height, root.width)
+
+
 
         IconButton {
             id:btnReset
             anchors{
                 top: parent.top
-                left: parent.left
+                // left: parent.left
+                right:parent.right
             }
-            width:statueStateMachine1.headerHeight * 0.6
+            width:/*statueStateMachine1.headerHeight*//* * 0.6*/35
             height: width
             imgMargin: height * 0.1
 
             // border.color: "black"
             // border.width: 1
-            colorNormal: "white"
+            colorNormal: "transparent"
             colorPressed: "grey"
 
             source: "qrc:/images/reset.svg"
             z:1
             onClicked: {
                 stepCalculator.reset()
-                statueStateMachine1.reset()
-                statueStateMachine2.reset()
-                statueStateMachine3.reset()
+                root.reset()
+            }
+        }
+
+        IconButton {
+            id:orientation
+            anchors{
+                top: btnReset.bottom
+                // left: parent.left
+                right:parent.right
+            }
+            width:/*statueStateMachine1.headerHeight*//* * 0.6*/35
+            height: width
+            imgMargin:0
+
+            // border.color: "black"
+            // border.width: 1
+            colorNormal: "transparent"
+            colorPressed: "grey"
+
+             z:1
+            source:{
+                if(layoutOrientation ==0)
+                    return "qrc:/images/orientationRowCol.png"
+                if(layoutOrientation == 1)
+                    return "qrc:/images/orientationCol.png"
+                return "qrc:/images/orientationRow.png"
+            }
+            onClicked: {
+                stepCalculator.reset()
+                root.reset()
+                if(layoutOrientation >= 2)
+                    layoutOrientation =0
+                else
+                    layoutOrientation++
             }
         }
 
@@ -81,43 +127,71 @@ Window {
             id:stepCalculator
         }
 
-        Flickable {
+        Loader{
+            id: layoutLoader
             anchors.fill: parent
-            contentHeight: statueStateMachine1.height
 
-            Row {
-                id:row
-                spacing: 10
-                property int itemWidth: (appFrame.width - 20) / 3
-                StatueStateMachine {
-                    id: statueStateMachine1
-                    width: row.itemWidth
+            sourceComponent: {
+                if(layoutOrientation ==0)
+                    return layoutInRowColComponent
+                if(layoutOrientation == 1)
+                    return layoutInColComponent
+                return layoutInRowComponent;
+            }
+        }
 
-                    statueIndex: 1
+        Component{
+            id:layoutInRowComponent
+            LayoutInRow {
+                id:layoutInRow
+                anchors.fill: parent
 
-                    onInsideSymbolChanged: checkBeforCalculation()
-                    onOutSideSymbolChanged: checkBeforCalculation()
+                itemHeight: ( appFrame.height - 20 ) / 3
+                stc:stepCalculator
+
+                onOpenPopup: popup.open()
+
+                Connections{
+                    target: root
+                    function onReset() {
+                        layoutInRow.reset()
+                    }
                 }
+            }
+        }
 
-                StatueStateMachine {
-                    id: statueStateMachine2
-                    width: row.itemWidth
+        Component{
+            id:layoutInColComponent
+            LayoutInColumn {
+                id:layoutInCol
+                anchors.fill: parent
+                itemWidth: ( appFrame.height - 20 ) / 3
+                stc:stepCalculator
 
-                    statueIndex: 2
-
-                    onInsideSymbolChanged: checkBeforCalculation()
-                    onOutSideSymbolChanged: checkBeforCalculation()
+                onOpenPopup: popup.open()
+                Connections{
+                    target: root
+                    function onReset() {
+                        layoutInCol.reset()
+                    }
                 }
+            }
+        }
 
-                StatueStateMachine {
-                    id: statueStateMachine3
-                    width: row.itemWidth
+        Component {
+            id: layoutInRowColComponent
+            LayoutInRowCol {
+                id:layoutInRowCol
+                anchors.fill: parent
+                stc:stepCalculator
 
-                    statueIndex: 3
+                onOpenPopup: popup.open()
 
-
-                    onInsideSymbolChanged: checkBeforCalculation()
-                    onOutSideSymbolChanged: checkBeforCalculation()
+                Connections{
+                    target: root
+                    function onReset() {
+                        layoutInRowCol.reset()
+                    }
                 }
             }
         }

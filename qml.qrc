@@ -2,12 +2,20 @@
     <qresource prefix="/">
         <file>main.qml</file>
         <file>OutsideRoom.qml</file>
-        <file>ShapePopup3d.qml</file>
-        <file>ShapePopup2d.qml</file>
-        <file>Selection2d.qml</file>
-        <file>Selection3dShape.qml</file>
-        <file>StepX.qml</file>
         <file>StatueStateMachine.qml</file>
         <file>IconButton.qml</file>
+        <file>StatemachineRow.qml</file>
+        <file>qml/Layouts/LayoutInRow.qml</file>
+        <file>qml/Layouts/VisualStateMachineForRow.qml</file>
+        <file>qml/shapes/Selection2d.qml</file>
+        <file>qml/shapes/Selection3dShape.qml</file>
+        <file>qml/shapes/ShapePopup2d.qml</file>
+        <file>qml/shapes/ShapePopup3d.qml</file>
+        <file>qml/steps/StepX.qml</file>
+        <file>qml/Layouts/LayoutInColumn.qml</file>
+        <file>qml/Layouts/VisualStateMachineForCol.qml</file>
+        <file>qml/Layouts/LayoutInRowCol.qml</file>
+        <file>qml/Layouts/InputSymbols.qml</file>
+        <file>qml/Layouts/VisualSteps.qml</file>
     </qresource>
 </RCC>
