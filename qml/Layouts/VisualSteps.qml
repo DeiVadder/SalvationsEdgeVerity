@@ -59,7 +59,6 @@ Item{
 
 
                         symbolToDunk: column.toDunkIndex == 0 ? steps.toDunk1[stepIndex] : column.toDunkIndex == 1 ? steps.toDunk2[stepIndex] : steps.toDunk3[stepIndex]
-                        onSymbolToDunkChanged: console.log("Statue:", column.toDunkIndex, steps.toDunk1, steps.toDunk2, steps.toDunk3)
                     }
 
                     ToolSeparator {

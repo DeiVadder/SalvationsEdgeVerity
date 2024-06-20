@@ -23,8 +23,6 @@ Flickable {
     contentHeight: statueStateMachine1.height
 
     function checkBeforCalculation() {
-        console.log("checkBeforCalculation")
-
         if(statueStateMachine1.insideSymbol <= 0 ||
                 statueStateMachine2.insideSymbol <= 0 ||
                 statueStateMachine3.insideSymbol <= 0 ||

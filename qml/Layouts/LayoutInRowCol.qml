@@ -23,14 +23,6 @@ Item {
     }
 
     function checkBeforCalculation() {
-        console.log("checkBeforCalculation")
-        console.log(input.insideSymbol1 ,
-                    input.insideSymbol2 ,
-                    input.insideSymbol3 ,
-                    input.outSideSymbol1,
-                    input.outSideSymbol2 ,
-                    input.outSideSymbol3 )
-
         if(input.insideSymbol1 <= 0 ||
                 input.insideSymbol2 <= 0 ||
                 input.insideSymbol3 <= 0 ||
@@ -55,8 +47,6 @@ Item {
             vSteps.toDunk1 = toDunkStatue1
             vSteps.toDunk2 = toDunkStatue2
             vSteps.toDunk3 = toDunkStatue3
-
-            console.log("toDunk",toDunkStatue1, toDunkStatue2, toDunkStatue3)
         } else {
             root.openPopup()
             // popup.open()

@@ -1,15 +1,11 @@
 import QtQuick 2.15
 
 Rectangle {
-    // border.color: "red"
-    // border.width: 1
-
     function reset() {
         selection = 0
     }
 
     property int selection: 0
-    onSelectionChanged: console.log("selection changed", selection)
     clip :true
 
     ShapePopup2d {
@@ -58,8 +54,6 @@ Rectangle {
                     right: parent.right
                     bottom: parent.bottom
                 }
-                Component.onCompleted: console.log("öö",width, height)
-
                 fillMode: Image.PreserveAspectFit
 
                 source: {

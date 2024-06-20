@@ -23,7 +23,6 @@ Window {
     property int fontTitle: 20 * scale
 
     function checkBeforCalculation() {
-        console.log("checkBeforCalculation")
 
         if(statueStateMachine1.insideSymbol <= 0 ||
                 statueStateMachine2.insideSymbol <= 0 ||
@@ -62,11 +61,6 @@ Window {
         height: root.height * root.scale
         width: root.width * root.scale/*Math.min(root.width, root.height)*/
         y: smallestSide - height
-        // anchors.right: parent.top
-        Component.onCompleted:  console.log("ää", height, root.height, width, root.width)
-        onHeightChanged: console.log("Height changed", height)
-        onWidthChanged: console.log("Width changed", width)
-
 
         property int smallestSide: Math.min(height, width)
 
@@ -151,15 +145,12 @@ Window {
         id:btnReset
         anchors{
             top: parent.top
-            // left: parent.left
             right:parent.right
         }
-        width:/*statueStateMachine1.headerHeight*//* * 0.6*/35
+        width:40
         height: width
-        imgMargin: height * 0.1
+        imgMargin: 0/*height * 0.1*/
 
-        // border.color: "black"
-        // border.width: 1
         colorNormal: "transparent"
         colorPressed: "grey"
 
@@ -178,12 +169,10 @@ Window {
             // left: parent.left
             right:parent.right
         }
-        width:/*statueStateMachine1.headerHeight*//* * 0.6*/35
+        width:/*statueStateMachine1.headerHeight*//* * 0.6*/40
         height: width
         imgMargin:0
 
-        // border.color: "black"
-        // border.width: 1
         colorNormal: "transparent"
         colorPressed: "grey"
 
@@ -210,7 +199,7 @@ Window {
         text: "-"
         anchors.bottom: parent.bottom
         anchors.right: parent.right
-        width: 35
+        width: 40
         height: width
         z: 1
         visible: root.scale > 0.1
@@ -223,7 +212,7 @@ Window {
         text: "+"
         anchors.bottom: mBtn.top
         anchors.right: parent.right
-        width: 35
+        width: 40
         height: width
         z: 1
         visible: root.scale < 1

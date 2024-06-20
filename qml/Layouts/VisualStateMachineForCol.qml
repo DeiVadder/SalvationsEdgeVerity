@@ -54,7 +54,6 @@ Item {
             height: statueStateMachine.itemHeight
             // iconHeight: stepX.iconHeight
             onSelectionChanged:{
-                console.log("selection", selection)
                 finsihed.finalSymbol = selection
                 insideSymbol = selection
 
@@ -66,7 +65,6 @@ Item {
             height: statueStateMachine.itemHeight
             width: statueStateMachine.width
             onSelectionChanged: {
-                console.log("Outside Symbol", selection)
                 if(selection < 0)
                     outSideSymbol = selection
                 else

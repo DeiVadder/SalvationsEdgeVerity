@@ -75,7 +75,6 @@ Item{
 
                 // iconHeight: stepX.iconHeight
                 onSelectionChanged:{
-                    console.log("selection", selection)
                     // finsihed.finalSymbol = selection
                     switch(col1.repeaterIndex ){
                     case 0: insideSymbol1 = selection; break;

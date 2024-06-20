@@ -61,7 +61,7 @@ Rectangle {
         anchors.horizontalCenter: parent.horizontalCenter
         width: parent.width
         height: contentHeight * 1.2
-        text: qsTr("Outside symbol1")
+        text: qsTr("Outside symbol")
         font.pixelSize: fontNormal
         topPadding: 5
         wrapMode: Text.WordWrap
