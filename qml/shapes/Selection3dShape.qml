@@ -29,7 +29,7 @@ Item {
                 anchors.top: parent.top
                 text: qsTr("Outside Symbol:")
                 // wrapMode: Text.WordWrap
-                font.pixelSize: 15
+                font.pixelSize: fontNormal
 
 
                 verticalAlignment: Text.AlignVCenter

@@ -38,7 +38,7 @@ Item {
             height: statemachineRow.height
             width: contentWidth * 1.2
 
-            font.pixelSize: 20
+            font.pixelSize: fontTitle
         }
 
         ToolSeparator {
@@ -69,7 +69,7 @@ Item {
 
                 horizontalAlignment: Text.AlignHCenter
                 verticalAlignment: Text.AlignVCenter
-                font.pixelSize: 15
+                font.pixelSize: fontNormal
                 width: parent.width
                 wrapMode: Text.WordWrap
 
@@ -129,7 +129,7 @@ Item {
                 height: contentHeight * 2
                 width: parent.width
 
-                font.pixelSize: 15
+                font.pixelSize: fontNormal
             }
 
             Rectangle {

@@ -19,6 +19,7 @@ Rectangle {
         anchors.top: parent.top
         height: contentHeight * 1.2
         width: parent.width
+        font.pixelSize: fontNormal + 1
     }
 
     Rectangle {
@@ -41,6 +42,7 @@ Rectangle {
             horizontalAlignment: Text.AlignHCenter
             verticalAlignment: Text.AlignVCenter
             padding: 1
+            font.pixelSize: fontNormal
 
             wrapMode: Text.WordWrap
         }
@@ -70,20 +72,22 @@ Rectangle {
             width: parent.width / 2
 
             Text{
+                id:instruction
                 width: selectedSymbol.width
                 height: contentHeight
                 anchors.horizontalCenter: selectedSymbol.horizontalCenter
                 anchors.bottom: selectedSymbol.top
                 text: qsTr("Dunk at statue:")
                 wrapMode: Text.WordWrap
-                font.pixelSize: 12
+                font.pixelSize: fontNormal - 2
 
                 verticalAlignment: Text.AlignVCenter
                 horizontalAlignment: Text.AlignHCenter
             }
             Image {
                 id:selectedSymbol
-                height: parent.height * 0.75
+                // height: parent.height * 0.75
+                height: parent.height - instruction.contentHeight
                 width: parent.width - 2
                 anchors{
                     left:parent.left
@@ -119,6 +123,7 @@ Rectangle {
                 anchors.horizontalCenter: targetSymbol.horizontalCenter
                 anchors.bottom: targetSymbol.top
                 text: qsTr("Symbol when Step finsihed:")
+                font.pixelSize: fontNormal
                 wrapMode: Text.WordWrap
 
                 visible: verbose

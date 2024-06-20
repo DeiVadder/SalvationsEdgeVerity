@@ -53,7 +53,7 @@ Item{
 
                 width: col1.width
                 height: contentHeight * 2
-                font.pixelSize: 20
+                font.pixelSize: fontTitle
             }
 
             ToolSeparator {

@@ -5,6 +5,7 @@ Rectangle {
 
     Text{
         text: qsTr("Inside room statues:")
+        font.pixelSize: fontNormal
     }
 
 }

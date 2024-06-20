@@ -36,7 +36,7 @@ Item {
 
             width: statueStateMachine.width
             height: contentHeight * 2
-            font.pixelSize: 20
+            font.pixelSize: fontTitle
         }
 
         ToolSeparator {
@@ -66,6 +66,7 @@ Item {
 
             width: statueStateMachine.width
             height: contentHeight * 2
+            font.pixelSize: fontNormal
         }
 
         Selection3dShape {
@@ -127,7 +128,7 @@ Item {
                 height: contentHeight * 2
                 width: parent.width
 
-                font.pixelSize: 15
+                font.pixelSize: fontNormal
             }
 
             Rectangle {

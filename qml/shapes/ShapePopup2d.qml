@@ -56,7 +56,7 @@ Rectangle {
         anchors.horizontalCenter: parent.horizontalCenter
         width: parent.width
         text: qsTr("Inside symbol")
-        font.pixelSize: 15
+        font.pixelSize: fontNormal
         topPadding: 5
         wrapMode: Text.WordWrap
         horizontalAlignment: Text.AlignHCenter

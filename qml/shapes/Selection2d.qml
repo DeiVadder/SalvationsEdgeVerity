@@ -42,7 +42,7 @@ Rectangle {
                 anchors.top: parent.top
                 text: qsTr("Inside Symbol:")
                 // wrapMode: Text.WordWrap
-                font.pixelSize: 15
+                font.pixelSize: fontNormal
 
 
                 verticalAlignment: Text.AlignVCenter

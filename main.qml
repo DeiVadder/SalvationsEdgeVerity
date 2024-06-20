@@ -19,6 +19,9 @@ Window {
     property int layoutOrientation: 0
     property double scale: 1
 
+    property int fontNormal:15 * scale
+    property int fontTitle: 20 * scale
+
     function checkBeforCalculation() {
         console.log("checkBeforCalculation")
 
@@ -246,7 +249,7 @@ Window {
             Text {
                 anchors.centerIn: parent
                 text: "Invalid input"
-                font.pixelSize: 16
+                font.pixelSize: 20
             }
 
             Button {

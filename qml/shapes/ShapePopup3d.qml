@@ -62,7 +62,7 @@ Rectangle {
         width: parent.width
         height: contentHeight * 1.2
         text: qsTr("Outside symbol1")
-        font.pixelSize: 15
+        font.pixelSize: fontNormal
         topPadding: 5
         wrapMode: Text.WordWrap
         horizontalAlignment: Text.AlignHCenter
