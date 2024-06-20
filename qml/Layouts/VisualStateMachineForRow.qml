@@ -58,7 +58,7 @@ Item {
         Selection2d {
             id:selection2d
             height: statemachineRow.height
-            width: statemachineRow.itemWidth * 0.7
+            width: statemachineRow.itemWidth
             onSelectionChanged:{
                 finsihed.finalSymbol = selection
                 insideSymbol = selection
@@ -69,22 +69,8 @@ Item {
         //outside selection
 
         Selection3dShape {
-            Text {
-                id: outsideSymbolText
-                anchors.top: parent.top
-                text: qsTr("Outside symbol:")
-                topPadding: 5
-
-
-                horizontalAlignment: Text.AlignHCenter
-                verticalAlignment: Text.AlignVCenter
-                font.pixelSize: 15
-                width: parent.width
-                wrapMode: Text.WordWrap
-
-            }
             id: selection3dShape
-            width: statemachineRow.itemWidth * 0.7
+            width: statemachineRow.itemWidth
             height: statemachineRow.height
             onSelectionChanged: {
                 if(selection < 0)

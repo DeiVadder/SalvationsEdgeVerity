@@ -92,17 +92,6 @@ Item{
                 orientation: Qt.Horizontal
             }
 
-            Text {
-                id: outsideSymbolText
-                text: selection3dShape.selection == -1 ? qsTr("Select outside symbol") :  qsTr("Outside symbol:")
-
-                horizontalAlignment: Text.AlignHCenter
-                verticalAlignment: Text.AlignVCenter
-
-                width: col1.width
-                height: contentHeight * 2
-            }
-
             Selection3dShape {
                 id: selection3dShape
                 height: input.itemHeight * 0.7

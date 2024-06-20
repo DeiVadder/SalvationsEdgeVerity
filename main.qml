@@ -17,6 +17,7 @@ Window {
 
     property bool verbose: false
     property int layoutOrientation: 0
+    property double scale: 1
 
     function checkBeforCalculation() {
         console.log("checkBeforCalculation")
@@ -55,73 +56,16 @@ Window {
 
     Item {
         id: appFrame
-        height: root.height
-        width: root.width/*Math.min(root.width, root.height)*/
+        height: root.height * root.scale
+        width: root.width * root.scale/*Math.min(root.width, root.height)*/
         y: smallestSide - height
         // anchors.right: parent.top
+        Component.onCompleted:  console.log("ää", height, root.height, width, root.width)
+        onHeightChanged: console.log("Height changed", height)
+        onWidthChanged: console.log("Width changed", width)
 
 
-        property int smallestSide: Math.min(root.height, root.width)
-
-
-
-        IconButton {
-            id:btnReset
-            anchors{
-                top: parent.top
-                // left: parent.left
-                right:parent.right
-            }
-            width:/*statueStateMachine1.headerHeight*//* * 0.6*/35
-            height: width
-            imgMargin: height * 0.1
-
-            // border.color: "black"
-            // border.width: 1
-            colorNormal: "transparent"
-            colorPressed: "grey"
-
-            source: "qrc:/images/reset.svg"
-            z:1
-            onClicked: {
-                stepCalculator.reset()
-                root.reset()
-            }
-        }
-
-        IconButton {
-            id:orientation
-            anchors{
-                top: btnReset.bottom
-                // left: parent.left
-                right:parent.right
-            }
-            width:/*statueStateMachine1.headerHeight*//* * 0.6*/35
-            height: width
-            imgMargin:0
-
-            // border.color: "black"
-            // border.width: 1
-            colorNormal: "transparent"
-            colorPressed: "grey"
-
-             z:1
-            source:{
-                if(layoutOrientation ==0)
-                    return "qrc:/images/orientationRowCol.png"
-                if(layoutOrientation == 1)
-                    return "qrc:/images/orientationCol.png"
-                return "qrc:/images/orientationRow.png"
-            }
-            onClicked: {
-                stepCalculator.reset()
-                root.reset()
-                if(layoutOrientation >= 2)
-                    layoutOrientation =0
-                else
-                    layoutOrientation++
-            }
-        }
+        property int smallestSide: Math.min(height, width)
 
         CalculateSteps{
             id:stepCalculator
@@ -130,6 +74,7 @@ Window {
         Loader{
             id: layoutLoader
             anchors.fill: parent
+            anchors.margins: 5
 
             sourceComponent: {
                 if(layoutOrientation ==0)
@@ -198,6 +143,92 @@ Window {
 
 
     }
+
+    IconButton {
+        id:btnReset
+        anchors{
+            top: parent.top
+            // left: parent.left
+            right:parent.right
+        }
+        width:/*statueStateMachine1.headerHeight*//* * 0.6*/35
+        height: width
+        imgMargin: height * 0.1
+
+        // border.color: "black"
+        // border.width: 1
+        colorNormal: "transparent"
+        colorPressed: "grey"
+
+        source: "qrc:/images/reset.svg"
+        z:1
+        onClicked: {
+            stepCalculator.reset()
+            root.reset()
+        }
+    }
+
+    IconButton {
+        id:orientation
+        anchors{
+            top: btnReset.bottom
+            // left: parent.left
+            right:parent.right
+        }
+        width:/*statueStateMachine1.headerHeight*//* * 0.6*/35
+        height: width
+        imgMargin:0
+
+        // border.color: "black"
+        // border.width: 1
+        colorNormal: "transparent"
+        colorPressed: "grey"
+
+         z:1
+        source:{
+            if(layoutOrientation ==0)
+                return "qrc:/images/orientationRowCol.png"
+            if(layoutOrientation == 1)
+                return "qrc:/images/orientationCol.png"
+            return "qrc:/images/orientationRow.png"
+        }
+        onClicked: {
+            stepCalculator.reset()
+            root.reset()
+            if(layoutOrientation >= 2)
+                layoutOrientation =0
+            else
+                layoutOrientation++
+        }
+    }
+
+    Button{
+        id:mBtn
+        text: "-"
+        anchors.bottom: parent.bottom
+        anchors.right: parent.right
+        width: 35
+        height: width
+        z: 1
+        visible: root.scale > 0.1
+        onClicked:{
+            root.scale = root.scale - 0.05
+        }
+    }
+    Button{
+        id:pBtn
+        text: "+"
+        anchors.bottom: mBtn.top
+        anchors.right: parent.right
+        width: 35
+        height: width
+        z: 1
+        visible: root.scale < 1
+        onClicked:{
+            root.scale = root.scale + 0.05
+        }
+    }
+
     Popup {
         id: popup
         x: (root.width - width) /2

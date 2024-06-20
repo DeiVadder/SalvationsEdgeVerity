@@ -51,7 +51,7 @@ Item {
         Selection2d {
             id:selection2d
             width: statueStateMachine.width
-            height: statueStateMachine.itemHeight * 0.7
+            height: statueStateMachine.itemHeight
             // iconHeight: stepX.iconHeight
             onSelectionChanged:{
                 console.log("selection", selection)
@@ -61,20 +61,9 @@ Item {
             }
         }
 
-        Text {
-            id: outsideSymbolText
-            text: selection3dShape.selection == -1 ? qsTr("Select outside symbol") :  qsTr("Outside symbol:")
-
-            horizontalAlignment: Text.AlignHCenter
-            verticalAlignment: Text.AlignVCenter
-
-            width: statueStateMachine.width
-            height: contentHeight * 2
-        }
-
         Selection3dShape {
             id: selection3dShape
-            height: statueStateMachine.itemHeight * 0.7
+            height: statueStateMachine.itemHeight
             width: statueStateMachine.width
             onSelectionChanged: {
                 console.log("Outside Symbol", selection)
