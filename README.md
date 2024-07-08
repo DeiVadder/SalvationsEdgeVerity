@@ -12,13 +12,20 @@ Welcome to the **SalvationsEdgeVerity** project repository. This project aims to
 
 ## Installation
 
+### Method 1: Launch from github [recommended]
+Visit the following git hub webside to launch the latest version of the app inside your browser:
+[https://deivadder.github.io/SalvationsEdgeVerity/]
+
+-------
+
+### Method 2: Build from Source
+
 ### Prerequisites
 
 - [Qt 5.x or later](https://www.qt.io/download)
 - A C++ compiler compatible with your system
 
-### Method 1: Build from Source
-
+### Steps:
 1. Clone the repository to your local machine:
 
     ```sh
@@ -41,7 +48,9 @@ Welcome to the **SalvationsEdgeVerity** project repository. This project aims to
     ./SalvationsEdgeVerity
     ```
 
-### Method 2: Use Precompiled Binary
+-------
+
+### Method 3: Use Precompiled Binary
 
 1. Download the precompiled binary from the [releases page](https://github.com/DeiVadder/SalvationsEdgeVerity/releases/download/1.0.0/Salvations.Edge.Encounter.4.Verity.zip).
 
