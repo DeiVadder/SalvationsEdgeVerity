@@ -85,6 +85,7 @@ Item{
                     anchors.top: parent.top
                     height: contentHeight * 2
                     width: parent.width
+                    wrapMode: Text.WordWrap
 
                     font.pixelSize: fontNormal
                 }

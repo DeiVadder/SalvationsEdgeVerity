@@ -36,6 +36,8 @@ Item{
 
     }
 
+    property int adjustedItemHeight: itemHeight != itemWidth ? ((height- header.height - 2*toolSep.height)/2) : itemWidth
+
     Component {
         id:oneColumn
         Column {
@@ -57,6 +59,7 @@ Item{
             }
 
             ToolSeparator {
+                id:toolSep
                 width: col1.width
                 orientation: Qt.Horizontal
             }
@@ -64,7 +67,7 @@ Item{
             Selection2d {
                 id:selection2d
                 width: col1.width
-                height: input.itemHeight * 0.7
+                height: adjustedItemHeight/*input.itemHeight * 0.7*/
 
                 Connections{
                     target: input
@@ -93,7 +96,7 @@ Item{
 
             Selection3dShape {
                 id: selection3dShape
-                height: input.itemHeight * 0.7
+                height: adjustedItemHeight/*input.itemHeight * 0.7*/
                 width: col1.width
                 onSelectionChanged: {
 

@@ -8,15 +8,16 @@ import SymbolEnums 1.0
 
 import "qml/Layouts"
 
-Window {
+ApplicationWindow  {
     id:root
     width: 750
     height: 600
     visible: true
     title: qsTr("Salvations Edge Verity Encounter")
 
+    readonly property bool isMobile: Qt.platform.os === "android" || Qt.platform.os === "ios"
     property bool verbose: false
-    property int layoutOrientation: 0
+    property int layoutOrientation: isMobile ? 1 : 0
     property double scale: 1
 
     property int fontNormal:15 * scale
@@ -60,7 +61,7 @@ Window {
         id: appFrame
         height: root.height * root.scale
         width: root.width * root.scale/*Math.min(root.width, root.height)*/
-        y: smallestSide - height
+        y:Math.max(smallestSide - height,0)
 
         property int smallestSide: Math.min(height, width)
 
@@ -107,7 +108,7 @@ Window {
             LayoutInColumn {
                 id:layoutInCol
                 anchors.fill: parent
-                itemWidth: ( appFrame.height - 20 ) / 3
+                itemWidth: ( appFrame.width - 20 ) / 3
                 stc:stepCalculator
 
                 onOpenPopup: popup.open()
@@ -225,8 +226,8 @@ Window {
         id: popup
         x: (root.width - width) /2
         y: (root.height - height) / 4
-        width: root.width / 3
-        height: root.width / 5
+        width: isMobile ? root.width *2 / 3 : root.width / 3
+        height: isMobile ? root.width * 0.3 : root.width / 5
         modal: true
         visible: false
 
@@ -236,12 +237,21 @@ Window {
             color: "lightgrey"
 
             Text {
-                anchors.centerIn: parent
+                anchors{
+                    left:parent.left
+                    right:parent.right
+                    top: parent.top
+                    bottom:btn.top
+                }
+                verticalAlignment: Text.AlignVCenter
+                horizontalAlignment: Text.AlignHCenter
+
                 text: "Invalid input"
                 font.pixelSize: 20
             }
 
             Button {
+                id:btn
                 anchors {
                     horizontalCenter: parent.horizontalCenter
                     bottom: parent.bottom

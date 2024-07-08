@@ -31,9 +31,9 @@ Rectangle {
             left:parent.left
             bottom: parent.bottom
             right: parent.right
-            margins: parent.height / 8
-            leftMargin: parent.width / 4
-            rightMargin: parent.width / 4
+            margins: parent.height / (isMobile ? 16 : 8)
+            leftMargin: parent.width / (isMobile ? 8 : 4)
+            rightMargin: parent.width / (isMobile ? 8 : 4)
         }
 
         Text {

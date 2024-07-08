@@ -49,3 +49,5 @@ DISTFILES += \
     docs/SalvationsEdgeVerity.wasm \
     docs/qtloader.js \
     docs/qtlogo.svg
+
+ANDROID_PACKAGE_SOURCE_DIR = $$PWD/android
