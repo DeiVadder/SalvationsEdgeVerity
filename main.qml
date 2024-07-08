@@ -17,11 +17,37 @@ ApplicationWindow  {
 
     readonly property bool isMobile: Qt.platform.os === "android" || Qt.platform.os === "ios"
     property bool verbose: false
-    property int layoutOrientation: isMobile ? 1 : 0
+    property int layoutOrientation: 0/*isMobile ? 1 : 0*/
     property double scale: 1
 
     property int fontNormal:15 * scale
     property int fontTitle: 20 * scale
+
+    Component.onCompleted: {
+        if(isMobile){
+            if (Screen.orientation === Screen.LandscapeOrientation ||
+                    Screen.orientation === Screen.InvertedLandscapeOrientation) {
+                layoutOrientation = 0
+            } else {
+                layoutOrientation = 1
+            }
+        } else {
+            if(width > height) {
+                layoutOrientation = 0
+            } else {
+                layoutOrientation = 1
+            }
+        }
+    }
+
+    function isOverlaping(rect1, rect2) {
+        return rect1.x < rect2.x + rect2.width &&
+                rect1.x + rect1.width > rect2.x &&
+                rect1.y < rect2.y + rect2.height &&
+                rect1.y + rect1.height > rect2.y;
+
+    }
+
 
     function checkBeforCalculation() {
 
@@ -108,7 +134,7 @@ ApplicationWindow  {
             LayoutInColumn {
                 id:layoutInCol
                 anchors.fill: parent
-                itemWidth: ( appFrame.width - 20 ) / 3
+                itemWidth: ( appFrame.width - 30 ) / 3
                 stc:stepCalculator
 
                 onOpenPopup: popup.open()
@@ -148,12 +174,22 @@ ApplicationWindow  {
             top: parent.top
             right:parent.right
         }
+
+        Component.onCompleted: {
+            if(isOverlaping(btnReset, layoutLoader.item)) {
+                btnReset.anchors.top = undefined
+                btnReset.anchors.bottom = orientation.top
+            }
+        }
+
         width:40
         height: width
         imgMargin: 0/*height * 0.1*/
 
-        colorNormal: "transparent"
+        colorNormal: "#AAFFFFFF"
         colorPressed: "grey"
+        border.color:"grey"
+        border.width: 1
 
         source: "qrc:/images/reset.svg"
         z:1
@@ -170,12 +206,22 @@ ApplicationWindow  {
             // left: parent.left
             right:parent.right
         }
+
+        Component.onCompleted: {
+            if(isOverlaping(btnReset, layoutLoader.item)) {
+                orientation.anchors.top = undefined
+                orientation.anchors.bottom = pBtn.top
+            }
+        }
+
         width:/*statueStateMachine1.headerHeight*//* * 0.6*/40
         height: width
         imgMargin:0
 
         colorNormal: "transparent"
         colorPressed: "grey"
+        border.color:"grey"
+        border.width: 1
 
          z:1
         source:{
@@ -201,7 +247,7 @@ ApplicationWindow  {
         anchors.bottom: parent.bottom
         anchors.right: parent.right
         width: 40
-        height: width
+        height: visible ? width : 0
         z: 1
         visible: root.scale > 0.1
         onClicked:{
@@ -214,7 +260,7 @@ ApplicationWindow  {
         anchors.bottom: mBtn.top
         anchors.right: parent.right
         width: 40
-        height: width
+        height: visible ? width : 0
         z: 1
         visible: root.scale < 1
         onClicked:{
