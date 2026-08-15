@@ -1,6 +1,7 @@
 #include <QGuiApplication>
 #include <QQmlApplicationEngine>
 
+#include "calculateinsidesteps.h"
 #include "calculatesteps.h"
 
 int main(int argc, char *argv[])
@@ -10,6 +11,7 @@ int main(int argc, char *argv[])
 
     qmlRegisterType<CalculateSteps>("CalculateSteps", 1, 0, "CalculateSteps");
     qmlRegisterUncreatableType<CalculateSteps>("SymbolEnums", 1, 0, "Symbols", "Enum for Symbols");
+    qmlRegisterType<CalculateInsideSteps>("CalculateSteps", 1, 0, "CalculateInsideSteps");
 
     QQmlApplicationEngine engine;
     const QUrl url(QStringLiteral("qrc:/qt/qml/SalvationsEdgeVerityApp/main.qml"));
