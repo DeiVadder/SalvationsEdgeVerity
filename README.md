@@ -22,8 +22,11 @@ Visit the following git hub webside to launch the latest version of the app insi
 
 ### Prerequisites
 
-- [Qt 5.x or later](https://www.qt.io/download)
-- A C++ compiler compatible with your system
+- [Qt 6.11.1 or later](https://www.qt.io/download) (open-source)
+- CMake 3.21+
+- A C++17 compiler compatible with your system
+
+Supported platforms: macOS (desktop) and WebAssembly (browser, see Method 1). Android/iOS are not currently supported.
 
 ### Steps:
 1. Clone the repository to your local machine:
@@ -33,19 +36,23 @@ Visit the following git hub webside to launch the latest version of the app insi
     cd SalvationsEdgeVerity
     ```
 
-2. Set up the build environment:
+2. Configure and build:
 
     ```sh
-    mkdir build
-    cd build
-    qmake ..
-    make
+    cmake -S . -B build -DCMAKE_PREFIX_PATH=/path/to/Qt/6.11.1/macos
+    cmake --build build
     ```
 
-3. Run the application:
+3. Run the tests:
 
     ```sh
-    ./SalvationsEdgeVerity
+    ctest --test-dir build
+    ```
+
+4. Run the application:
+
+    ```sh
+    ./build/SalvationsEdgeVerity
     ```
 
 -------
