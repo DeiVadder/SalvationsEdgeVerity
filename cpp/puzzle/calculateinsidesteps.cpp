@@ -4,6 +4,7 @@
 #include <array>
 
 #include "fastcleanseresolver.h"
+#include "lfgsortresolver.h"
 #include "symbolswapengine.h"
 
 namespace {
@@ -24,7 +25,7 @@ void CalculateInsideSteps::bumpCalculationVersion()
 CalculateInsideSteps::CalculateInsideSteps(QObject *parent)
     : QObject{parent}
     , m_engine{std::make_unique<SymbolSwapEngine>()}
-    , m_cleanseEngine{std::make_unique<SymbolSwapEngine>()}
+    , m_sortResolver{std::make_unique<LFGSortResolver>()}
     , m_fastResolver{std::make_unique<FastCleanseResolver>()}
 {}
 
@@ -180,6 +181,7 @@ void CalculateInsideSteps::calculateStepsLFG(SymbolTypes player1Symbol,
                                               SymbolTypes wall2a, SymbolTypes wall2b,
                                               SymbolTypes wall3a, SymbolTypes wall3b)
 {
+    QVector<SymbolTypes> ownSymbols = {player1Symbol, player2Symbol, player3Symbol};
     QVector<QVector<SymbolTypes>> wallPairs = {{wall1a, wall1b}, {wall2a, wall2b}, {wall3a, wall3b}};
     QVector<QVector<SymbolTypes>> selfPairs = {{player1Symbol, player1Symbol},
                                                 {player2Symbol, player2Symbol},
@@ -188,7 +190,7 @@ void CalculateInsideSteps::calculateStepsLFG(SymbolTypes player1Symbol,
                                              CalculateSteps::fromBaseSymbol(player2Symbol),
                                              CalculateSteps::fromBaseSymbol(player3Symbol)};
 
-    m_cleanseEngine->solve(wallPairs, selfPairs);
+    m_sortResolver->resolve(ownSymbols, wallPairs);
     m_engine->solve(selfPairs, target);
 
     m_targetShapePerPlayer.clear();
@@ -244,6 +246,7 @@ void CalculateInsideSteps::calculateStepsLFGChallenge(SymbolTypes player1Symbol,
                                                        SymbolTypes outerTarget2,
                                                        SymbolTypes outerTarget3)
 {
+    QVector<SymbolTypes> ownSymbols = {player1Symbol, player2Symbol, player3Symbol};
     QVector<QVector<SymbolTypes>> wallPairs = {{wall1a, wall1b}, {wall2a, wall2b}, {wall3a, wall3b}};
     QVector<QVector<SymbolTypes>> selfPairs = {{player1Symbol, player1Symbol},
                                                 {player2Symbol, player2Symbol},
@@ -252,7 +255,7 @@ void CalculateInsideSteps::calculateStepsLFGChallenge(SymbolTypes player1Symbol,
                                              CalculateSteps::toBaseSymbols(outerTarget2),
                                              CalculateSteps::toBaseSymbols(outerTarget3)};
 
-    m_cleanseEngine->solve(wallPairs, selfPairs);
+    m_sortResolver->resolve(ownSymbols, wallPairs);
     m_engine->solve(selfPairs, target);
 
     m_targetShapePerPlayer = {outerTarget1, outerTarget2, outerTarget3};
@@ -260,19 +263,29 @@ void CalculateInsideSteps::calculateStepsLFGChallenge(SymbolTypes player1Symbol,
     bumpCalculationVersion();
 }
 
-int CalculateInsideSteps::numberOfCleanseSteps()
+int CalculateInsideSteps::numberOfSortTransfers() const
 {
-    return m_cleanseEngine->numberOfSteps();
+    return m_sortResolver->numberOfTransfers();
 }
 
-CalculateInsideSteps::SymbolTypes CalculateInsideSteps::getCleanseInstructionForStep(int step, int player)
+int CalculateInsideSteps::sortTransferFrom(int index) const
 {
-    return m_cleanseEngine->getInstructionForStep(step, player);
+    return m_sortResolver->transfer(index).fromPlayer;
 }
 
-bool CalculateInsideSteps::isCleanseSolved() const
+int CalculateInsideSteps::sortTransferTo(int index) const
 {
-    return m_cleanseEngine->isSolved();
+    return m_sortResolver->transfer(index).toPlayer;
+}
+
+CalculateInsideSteps::SymbolTypes CalculateInsideSteps::sortTransferSymbol(int index) const
+{
+    return m_sortResolver->transfer(index).symbol;
+}
+
+bool CalculateInsideSteps::isSortSolved() const
+{
+    return m_sortResolver->isSolved();
 }
 
 void CalculateInsideSteps::calculateStepsFast(SymbolTypes player1Symbol,
@@ -334,7 +347,7 @@ bool CalculateInsideSteps::isFastSolved() const
 void CalculateInsideSteps::reset()
 {
     m_engine->reset();
-    m_cleanseEngine->reset();
+    m_sortResolver->reset();
     m_fastResolver->reset();
     m_targetShapePerPlayer.clear();
     bumpCalculationVersion();

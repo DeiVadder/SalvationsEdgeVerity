@@ -28,6 +28,8 @@ qt_add_executable(SalvationsEdgeVerity
     cpp/puzzle/calculateinsidesteps.h
     cpp/puzzle/fastcleanseresolver.cpp
     cpp/puzzle/fastcleanseresolver.h
+    cpp/puzzle/lfgsortresolver.cpp
+    cpp/puzzle/lfgsortresolver.h
     cpp/challenge/encounterprogress.cpp
     cpp/challenge/encounterprogress.h
     cpp/ghost/ghostplayerslot.cpp

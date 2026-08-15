@@ -81,8 +81,22 @@ Rectangle {
         ? [insideCalculator.finalShapeForPlayer(0), insideCalculator.finalShapeForPlayer(1),
            insideCalculator.finalShapeForPlayer(2)]
         : [0, 0, 0]
-    readonly property int cleanseStepCount: (insideCalculator && root.calculationVersion >= 0)
-        ? insideCalculator.numberOfCleanseSteps() : 0
+    readonly property int sortTransferCount: (insideCalculator && root.calculationVersion >= 0)
+        ? insideCalculator.numberOfSortTransfers() : 0
+    readonly property var sortTransfers: {
+        var result = []
+        if (!insideCalculator || root.calculationVersion < 0)
+            return result
+        var total = root.sortTransferCount
+        for (var i = 0; i < total; ++i) {
+            result.push({
+                from: insideCalculator.sortTransferFrom(i),
+                to: insideCalculator.sortTransferTo(i),
+                symbol: insideCalculator.sortTransferSymbol(i)
+            })
+        }
+        return result
+    }
     readonly property int fastRoundCount: (insideCalculator && root.calculationVersion >= 0)
         ? insideCalculator.numberOfFastRounds() : 0
     readonly property int fastTransferCount: (insideCalculator && root.calculationVersion >= 0)
@@ -262,7 +276,7 @@ Rectangle {
                                                           wall1a, wall1b, wall2a, wall2b,
                                                           wall3a, wall3b,
                                                           target1, target2, target3)
-            hasNoSolution = !(insideCalculator.isCleanseSolved() && insideCalculator.isSolved())
+            hasNoSolution = !(insideCalculator.isSortSolved() && insideCalculator.isSolved())
             return
         }
 
@@ -277,7 +291,7 @@ Rectangle {
             insideCalculator.calculateStepsLFG(player1, player2, player3,
                                                  wall1a, wall1b, wall2a, wall2b,
                                                  wall3a, wall3b)
-            hasNoSolution = !(insideCalculator.isCleanseSolved() && insideCalculator.isSolved())
+            hasNoSolution = !(insideCalculator.isSortSolved() && insideCalculator.isSolved())
         } else {
             insideCalculator.calculateStepsFast(player1, player2, player3,
                                                   wall1a, wall1b, wall2a, wall2b,
@@ -582,7 +596,7 @@ Rectangle {
                 }
 
                 Text {
-                    text: qsTr("LFG is the default: it walks through the cleanse (sort) phase, a sync point to wait for your teammates, then the distribute phase. Fast is an experimental shortcut that skips the sort step entirely.")
+                    text: qsTr("LFG is the default: it walks through the sort phase, a sync point to wait for your teammates, then the distribute phase. Fast is an experimental shortcut that skips the sort step entirely.")
                     color: "#999999"
                     font.pixelSize: 11
                     wrapMode: Text.WordWrap
@@ -778,41 +792,64 @@ Rectangle {
                     width: parent.width
                     spacing: 10
 
-                    // LFG (default): cleanse phase, sync callout, then distribute phase.
+                    // LFG (default): sort phase, sync callout, then distribute phase.
                     Column {
                         width: stepsColumn.width
                         spacing: 10
                         visible: root.cleanseMethod === "lfg"
 
                         Text {
-                            visible: root.cleanseStepCount > 0
-                            text: qsTr("CLEANSE PHASE")
+                            visible: root.sortTransferCount > 0
+                            text: qsTr("SORT PHASE")
                             color: "#888888"
                             font.pixelSize: 10
                             font.letterSpacing: 1
                         }
 
                         Repeater {
-                            model: root.cleanseMethod === "lfg" ? root.cleanseStepCount : 0
+                            model: root.cleanseMethod === "lfg" ? root.sortTransfers : []
 
-                            delegate: StepCard {
-                                id: cleanseCard
-                                required property int index
+                            delegate: Rectangle {
+                                id: sortRow
+                                required property var modelData
+                                readonly property bool involvesMe: root.myPosition >= 0
+                                    && (modelData.from === root.myPosition || modelData.to === root.myPosition)
                                 width: stepsColumn.width
-                                stepNumber: cleanseCard.index + 1
-                                nodeLabels: root.playerLabels
-                                highlightIndex: root.myPosition
-                                instructions: root.calculationVersion >= 0 ? [
-                                    root.insideCalculator.getCleanseInstructionForStep(cleanseCard.index, 0),
-                                    root.insideCalculator.getCleanseInstructionForStep(cleanseCard.index, 1),
-                                    root.insideCalculator.getCleanseInstructionForStep(cleanseCard.index, 2)
-                                ] : [0, 0, 0]
-                                expectedState: [root.player1, root.player2, root.player3]
+                                height: 34
+                                radius: 6
+                                color: sortRow.involvesMe ? "#1e3a5f" : "#161616"
+                                border.color: sortRow.involvesMe ? "#3b82f6" : "#333333"
+
+                                Row {
+                                    anchors.left: parent.left
+                                    anchors.leftMargin: 10
+                                    anchors.verticalCenter: parent.verticalCenter
+                                    spacing: 8
+
+                                    Text {
+                                        text: qsTr("%1 gives").arg(root.playerLabels[sortRow.modelData.from])
+                                        color: "#dddddd"
+                                        font.pixelSize: 12
+                                    }
+
+                                    Image {
+                                        width: 20
+                                        height: 20
+                                        fillMode: Image.PreserveAspectFit
+                                        source: ShapeIcons.iconSource(sortRow.modelData.symbol)
+                                    }
+
+                                    Text {
+                                        text: qsTr("to %1").arg(root.playerLabels[sortRow.modelData.to])
+                                        color: "#dddddd"
+                                        font.pixelSize: 12
+                                    }
+                                }
                             }
                         }
 
                         Rectangle {
-                            visible: root.cleanseStepCount > 0
+                            visible: root.sortTransferCount > 0
                             width: stepsColumn.width
                             height: 32
                             radius: 6
@@ -821,7 +858,7 @@ Rectangle {
 
                             Text {
                                 anchors.centerIn: parent
-                                text: qsTr("Wait until all 3 players have cleansed, then distribute")
+                                text: qsTr("Wait until all 3 players have sorted, then distribute")
                                 color: "#9dc4e8"
                                 font.pixelSize: 11
                             }
@@ -924,7 +961,7 @@ Rectangle {
 
                     Text {
                         visible: !root.hasNoSolution && root.stepCount === 0
-                                 && root.cleanseStepCount === 0 && root.fastRoundCount === 0
+                                 && root.sortTransferCount === 0 && root.fastRoundCount === 0
                         text: qsTr("Select each player's symbol and wall (2 symbols each) to see the solution.")
                         color: "#666666"
                         font.pixelSize: 12

@@ -136,8 +136,8 @@
     </message>
     <message>
         <location filename="../qml/help/HelpDialog.qml" line="107"/>
-        <source>Pick each player&apos;s own 2D symbol plus what&apos;s currently on their wall (2 symbols each). Mark which statue you are to highlight your own steps. LFG is the default: cleanse (sort) phase, a sync point to wait for your teammates, then distribute. Fast is an experimental shortcut that skips the sort step - not offered in Challenge Mode. In Challenge Mode, also enter the outside team&apos;s 3 escape shapes (called out verbally) so the solution targets those instead of the default split. UNVERIFIED against real gameplay - sanity-check it before trusting it in a live run.</source>
-        <translation>Das eigene 2D-Symbol jedes Spielers wählen, plus was gerade an seiner Wand hängt (je 2 Symbole). Markiere, welche Statue du bist, um deine eigenen Schritte hervorzuheben. LFG ist der Standard: Reinigungs- (Sortier-) Phase, ein Sync-Punkt zum Warten auf die Mitspieler, dann Verteilen. Fast ist eine experimentelle Abkürzung, die den Sortierschritt überspringt - im Challenge-Modus nicht verfügbar. Im Challenge-Modus zusätzlich die 3 Fluchtformen des Außen-Teams eingeben (verbal angesagt), damit die Lösung diese statt der Standard-Aufteilung anpeilt. UNGEPRÜFT gegen echtes Gameplay - vor Vertrauen in einem echten Run gegenchecken.</translation>
+        <source>Pick each player&apos;s own 2D symbol plus what&apos;s currently on their wall (2 symbols each). Mark which statue you are to highlight your own steps. LFG is the default: sort phase, a sync point to wait for your teammates, then distribute. Fast is an experimental shortcut that skips the sort step - not offered in Challenge Mode. In Challenge Mode, also enter the outside team&apos;s 3 escape shapes (called out verbally) so the solution targets those instead of the default split. UNVERIFIED against real gameplay - sanity-check it before trusting it in a live run.</source>
+        <translation>Das eigene 2D-Symbol jedes Spielers wählen, plus was gerade an seiner Wand hängt (je 2 Symbole). Markiere, welche Statue du bist, um deine eigenen Schritte hervorzuheben. LFG ist der Standard: Sortierphase, ein Sync-Punkt zum Warten auf die Mitspieler, dann Verteilen. Fast ist eine experimentelle Abkürzung, die den Sortierschritt überspringt - im Challenge-Modus nicht verfügbar. Im Challenge-Modus zusätzlich die 3 Fluchtformen des Außen-Teams eingeben (verbal angesagt), damit die Lösung diese statt der Standard-Aufteilung anpeilt. UNGEPRÜFT gegen echtes Gameplay - vor Vertrauen in einem echten Run gegenchecken.</translation>
     </message>
     <message>
         <location filename="../qml/help/HelpDialog.qml" line="108"/>
@@ -221,124 +221,126 @@
         <translation>RECHTS</translation>
     </message>
     <message>
-        <location filename="../qml/panels/InsideRoomPanel.qml" line="337"/>
+        <location filename="../qml/panels/InsideRoomPanel.qml" line="351"/>
         <source>Setup</source>
         <translation>Einrichtung</translation>
     </message>
     <message>
-        <location filename="../qml/panels/InsideRoomPanel.qml" line="353"/>
+        <location filename="../qml/panels/InsideRoomPanel.qml" line="367"/>
         <source>Solution</source>
         <translation>Lösung</translation>
     </message>
     <message>
-        <location filename="../qml/panels/InsideRoomPanel.qml" line="384"/>
+        <location filename="../qml/panels/InsideRoomPanel.qml" line="398"/>
         <source>No solution for this combination - check your inputs</source>
         <translation>Keine Lösung für diese Kombination - Eingaben prüfen</translation>
     </message>
     <message>
-        <location filename="../qml/panels/InsideRoomPanel.qml" line="391"/>
+        <location filename="../qml/panels/InsideRoomPanel.qml" line="405"/>
         <source>Solo room symbols</source>
         <translation>Solo-Raum-Symbole</translation>
     </message>
     <message>
-        <location filename="../qml/panels/InsideRoomPanel.qml" line="398"/>
+        <location filename="../qml/panels/InsideRoomPanel.qml" line="412"/>
         <source>Each player&apos;s own statue symbol - your own is required, teammates&apos; are only needed so the give/take instructions can name the right person</source>
         <translation>Das eigene Statuen-Symbol jedes Spielers - deines ist erforderlich, die deiner Mitspieler werden nur gebraucht, damit die Geben/Nehmen-Anweisungen die richtige Person nennen können</translation>
     </message>
     <message>
-        <location filename="../qml/panels/InsideRoomPanel.qml" line="409"/>
+        <location filename="../qml/panels/InsideRoomPanel.qml" line="423"/>
         <source>Which statue are you?</source>
         <translation>Welche Statue bist du?</translation>
     </message>
     <message>
-        <location filename="../qml/panels/InsideRoomPanel.qml" line="463"/>
-        <location filename="../qml/panels/InsideRoomPanel.qml" line="661"/>
-        <location filename="../qml/panels/InsideRoomPanel.qml" line="737"/>
+        <location filename="../qml/panels/InsideRoomPanel.qml" line="477"/>
+        <location filename="../qml/panels/InsideRoomPanel.qml" line="675"/>
+        <location filename="../qml/panels/InsideRoomPanel.qml" line="751"/>
         <source>%1 (You)</source>
         <translation>%1 (Du)</translation>
     </message>
     <message>
-        <location filename="../qml/panels/InsideRoomPanel.qml" line="490"/>
+        <location filename="../qml/panels/InsideRoomPanel.qml" line="504"/>
         <source>Challenge Mode</source>
         <translation>Challenge-Modus</translation>
     </message>
     <message>
-        <location filename="../qml/panels/InsideRoomPanel.qml" line="529"/>
+        <location filename="../qml/panels/InsideRoomPanel.qml" line="543"/>
         <source>Outside escape shapes (called by outside team)</source>
         <translation>Äußere Fluchtformen (vom Außen-Team angesagt)</translation>
     </message>
     <message>
-        <location filename="../qml/panels/InsideRoomPanel.qml" line="577"/>
+        <location filename="../qml/panels/InsideRoomPanel.qml" line="591"/>
         <source>UNVERIFIED against real gameplay - sanity-check in a live run before trusting this</source>
         <translation>UNGEPRÜFT gegen echtes Gameplay - vor Vertrauen in einem echten Run gegenchecken</translation>
     </message>
     <message>
-        <location filename="../qml/panels/InsideRoomPanel.qml" line="585"/>
-        <source>LFG is the default: it walks through the cleanse (sort) phase, a sync point to wait for your teammates, then the distribute phase. Fast is an experimental shortcut that skips the sort step entirely.</source>
-        <translation>LFG ist der Standard: geht die Reinigungs- (Sortier-) Phase durch, einen Sync-Punkt zum Warten auf die Mitspieler, dann die Verteilphase. Fast ist eine experimentelle Abkürzung, die den Sortierschritt komplett überspringt.</translation>
-    </message>
-    <message>
-        <location filename="../qml/panels/InsideRoomPanel.qml" line="596"/>
+        <location filename="../qml/panels/InsideRoomPanel.qml" line="610"/>
         <source>LFG</source>
         <translation>LFG</translation>
     </message>
     <message>
-        <location filename="../qml/panels/InsideRoomPanel.qml" line="596"/>
+        <location filename="../qml/panels/InsideRoomPanel.qml" line="610"/>
         <source>Fast (Experimental)</source>
         <translation>Fast (Experimentell)</translation>
     </message>
     <message>
-        <location filename="../qml/panels/InsideRoomPanel.qml" line="632"/>
+        <location filename="../qml/panels/InsideRoomPanel.qml" line="646"/>
         <source>Fast isn&apos;t available in Challenge Mode - using LFG</source>
         <translation>Fast ist im Challenge-Modus nicht verfügbar - LFG wird genutzt</translation>
     </message>
     <message>
-        <location filename="../qml/panels/InsideRoomPanel.qml" line="638"/>
+        <location filename="../qml/panels/InsideRoomPanel.qml" line="652"/>
         <source>Your wall right now (2 symbols per player) - tap a 2nd symbol to complete the pair, or double-tap one symbol for 2 of the same</source>
         <translation>Eure Wand gerade eben (2 Symbole pro Spieler) - ein 2. Symbol antippen, um das Paar zu vervollständigen, oder ein Symbol doppelt antippen für 2x dasselbe</translation>
     </message>
     <message>
-        <location filename="../qml/panels/InsideRoomPanel.qml" line="694"/>
+        <location filename="../qml/panels/InsideRoomPanel.qml" line="708"/>
         <source>Reset</source>
         <translation>Zurücksetzen</translation>
     </message>
     <message>
-        <location filename="../qml/panels/InsideRoomPanel.qml" line="717"/>
+        <location filename="../qml/panels/InsideRoomPanel.qml" line="731"/>
         <source>Escape shapes</source>
         <translation>Fluchtformen</translation>
     </message>
     <message>
-        <location filename="../qml/panels/InsideRoomPanel.qml" line="789"/>
-        <source>CLEANSE PHASE</source>
-        <translation>REINIGUNGSPHASE</translation>
-    </message>
-    <message>
-        <location filename="../qml/panels/InsideRoomPanel.qml" line="824"/>
-        <source>Wait until all 3 players have cleansed, then distribute</source>
-        <translation>Warten bis alle 3 Spieler gereinigt haben, dann verteilen</translation>
-    </message>
-    <message>
-        <location filename="../qml/panels/InsideRoomPanel.qml" line="832"/>
+        <location filename="../qml/panels/InsideRoomPanel.qml" line="869"/>
         <source>DISTRIBUTE PHASE</source>
         <translation>VERTEILPHASE</translation>
     </message>
     <message>
-        <location filename="../qml/panels/InsideRoomPanel.qml" line="874"/>
+        <location filename="../qml/panels/InsideRoomPanel.qml" line="911"/>
         <source>ROUND %1</source>
         <translation>RUNDE %1</translation>
     </message>
     <message>
-        <location filename="../qml/panels/InsideRoomPanel.qml" line="901"/>
+        <location filename="../qml/panels/InsideRoomPanel.qml" line="830"/>
+        <location filename="../qml/panels/InsideRoomPanel.qml" line="938"/>
         <source>%1 gives</source>
         <translation>%1 gibt</translation>
     </message>
     <message>
-        <location filename="../qml/panels/InsideRoomPanel.qml" line="914"/>
+        <location filename="../qml/panels/InsideRoomPanel.qml" line="599"/>
+        <source>LFG is the default: it walks through the sort phase, a sync point to wait for your teammates, then the distribute phase. Fast is an experimental shortcut that skips the sort step entirely.</source>
+        <translation>LFG ist der Standard: geht die Sortierphase durch, einen Sync-Punkt zum Warten auf die Mitspieler, dann die Verteilphase. Fast ist eine experimentelle Abkürzung, die den Sortierschritt komplett überspringt.</translation>
+    </message>
+    <message>
+        <location filename="../qml/panels/InsideRoomPanel.qml" line="803"/>
+        <source>SORT PHASE</source>
+        <translation>SORTIERPHASE</translation>
+    </message>
+    <message>
+        <location filename="../qml/panels/InsideRoomPanel.qml" line="843"/>
+        <location filename="../qml/panels/InsideRoomPanel.qml" line="951"/>
         <source>to %1</source>
         <translation>an %1</translation>
     </message>
     <message>
-        <location filename="../qml/panels/InsideRoomPanel.qml" line="928"/>
+        <location filename="../qml/panels/InsideRoomPanel.qml" line="861"/>
+        <source>Wait until all 3 players have sorted, then distribute</source>
+        <translation>Warten bis alle 3 Spieler sortiert haben, dann verteilen</translation>
+    </message>
+    <message>
+        <location filename="../qml/panels/InsideRoomPanel.qml" line="965"/>
         <source>Select each player&apos;s symbol and wall (2 symbols each) to see the solution.</source>
         <translation>Symbol und Wand (je 2 Symbole) jedes Spielers auswählen, um die Lösung zu sehen.</translation>
     </message>

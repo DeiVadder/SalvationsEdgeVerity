@@ -42,6 +42,7 @@ private slots:
     void checkIsValidWall();
     void checkIsValidWallExhaustive();
     void calculateStepsLFGConvergesInTwoPhases();
+    void calculateStepsLFGMatchesRealReportedSortSequence();
     void calculateStepsFastDelegatesToResolver();
     void calculationVersionBumpsOnEveryCallPath();
 
@@ -295,8 +296,9 @@ void TestCalculateInsideSteps::checkIsValidWallExhaustive()
     QCOMPARE(balancedCount, 90);
 }
 
-// LFG phase 1 (cleanse: wall -> self-pair) and phase 2 (distribute:
-// self-pair -> fromBaseSymbol(own), reusing the exact same target formula
+// LFG phase 1 (sort: every foreign wall symbol -> its owner, directly -
+// see lfgsortresolver.h) and phase 2 (distribute: self-pair ->
+// fromBaseSymbol(own), reusing the exact same target formula
 // calculateSteps() uses) must both independently converge, and the final
 // escape shapes must match the default (non-wall) path exactly - the wall
 // input only changes the journey, not the destination.
@@ -314,10 +316,49 @@ void TestCalculateInsideSteps::calculateStepsLFGConvergesInTwoPhases()
                                CalculateSteps::Kreis, CalculateSteps::Dreieck,
                                CalculateSteps::Viereck);
 
-    QVERIFY(m_calc->isCleanseSolved());
+    QVERIFY(m_calc->isSortSolved());
     QVERIFY(m_calc->isSolved());
-    QVERIFY(m_calc->numberOfCleanseSteps() >= 0);
+    QVERIFY(m_calc->numberOfSortTransfers() >= 0);
     QVERIFY(m_calc->numberOfSteps() > 0);
+    QCOMPARE(m_calc->finalShapeForPlayer(0), CalculateSteps::Zylinder);
+    QCOMPARE(m_calc->finalShapeForPlayer(1), CalculateSteps::Kegel);
+    QCOMPARE(m_calc->finalShapeForPlayer(2), CalculateSteps::Prisma);
+}
+
+// The exact scenario reported from real gameplay (2026-08-16): LEFT holds
+// {own, RIGHT's}, MID holds {own, LEFT's}, RIGHT holds {own, MID's} - a
+// 3-cycle. Confirms the sort phase now hands each foreign symbol directly
+// to its rightful owner (LEFT gives Kreis straight to RIGHT) instead of
+// relaying it through a 3rd player, which the old generic-solver-based
+// cleanse phase did even though it still reached the right final state -
+// see lfgsortresolver.h.
+void TestCalculateInsideSteps::calculateStepsLFGMatchesRealReportedSortSequence()
+{
+    QVERIFY(m_calc->checkIsValidWall(CalculateSteps::Dreieck, CalculateSteps::Viereck,
+                                      CalculateSteps::Kreis, CalculateSteps::Dreieck,
+                                      CalculateSteps::Kreis, CalculateSteps::Viereck,
+                                      CalculateSteps::Dreieck, CalculateSteps::Kreis,
+                                      CalculateSteps::Viereck));
+
+    m_calc->calculateStepsLFG(CalculateSteps::Dreieck, CalculateSteps::Viereck,
+                               CalculateSteps::Kreis, CalculateSteps::Dreieck,
+                               CalculateSteps::Kreis, CalculateSteps::Viereck,
+                               CalculateSteps::Dreieck, CalculateSteps::Kreis,
+                               CalculateSteps::Viereck);
+
+    QVERIFY(m_calc->isSortSolved());
+    QCOMPARE(m_calc->numberOfSortTransfers(), 3);
+
+    bool leftGivesKreisToRight = false;
+    for (int i = 0; i < m_calc->numberOfSortTransfers(); ++i) {
+        if (m_calc->sortTransferFrom(i) == 0 && m_calc->sortTransferTo(i) == 2
+            && m_calc->sortTransferSymbol(i) == CalculateSteps::Kreis) {
+            leftGivesKreisToRight = true;
+        }
+    }
+    QVERIFY(leftGivesKreisToRight);
+
+    QVERIFY(m_calc->isSolved());
     QCOMPARE(m_calc->finalShapeForPlayer(0), CalculateSteps::Zylinder);
     QCOMPARE(m_calc->finalShapeForPlayer(1), CalculateSteps::Kegel);
     QCOMPARE(m_calc->finalShapeForPlayer(2), CalculateSteps::Prisma);
@@ -450,7 +491,7 @@ void TestCalculateInsideSteps::calculateStepsLFGChallengeConvergesToOuterTargets
                                         CalculateSteps::Kegel, CalculateSteps::Zylinder,
                                         CalculateSteps::Prisma);
 
-    QVERIFY(m_calc->isCleanseSolved());
+    QVERIFY(m_calc->isSortSolved());
     QVERIFY(m_calc->isSolved());
     QCOMPARE(m_calc->finalShapeForPlayer(0), CalculateSteps::Kegel);
     QCOMPARE(m_calc->finalShapeForPlayer(1), CalculateSteps::Zylinder);
@@ -478,7 +519,7 @@ void TestCalculateInsideSteps::calculateStepsLFGChallengeHandlesPureDouble()
                                         CalculateSteps::Kugel, CalculateSteps::Prisma,
                                         CalculateSteps::Prisma);
 
-    QVERIFY(m_calc->isCleanseSolved());
+    QVERIFY(m_calc->isSortSolved());
     QVERIFY(m_calc->isSolved());
     QCOMPARE(m_calc->finalShapeForPlayer(0), CalculateSteps::Kugel);
     QCOMPARE(m_calc->finalShapeForPlayer(1), CalculateSteps::Prisma);

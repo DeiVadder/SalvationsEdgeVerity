@@ -10,9 +10,10 @@
 
 class SymbolSwapEngine;
 class FastCleanseResolver;
+class LFGSortResolver;
 
 // Solves the inside/solo-room puzzle: 3 teleported players each start
-// holding one 2D symbol (pairwise distinct) and, via the cleanse+distribute
+// holding one 2D symbol (pairwise distinct) and, via the sort+distribute
 // mechanic, end up holding a target pair to combine into their escape
 // shape. Modeled as start={{p,p}} (each player's own symbol as a trivial
 // self-pair) -> target, reusing the same SymbolSwapEngine the outside
@@ -32,7 +33,7 @@ class FastCleanseResolver;
 //   casing, since it's simply a different (still balanced) target set.
 //
 // NOTE: the target formula and the claim that this reproduces a real
-// cleanse/distribute step sequence are derived from research + user
+// sort/distribute step sequence are derived from research + user
 // description, not verified against actual gameplay. Sanity-check the
 // computed target pairs / a sample step sequence before relying on this
 // for a real raid (see Plan 2's "Offene Frage 1").
@@ -107,27 +108,32 @@ public:
                                        SymbolTypes wall2a, SymbolTypes wall2b,
                                        SymbolTypes wall3a, SymbolTypes wall3b);
 
-    // LFG: two sequential phases - cleanse (wall -> self-pair {p,p}, via
-    // the generic SymbolSwapEngine, same solver as everything else) then
+    // LFG: two sequential phases - sort (every foreign wall symbol goes
+    // directly to its owner, via LFGSortResolver - NOT the generic
+    // pairwise-swap SymbolSwapEngine, see lfgsortresolver.h for why) then
     // distribute (self-pair -> fromBaseSymbol(p), same as the default
     // calculateSteps()). Real-world equivalent: an explicit "wait until
-    // everyone has cleansed" callout sits between the two phases.
+    // everyone has sorted" callout sits between the two phases.
     Q_INVOKABLE void calculateStepsLFG(SymbolTypes player1Symbol,
                                         SymbolTypes player2Symbol,
                                         SymbolTypes player3Symbol,
                                         SymbolTypes wall1a, SymbolTypes wall1b,
                                         SymbolTypes wall2a, SymbolTypes wall2b,
                                         SymbolTypes wall3a, SymbolTypes wall3b);
-    Q_INVOKABLE int numberOfCleanseSteps();
-    Q_INVOKABLE SymbolTypes getCleanseInstructionForStep(int step, int player);
-    Q_INVOKABLE [[nodiscard]] bool isCleanseSolved() const;
+    Q_INVOKABLE [[nodiscard]] int numberOfSortTransfers() const;
+    Q_INVOKABLE [[nodiscard]] int sortTransferFrom(int index) const;
+    Q_INVOKABLE [[nodiscard]] int sortTransferTo(int index) const;
+    Q_INVOKABLE [[nodiscard]] SymbolTypes sortTransferSymbol(int index) const;
+    Q_INVOKABLE [[nodiscard]] bool isSortSolved() const;
 
-    // LFG + Challenge: cleanse phase unchanged (wall -> self-pair), but the
-    // distribute phase targets the outside caller's 3 shapes instead of
-    // the default fromBaseSymbol(p) - safe to combine because both phases
-    // reuse the same generic SymbolSwapEngine already proven (exhaustively,
-    // see tst_symbolswapengine.cpp) to converge for ANY balanced target,
-    // not just the default one. Precondition: checkIsValidWallChallenge().
+    // LFG + Challenge: sort phase unchanged (every foreign wall symbol to
+    // its owner), but the distribute phase targets the outside caller's 3
+    // shapes instead of the default fromBaseSymbol(p) - still needs the
+    // generic SymbolSwapEngine there (already proven exhaustively, see
+    // tst_symbolswapengine.cpp, to converge for ANY balanced target, not
+    // just the default one - unlike sort/default-distribute, a pure-double
+    // challenge target has no simple direct-transfer closed form).
+    // Precondition: checkIsValidWallChallenge().
     Q_INVOKABLE bool checkIsValidWallChallenge(SymbolTypes player1Symbol,
                                                 SymbolTypes player2Symbol,
                                                 SymbolTypes player3Symbol,
@@ -181,7 +187,7 @@ private:
     void bumpCalculationVersion();
 
     std::unique_ptr<SymbolSwapEngine> m_engine;
-    std::unique_ptr<SymbolSwapEngine> m_cleanseEngine;
+    std::unique_ptr<LFGSortResolver> m_sortResolver;
     std::unique_ptr<FastCleanseResolver> m_fastResolver;
     QVector<SymbolTypes> m_targetShapePerPlayer;
     int m_calculationVersion = 0;
