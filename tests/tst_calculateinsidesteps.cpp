@@ -22,6 +22,11 @@ private slots:
     void checkIsValidChallenge();
     void calculateStepsChallengeConvergesToOuterTargets();
     void calculateStepsChallengeHandlesPureDouble();
+
+    void checkIsValidWall_data();
+    void checkIsValidWall();
+    void calculateStepsLFGConvergesInTwoPhases();
+    void calculateStepsFastDelegatesToResolver();
 };
 
 void TestCalculateInsideSteps::init()
@@ -182,6 +187,96 @@ void TestCalculateInsideSteps::calculateStepsChallengeHandlesPureDouble()
     QVERIFY(m_calc->isSolved());
     QCOMPARE(m_calc->finalShapeForPlayer(0), CalculateSteps::Kugel);
     QCOMPARE(m_calc->finalShapeForPlayer(1), CalculateSteps::Prisma);
+    QCOMPARE(m_calc->finalShapeForPlayer(2), CalculateSteps::Prisma);
+}
+
+void TestCalculateInsideSteps::checkIsValidWall_data()
+{
+    QTest::addColumn<CalculateSteps::SymbolTypes>("w1a");
+    QTest::addColumn<CalculateSteps::SymbolTypes>("w1b");
+    QTest::addColumn<CalculateSteps::SymbolTypes>("w2a");
+    QTest::addColumn<CalculateSteps::SymbolTypes>("w2b");
+    QTest::addColumn<CalculateSteps::SymbolTypes>("w3a");
+    QTest::addColumn<CalculateSteps::SymbolTypes>("w3b");
+    QTest::addColumn<bool>("expectedValid");
+
+    QTest::newRow("balanced, each symbol twice")
+        << CalculateSteps::Viereck << CalculateSteps::Kreis
+        << CalculateSteps::Dreieck << CalculateSteps::Kreis
+        << CalculateSteps::Dreieck << CalculateSteps::Viereck << true;
+    QTest::newRow("unbalanced")
+        << CalculateSteps::Dreieck << CalculateSteps::Dreieck
+        << CalculateSteps::Dreieck << CalculateSteps::Dreieck
+        << CalculateSteps::Kreis << CalculateSteps::Kreis << false;
+    QTest::newRow("undefined wall slot")
+        << CalculateSteps::Undefined << CalculateSteps::Kreis
+        << CalculateSteps::Dreieck << CalculateSteps::Kreis
+        << CalculateSteps::Dreieck << CalculateSteps::Viereck << false;
+}
+
+void TestCalculateInsideSteps::checkIsValidWall()
+{
+    QFETCH(CalculateSteps::SymbolTypes, w1a);
+    QFETCH(CalculateSteps::SymbolTypes, w1b);
+    QFETCH(CalculateSteps::SymbolTypes, w2a);
+    QFETCH(CalculateSteps::SymbolTypes, w2b);
+    QFETCH(CalculateSteps::SymbolTypes, w3a);
+    QFETCH(CalculateSteps::SymbolTypes, w3b);
+    QFETCH(bool, expectedValid);
+
+    QCOMPARE(m_calc->checkIsValidWall(CalculateSteps::Dreieck, CalculateSteps::Viereck,
+                                       CalculateSteps::Kreis, w1a, w1b, w2a, w2b, w3a, w3b),
+             expectedValid);
+
+    // Invalid player symbols reject regardless of wall balance.
+    QVERIFY(!m_calc->checkIsValidWall(CalculateSteps::Dreieck, CalculateSteps::Dreieck,
+                                       CalculateSteps::Kreis, w1a, w1b, w2a, w2b, w3a, w3b));
+}
+
+// LFG phase 1 (cleanse: wall -> self-pair) and phase 2 (distribute:
+// self-pair -> fromBaseSymbol(own), reusing the exact same target formula
+// calculateSteps() uses) must both independently converge, and the final
+// escape shapes must match the default (non-wall) path exactly - the wall
+// input only changes the journey, not the destination.
+void TestCalculateInsideSteps::calculateStepsLFGConvergesInTwoPhases()
+{
+    QVERIFY(m_calc->checkIsValidWall(CalculateSteps::Dreieck, CalculateSteps::Viereck,
+                                      CalculateSteps::Kreis, CalculateSteps::Viereck,
+                                      CalculateSteps::Kreis, CalculateSteps::Dreieck,
+                                      CalculateSteps::Kreis, CalculateSteps::Dreieck,
+                                      CalculateSteps::Viereck));
+
+    m_calc->calculateStepsLFG(CalculateSteps::Dreieck, CalculateSteps::Viereck,
+                               CalculateSteps::Kreis, CalculateSteps::Viereck,
+                               CalculateSteps::Kreis, CalculateSteps::Dreieck,
+                               CalculateSteps::Kreis, CalculateSteps::Dreieck,
+                               CalculateSteps::Viereck);
+
+    QVERIFY(m_calc->isCleanseSolved());
+    QVERIFY(m_calc->isSolved());
+    QVERIFY(m_calc->numberOfCleanseSteps() >= 0);
+    QVERIFY(m_calc->numberOfSteps() > 0);
+    QCOMPARE(m_calc->finalShapeForPlayer(0), CalculateSteps::Zylinder);
+    QCOMPARE(m_calc->finalShapeForPlayer(1), CalculateSteps::Kegel);
+    QCOMPARE(m_calc->finalShapeForPlayer(2), CalculateSteps::Prisma);
+}
+
+// Fast delegates to FastCleanseResolver (unit-tested on its own in
+// tst_fastcleanseresolver.cpp) - here just confirm the wiring/target
+// formula is correct: same final shapes as the default/LFG path.
+void TestCalculateInsideSteps::calculateStepsFastDelegatesToResolver()
+{
+    m_calc->calculateStepsFast(CalculateSteps::Dreieck, CalculateSteps::Viereck,
+                                CalculateSteps::Kreis, CalculateSteps::Dreieck,
+                                CalculateSteps::Dreieck, CalculateSteps::Viereck,
+                                CalculateSteps::Viereck, CalculateSteps::Kreis,
+                                CalculateSteps::Kreis);
+
+    QVERIFY(m_calc->isFastSolved());
+    QCOMPARE(m_calc->numberOfFastRounds(), 1);
+    QCOMPARE(m_calc->numberOfFastTransfers(), 6);
+    QCOMPARE(m_calc->finalShapeForPlayer(0), CalculateSteps::Zylinder);
+    QCOMPARE(m_calc->finalShapeForPlayer(1), CalculateSteps::Kegel);
     QCOMPARE(m_calc->finalShapeForPlayer(2), CalculateSteps::Prisma);
 }
 

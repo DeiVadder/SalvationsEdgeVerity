@@ -41,10 +41,25 @@ qt_add_executable(tst_calculateinsidesteps
     ${CMAKE_SOURCE_DIR}/calculatesteps.h
     ${CMAKE_SOURCE_DIR}/symbolswapengine.cpp
     ${CMAKE_SOURCE_DIR}/symbolswapengine.h
+    ${CMAKE_SOURCE_DIR}/fastcleanseresolver.cpp
+    ${CMAKE_SOURCE_DIR}/fastcleanseresolver.h
 )
 target_include_directories(tst_calculateinsidesteps PRIVATE ${CMAKE_SOURCE_DIR})
 target_link_libraries(tst_calculateinsidesteps PRIVATE Qt6::Test Qt6::Core)
 add_test(NAME tst_calculateinsidesteps COMMAND tst_calculateinsidesteps)
+
+qt_add_executable(tst_fastcleanseresolver
+    tst_fastcleanseresolver.cpp
+    ${CMAKE_SOURCE_DIR}/fastcleanseresolver.cpp
+    ${CMAKE_SOURCE_DIR}/fastcleanseresolver.h
+    ${CMAKE_SOURCE_DIR}/calculatesteps.cpp
+    ${CMAKE_SOURCE_DIR}/calculatesteps.h
+    ${CMAKE_SOURCE_DIR}/symbolswapengine.cpp
+    ${CMAKE_SOURCE_DIR}/symbolswapengine.h
+)
+target_include_directories(tst_fastcleanseresolver PRIVATE ${CMAKE_SOURCE_DIR})
+target_link_libraries(tst_fastcleanseresolver PRIVATE Qt6::Test Qt6::Core)
+add_test(NAME tst_fastcleanseresolver COMMAND tst_fastcleanseresolver)
 
 qt_add_executable(tst_ghostplayerslot
     tst_ghostplayerslot.cpp

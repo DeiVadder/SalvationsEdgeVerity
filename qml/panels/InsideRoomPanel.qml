@@ -40,17 +40,73 @@ Rectangle {
     property int target3: 0
     property int inferredTargetIndex: -1
 
+    // Detailed mode: enter what's actually on each player's wall right now
+    // (2 symbols each) and get a real LFG or Fast cleanse/distribute
+    // sequence instead of assuming an already-cleansed start. UNVERIFIED
+    // AGAINST REAL GAMEPLAY - see calculateinsidesteps.h and
+    // fastcleanseresolver.h.
+    property bool detailedMode: false
+    property string cleanseMethod: "fast" // "fast" | "lfg"
+    property int wall1a: 0
+    property int wall1b: 0
+    property int wall2a: 0
+    property int wall2b: 0
+    property int wall3a: 0
+    property int wall3b: 0
+
     readonly property int stepCount: insideCalculator ? insideCalculator.numberOfSteps : 0
-    // See SolutionPanel.qml's targetShapes for why stepCount must be read
-    // here too - finalShapeForPlayer() alone wouldn't trigger a re-eval.
-    readonly property var finalShapes: (insideCalculator && root.stepCount >= 0)
+    // numberOfSteps only reflects the default/challenge/LFG-distribute
+    // engine - it doesn't change on every calculateStepsFast() call (Fast
+    // never touches that engine), so it can't reliably force a re-eval of
+    // Fast-mode-only bindings below (QML only re-fires dependents when a
+    // watched property's VALUE actually changes). calculationVersion is a
+    // plain counter bumped on every single calculate*/reset() call, so its
+    // value always differs from before - safe to depend on for this.
+    readonly property int calculationVersion: insideCalculator ? insideCalculator.calculationVersion : 0
+    readonly property var finalShapes: (insideCalculator && root.calculationVersion >= 0)
         ? [insideCalculator.finalShapeForPlayer(0), insideCalculator.finalShapeForPlayer(1),
            insideCalculator.finalShapeForPlayer(2)]
         : [0, 0, 0]
+    readonly property int cleanseStepCount: (insideCalculator && root.calculationVersion >= 0)
+        ? insideCalculator.numberOfCleanseSteps() : 0
+    readonly property int fastRoundCount: (insideCalculator && root.calculationVersion >= 0)
+        ? insideCalculator.numberOfFastRounds() : 0
+    readonly property int fastTransferCount: (insideCalculator && root.calculationVersion >= 0)
+        ? insideCalculator.numberOfFastTransfers() : 0
+
+    function fastTransfersForRound(round) {
+        var result = []
+        if (!insideCalculator)
+            return result
+        var total = root.fastTransferCount
+        for (var i = 0; i < total; ++i) {
+            if (insideCalculator.fastTransferRound(i) === round) {
+                result.push({
+                    from: insideCalculator.fastTransferFrom(i),
+                    to: insideCalculator.fastTransferTo(i),
+                    symbol: insideCalculator.fastTransferSymbol(i)
+                })
+            }
+        }
+        return result
+    }
+
+    function wallValue(idx, slot) {
+        if (idx === 0) return slot === 0 ? wall1a : wall1b
+        if (idx === 1) return slot === 0 ? wall2a : wall2b
+        return slot === 0 ? wall3a : wall3b
+    }
+
+    function setWallValue(idx, slot, value) {
+        if (idx === 0) { if (slot === 0) wall1a = value; else wall1b = value }
+        else if (idx === 1) { if (slot === 0) wall2a = value; else wall2b = value }
+        else { if (slot === 0) wall3a = value; else wall3b = value }
+    }
 
     function reset() {
         player1 = 0; player2 = 0; player3 = 0
         target1 = 0; target2 = 0; target3 = 0
+        wall1a = 0; wall1b = 0; wall2a = 0; wall2b = 0; wall3a = 0; wall3b = 0
         inferredPlayerIndex = -1
         inferredTargetIndex = -1
         hasNoSolution = false
@@ -154,6 +210,34 @@ Rectangle {
             insideCalculator.reset()
             return
         }
+        if (root.detailedMode) {
+            var wallsSet = wall1a > 0 && wall1b > 0 && wall2a > 0 && wall2b > 0
+                && wall3a > 0 && wall3b > 0
+            if (!wallsSet) {
+                hasNoSolution = false
+                insideCalculator.reset()
+                return
+            }
+            if (!insideCalculator.checkIsValidWall(player1, player2, player3,
+                                                     wall1a, wall1b, wall2a, wall2b,
+                                                     wall3a, wall3b)) {
+                hasNoSolution = true
+                insideCalculator.reset()
+                return
+            }
+            if (root.cleanseMethod === "lfg") {
+                insideCalculator.calculateStepsLFG(player1, player2, player3,
+                                                     wall1a, wall1b, wall2a, wall2b,
+                                                     wall3a, wall3b)
+                hasNoSolution = !(insideCalculator.isCleanseSolved() && insideCalculator.isSolved())
+            } else {
+                insideCalculator.calculateStepsFast(player1, player2, player3,
+                                                      wall1a, wall1b, wall2a, wall2b,
+                                                      wall3a, wall3b)
+                hasNoSolution = !insideCalculator.isFastSolved()
+            }
+            return
+        }
         if (root.challengeMode) {
             if (target1 <= 0 || target2 <= 0 || target3 <= 0) {
                 hasNoSolution = false
@@ -184,6 +268,14 @@ Rectangle {
     onPlayer2Changed: tryCalculate()
     onPlayer3Changed: tryCalculate()
     onChallengeModeChanged: tryCalculate()
+    onDetailedModeChanged: tryCalculate()
+    onCleanseMethodChanged: tryCalculate()
+    onWall1aChanged: tryCalculate()
+    onWall1bChanged: tryCalculate()
+    onWall2aChanged: tryCalculate()
+    onWall2bChanged: tryCalculate()
+    onWall3aChanged: tryCalculate()
+    onWall3bChanged: tryCalculate()
 
     color: "#0d0d0d"
     radius: 10
@@ -349,6 +441,131 @@ Rectangle {
                 }
             }
 
+            Row {
+                spacing: 14
+
+                Text {
+                    text: "Detailed mode (wall input, LFG/Fast)"
+                    color: "#cccccc"
+                    font.pixelSize: 13
+                    anchors.verticalCenter: parent.verticalCenter
+                }
+
+                Rectangle {
+                    width: 40
+                    height: 22
+                    radius: 11
+                    anchors.verticalCenter: parent.verticalCenter
+                    color: root.detailedMode ? "#3b82f6" : "#333333"
+
+                    Rectangle {
+                        width: 18
+                        height: 18
+                        radius: 9
+                        color: "white"
+                        y: 2
+                        x: root.detailedMode ? parent.width - width - 2 : 2
+                        Behavior on x { NumberAnimation { duration: 120 } }
+                    }
+
+                    MouseArea {
+                        anchors.fill: parent
+                        onClicked: root.detailedMode = !root.detailedMode
+                    }
+                }
+            }
+
+            Column {
+                width: parent.width
+                spacing: 8
+                visible: root.detailedMode
+
+                Text {
+                    text: "UNVERIFIED against real gameplay - sanity-check in a live run before trusting this"
+                    color: "#e0a030"
+                    font.pixelSize: 11
+                    wrapMode: Text.WordWrap
+                    width: parent.width
+                }
+
+                Row {
+                    spacing: 10
+
+                    Repeater {
+                        model: [{key: "fast", label: "Fast"}, {key: "lfg", label: "LFG"}]
+
+                        delegate: Rectangle {
+                            required property var modelData
+                            width: 64
+                            height: 28
+                            radius: 6
+                            color: root.cleanseMethod === modelData.key ? "#3b82f6" : "#2a2a2a"
+                            border.color: "#444444"
+
+                            Text {
+                                anchors.centerIn: parent
+                                text: modelData.label
+                                color: "#ffffff"
+                                font.pixelSize: 12
+                            }
+
+                            MouseArea {
+                                anchors.fill: parent
+                                onClicked: root.cleanseMethod = modelData.key
+                            }
+                        }
+                    }
+                }
+
+                Text {
+                    text: "Your wall right now (2 symbols per player)"
+                    color: "#999999"
+                    font.pixelSize: 11
+                }
+
+                Row {
+                    id: wallRow
+                    width: parent.width
+                    spacing: 12
+
+                    Repeater {
+                        model: 3
+
+                        delegate: Column {
+                            id: wallCol
+                            required property int index
+                            width: (wallRow.width - wallRow.spacing * 2) / 3
+                            spacing: 4
+
+                            Text {
+                                text: root.playerLabels[wallCol.index]
+                                color: "#999999"
+                                font.pixelSize: 11
+                                anchors.horizontalCenter: parent.horizontalCenter
+                            }
+
+                            ShapeGridSelector {
+                                columns: 3
+                                totalWidth: wallCol.width
+                                cellSpacing: 4
+                                options: root.symbols2d
+                                selected: root.wallValue(wallCol.index, 0)
+                                onTapped: (value) => root.setWallValue(wallCol.index, 0, value)
+                            }
+
+                            ShapeGridSelector {
+                                columns: 3
+                                totalWidth: wallCol.width
+                                cellSpacing: 4
+                                options: root.symbols2d
+                                selected: root.wallValue(wallCol.index, 1)
+                                onTapped: (value) => root.setWallValue(wallCol.index, 1, value)
+                            }
+                        }
+                    }
+                }
+            }
+
             Rectangle {
                 width: 90
                 height: 34
@@ -438,8 +655,9 @@ Rectangle {
                     width: parent.width
                     spacing: 10
 
+                    // Default / Challenge mode.
                     Repeater {
-                        model: root.stepCount
+                        model: root.detailedMode ? 0 : root.stepCount
 
                         delegate: StepCard {
                             id: stepCard
@@ -456,8 +674,148 @@ Rectangle {
                         }
                     }
 
+                    // LFG: cleanse phase, sync callout, then distribute phase.
+                    Column {
+                        width: stepsColumn.width
+                        spacing: 10
+                        visible: root.detailedMode && root.cleanseMethod === "lfg"
+
+                        Text {
+                            visible: root.cleanseStepCount > 0
+                            text: "CLEANSE PHASE"
+                            color: "#888888"
+                            font.pixelSize: 10
+                            font.letterSpacing: 1
+                        }
+
+                        Repeater {
+                            model: (root.detailedMode && root.cleanseMethod === "lfg") ? root.cleanseStepCount : 0
+
+                            delegate: StepCard {
+                                id: cleanseCard
+                                required property int index
+                                width: stepsColumn.width
+                                stepNumber: cleanseCard.index + 1
+                                nodeLabels: root.playerLabels
+                                instructions: [
+                                    root.insideCalculator.getCleanseInstructionForStep(cleanseCard.index, 0),
+                                    root.insideCalculator.getCleanseInstructionForStep(cleanseCard.index, 1),
+                                    root.insideCalculator.getCleanseInstructionForStep(cleanseCard.index, 2)
+                                ]
+                                expectedState: [root.player1, root.player2, root.player3]
+                            }
+                        }
+
+                        Rectangle {
+                            visible: root.cleanseStepCount > 0
+                            width: stepsColumn.width
+                            height: 32
+                            radius: 6
+                            color: "#1a2a3a"
+                            border.color: "#3b5a7a"
+
+                            Text {
+                                anchors.centerIn: parent
+                                text: "Wait until all 3 players have cleansed, then distribute"
+                                color: "#9dc4e8"
+                                font.pixelSize: 11
+                            }
+                        }
+
+                        Text {
+                            visible: root.stepCount > 0
+                            text: "DISTRIBUTE PHASE"
+                            color: "#888888"
+                            font.pixelSize: 10
+                            font.letterSpacing: 1
+                        }
+
+                        Repeater {
+                            model: (root.detailedMode && root.cleanseMethod === "lfg") ? root.stepCount : 0
+
+                            delegate: StepCard {
+                                id: distributeCard
+                                required property int index
+                                width: stepsColumn.width
+                                stepNumber: distributeCard.index + 1
+                                nodeLabels: root.playerLabels
+                                instructions: [
+                                    root.insideCalculator.getInstructionForStep(distributeCard.index, 0),
+                                    root.insideCalculator.getInstructionForStep(distributeCard.index, 1),
+                                    root.insideCalculator.getInstructionForStep(distributeCard.index, 2)
+                                ]
+                                expectedState: root.finalShapes
+                            }
+                        }
+                    }
+
+                    // Fast: local decision-table rounds, no sync callout.
+                    Column {
+                        width: stepsColumn.width
+                        spacing: 10
+                        visible: root.detailedMode && root.cleanseMethod === "fast"
+
+                        Repeater {
+                            model: (root.detailedMode && root.cleanseMethod === "fast") ? root.fastRoundCount : 0
+
+                            delegate: Column {
+                                id: fastRoundBlock
+                                required property int index
+                                width: stepsColumn.width
+                                spacing: 6
+
+                                Text {
+                                    text: "ROUND " + (fastRoundBlock.index + 1)
+                                    color: "#888888"
+                                    font.pixelSize: 10
+                                    font.letterSpacing: 1
+                                }
+
+                                Repeater {
+                                    model: root.fastTransfersForRound(fastRoundBlock.index)
+
+                                    delegate: Rectangle {
+                                        required property var modelData
+                                        width: stepsColumn.width
+                                        height: 34
+                                        radius: 6
+                                        color: "#161616"
+                                        border.color: "#333333"
+
+                                        Row {
+                                            anchors.left: parent.left
+                                            anchors.leftMargin: 10
+                                            anchors.verticalCenter: parent.verticalCenter
+                                            spacing: 8
+
+                                            Text {
+                                                text: root.playerLabels[modelData.from] + " gives"
+                                                color: "#dddddd"
+                                                font.pixelSize: 12
+                                            }
+
+                                            Image {
+                                                width: 20
+                                                height: 20
+                                                fillMode: Image.PreserveAspectFit
+                                                source: ShapeIcons.iconSource(modelData.symbol)
+                                            }
+
+                                            Text {
+                                                text: "to " + root.playerLabels[modelData.to]
+                                                color: "#dddddd"
+                                                font.pixelSize: 12
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+
                     Text {
-                        visible: root.stepCount === 0
+                        visible: !root.hasNoSolution && root.stepCount === 0
+                                 && root.cleanseStepCount === 0 && root.fastRoundCount === 0
                         text: "Select all 3 starting symbols to see the solution."
                         color: "#666666"
                         font.pixelSize: 12

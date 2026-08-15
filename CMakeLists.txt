@@ -20,6 +20,8 @@ qt_add_executable(SalvationsEdgeVerity
     encounterprogress.h
     calculateinsidesteps.cpp
     calculateinsidesteps.h
+    fastcleanseresolver.cpp
+    fastcleanseresolver.h
     ghostplayerslot.cpp
     ghostplayerslot.h
     ghostphasehelper.cpp

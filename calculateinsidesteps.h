@@ -9,6 +9,7 @@
 #include "calculatesteps.h"
 
 class SymbolSwapEngine;
+class FastCleanseResolver;
 
 // Solves the inside/solo-room puzzle: 3 teleported players each start
 // holding one 2D symbol (pairwise distinct) and, via the cleanse+distribute
@@ -39,6 +40,15 @@ class CalculateInsideSteps : public QObject
 {
     Q_OBJECT
     Q_PROPERTY(int numberOfSteps READ numberOfSteps NOTIFY numberOfStepsChanged FINAL)
+    // Bumped on every calculateSteps*/reset() call, regardless of which
+    // internal engine it touches. numberOfSteps alone isn't a reliable
+    // QML re-evaluation trigger for calculateStepsFast()/calculateStepsLFG()
+    // cleanse phase, since those don't necessarily change numberOfSteps's
+    // own value (e.g. Fast never touches the distribute engine at all) -
+    // QML only re-fires dependent bindings when a watched property's VALUE
+    // changes, not merely when its NOTIFY signal fires. This counter always
+    // changes, so it's always safe to depend on for that trick.
+    Q_PROPERTY(int calculationVersion READ calculationVersion NOTIFY calculationVersionChanged FINAL)
 public:
     using SymbolTypes = CalculateSteps::SymbolTypes;
 
@@ -82,16 +92,67 @@ public:
                                             SymbolTypes outerTarget2,
                                             SymbolTypes outerTarget3);
     Q_INVOKABLE SymbolTypes finalShapeForPlayer(int player) const;
+    int calculationVersion() const { return m_calculationVersion; }
+
+    // LFG / Fast: both take the actual observed wall content per player
+    // (2 symbols each, NOT assumed to include the player's own symbol -
+    // see fastcleanseresolver.h for why no fixed derivation from the 3
+    // own-symbols exists) instead of assuming an already-cleansed
+    // self-pair start. UNVERIFIED AGAINST REAL GAMEPLAY - see
+    // fastcleanseresolver.h and Plan 2's "Offene Frage 1".
+    Q_INVOKABLE bool checkIsValidWall(SymbolTypes player1Symbol,
+                                       SymbolTypes player2Symbol,
+                                       SymbolTypes player3Symbol,
+                                       SymbolTypes wall1a, SymbolTypes wall1b,
+                                       SymbolTypes wall2a, SymbolTypes wall2b,
+                                       SymbolTypes wall3a, SymbolTypes wall3b);
+
+    // LFG: two sequential phases - cleanse (wall -> self-pair {p,p}, via
+    // the generic SymbolSwapEngine, same solver as everything else) then
+    // distribute (self-pair -> fromBaseSymbol(p), same as the default
+    // calculateSteps()). Real-world equivalent: an explicit "wait until
+    // everyone has cleansed" callout sits between the two phases.
+    Q_INVOKABLE void calculateStepsLFG(SymbolTypes player1Symbol,
+                                        SymbolTypes player2Symbol,
+                                        SymbolTypes player3Symbol,
+                                        SymbolTypes wall1a, SymbolTypes wall1b,
+                                        SymbolTypes wall2a, SymbolTypes wall2b,
+                                        SymbolTypes wall3a, SymbolTypes wall3b);
+    Q_INVOKABLE int numberOfCleanseSteps();
+    Q_INVOKABLE SymbolTypes getCleanseInstructionForStep(int step, int player);
+    Q_INVOKABLE bool isCleanseSolved() const;
+
+    // Fast: local per-player decision table, no phases, no synchronization
+    // callout - see FastCleanseResolver.
+    Q_INVOKABLE void calculateStepsFast(SymbolTypes player1Symbol,
+                                         SymbolTypes player2Symbol,
+                                         SymbolTypes player3Symbol,
+                                         SymbolTypes wall1a, SymbolTypes wall1b,
+                                         SymbolTypes wall2a, SymbolTypes wall2b,
+                                         SymbolTypes wall3a, SymbolTypes wall3b);
+    Q_INVOKABLE int numberOfFastRounds() const;
+    Q_INVOKABLE int numberOfFastTransfers() const;
+    Q_INVOKABLE int fastTransferRound(int index) const;
+    Q_INVOKABLE int fastTransferFrom(int index) const;
+    Q_INVOKABLE int fastTransferTo(int index) const;
+    Q_INVOKABLE SymbolTypes fastTransferSymbol(int index) const;
+    Q_INVOKABLE bool isFastSolved() const;
 
 public slots:
     void reset();
 
 signals:
     void numberOfStepsChanged();
+    void calculationVersionChanged();
 
 private:
+    void bumpCalculationVersion();
+
     std::unique_ptr<SymbolSwapEngine> m_engine;
+    std::unique_ptr<SymbolSwapEngine> m_cleanseEngine;
+    std::unique_ptr<FastCleanseResolver> m_fastResolver;
     QVector<SymbolTypes> m_targetShapePerPlayer;
+    int m_calculationVersion = 0;
 };
 
 #endif // CALCULATEINSIDESTEPS_H

@@ -1,5 +1,6 @@
 #include "calculateinsidesteps.h"
 
+#include "fastcleanseresolver.h"
 #include "symbolswapengine.h"
 
 namespace {
@@ -10,9 +11,18 @@ bool isBase2dSymbol(CalculateInsideSteps::SymbolTypes type)
 }
 } // namespace
 
+void CalculateInsideSteps::bumpCalculationVersion()
+{
+    ++m_calculationVersion;
+    emit calculationVersionChanged();
+    emit numberOfStepsChanged();
+}
+
 CalculateInsideSteps::CalculateInsideSteps(QObject *parent)
     : QObject{parent}
     , m_engine{std::make_unique<SymbolSwapEngine>()}
+    , m_cleanseEngine{std::make_unique<SymbolSwapEngine>()}
+    , m_fastResolver{std::make_unique<FastCleanseResolver>()}
 {}
 
 CalculateInsideSteps::~CalculateInsideSteps() = default;
@@ -34,7 +44,7 @@ void CalculateInsideSteps::calculateSteps(SymbolTypes player1Symbol,
     for (const auto &pair : target)
         m_targetShapePerPlayer.append(CalculateSteps::pairToShape(pair.at(0), pair.at(1)));
 
-    numberOfStepsChanged();
+    bumpCalculationVersion();
 }
 
 void CalculateInsideSteps::calculateStepsChallenge(SymbolTypes player1Symbol,
@@ -55,7 +65,7 @@ void CalculateInsideSteps::calculateStepsChallenge(SymbolTypes player1Symbol,
 
     m_targetShapePerPlayer = {outerTarget1, outerTarget2, outerTarget3};
 
-    numberOfStepsChanged();
+    bumpCalculationVersion();
 }
 
 int CalculateInsideSteps::numberOfSteps()
@@ -122,9 +132,131 @@ CalculateInsideSteps::SymbolTypes CalculateInsideSteps::finalShapeForPlayer(int 
     return m_targetShapePerPlayer.value(player, SymbolTypes::Undefined);
 }
 
+bool CalculateInsideSteps::checkIsValidWall(SymbolTypes player1Symbol,
+                                             SymbolTypes player2Symbol,
+                                             SymbolTypes player3Symbol,
+                                             SymbolTypes wall1a, SymbolTypes wall1b,
+                                             SymbolTypes wall2a, SymbolTypes wall2b,
+                                             SymbolTypes wall3a, SymbolTypes wall3b)
+{
+    if (!checkIsValid(player1Symbol, player2Symbol, player3Symbol))
+        return false;
+
+    for (auto s : {wall1a, wall1b, wall2a, wall2b, wall3a, wall3b}) {
+        if (!isBase2dSymbol(s))
+            return false;
+    }
+
+    int cntKreis{0}, cntDreieck{0}, cntViereck{0};
+    for (auto s : {wall1a, wall1b, wall2a, wall2b, wall3a, wall3b}) {
+        if (s == CalculateSteps::Kreis) ++cntKreis;
+        else if (s == CalculateSteps::Dreieck) ++cntDreieck;
+        else if (s == CalculateSteps::Viereck) ++cntViereck;
+    }
+    return cntKreis == 2 && cntDreieck == 2 && cntViereck == 2;
+}
+
+void CalculateInsideSteps::calculateStepsLFG(SymbolTypes player1Symbol,
+                                              SymbolTypes player2Symbol,
+                                              SymbolTypes player3Symbol,
+                                              SymbolTypes wall1a, SymbolTypes wall1b,
+                                              SymbolTypes wall2a, SymbolTypes wall2b,
+                                              SymbolTypes wall3a, SymbolTypes wall3b)
+{
+    QVector<QVector<SymbolTypes>> wallPairs = {{wall1a, wall1b}, {wall2a, wall2b}, {wall3a, wall3b}};
+    QVector<QVector<SymbolTypes>> selfPairs = {{player1Symbol, player1Symbol},
+                                                {player2Symbol, player2Symbol},
+                                                {player3Symbol, player3Symbol}};
+    QVector<QVector<SymbolTypes>> target = {CalculateSteps::fromBaseSymbol(player1Symbol),
+                                             CalculateSteps::fromBaseSymbol(player2Symbol),
+                                             CalculateSteps::fromBaseSymbol(player3Symbol)};
+
+    m_cleanseEngine->solve(wallPairs, selfPairs);
+    m_engine->solve(selfPairs, target);
+
+    m_targetShapePerPlayer.clear();
+    for (const auto &pair : target)
+        m_targetShapePerPlayer.append(CalculateSteps::pairToShape(pair.at(0), pair.at(1)));
+
+    bumpCalculationVersion();
+}
+
+int CalculateInsideSteps::numberOfCleanseSteps()
+{
+    return m_cleanseEngine->numberOfSteps();
+}
+
+CalculateInsideSteps::SymbolTypes CalculateInsideSteps::getCleanseInstructionForStep(int step, int player)
+{
+    return m_cleanseEngine->getInstructionForStep(step, player);
+}
+
+bool CalculateInsideSteps::isCleanseSolved() const
+{
+    return m_cleanseEngine->isSolved();
+}
+
+void CalculateInsideSteps::calculateStepsFast(SymbolTypes player1Symbol,
+                                               SymbolTypes player2Symbol,
+                                               SymbolTypes player3Symbol,
+                                               SymbolTypes wall1a, SymbolTypes wall1b,
+                                               SymbolTypes wall2a, SymbolTypes wall2b,
+                                               SymbolTypes wall3a, SymbolTypes wall3b)
+{
+    QVector<SymbolTypes> ownSymbols = {player1Symbol, player2Symbol, player3Symbol};
+    QVector<QVector<SymbolTypes>> wallPairs = {{wall1a, wall1b}, {wall2a, wall2b}, {wall3a, wall3b}};
+
+    m_fastResolver->resolve(ownSymbols, wallPairs);
+
+    m_targetShapePerPlayer.clear();
+    for (auto own : ownSymbols) {
+        auto pair = CalculateSteps::fromBaseSymbol(own);
+        m_targetShapePerPlayer.append(CalculateSteps::pairToShape(pair.at(0), pair.at(1)));
+    }
+
+    bumpCalculationVersion();
+}
+
+int CalculateInsideSteps::numberOfFastRounds() const
+{
+    return m_fastResolver->numberOfRounds();
+}
+
+int CalculateInsideSteps::numberOfFastTransfers() const
+{
+    return m_fastResolver->numberOfTransfers();
+}
+
+int CalculateInsideSteps::fastTransferRound(int index) const
+{
+    return m_fastResolver->transfer(index).round;
+}
+
+int CalculateInsideSteps::fastTransferFrom(int index) const
+{
+    return m_fastResolver->transfer(index).fromPlayer;
+}
+
+int CalculateInsideSteps::fastTransferTo(int index) const
+{
+    return m_fastResolver->transfer(index).toPlayer;
+}
+
+CalculateInsideSteps::SymbolTypes CalculateInsideSteps::fastTransferSymbol(int index) const
+{
+    return m_fastResolver->transfer(index).symbol;
+}
+
+bool CalculateInsideSteps::isFastSolved() const
+{
+    return m_fastResolver->isSolved();
+}
+
 void CalculateInsideSteps::reset()
 {
     m_engine->reset();
+    m_cleanseEngine->reset();
+    m_fastResolver->reset();
     m_targetShapePerPlayer.clear();
-    numberOfStepsChanged();
+    bumpCalculationVersion();
 }
