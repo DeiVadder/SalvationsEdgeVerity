@@ -187,6 +187,7 @@ ApplicationWindow {
             height: parent.height - y
             visible: root.puzzleMode === 1
             insideCalculator: insideStepCalculator
+            encounterProgress: encounterProgress
         }
 
         // Ghost phase helper

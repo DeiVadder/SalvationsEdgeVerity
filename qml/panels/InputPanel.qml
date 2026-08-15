@@ -1,6 +1,7 @@
 import QtQuick
 import CalculateSteps 1.0
 import SymbolEnums 1.0
+import "../js/ShapeMath.js" as ShapeMath
 
 // Outside-puzzle input: per statue (LEFT/MID/RIGHT), pick the inside 2D
 // symbol the corresponding solo player needs and the statue's current
@@ -44,29 +45,6 @@ Rectangle {
         stepCalculator.reset()
     }
 
-    function baseSymbolsFor(shape) {
-        switch (shape) {
-        case Symbols.Kegel: return [Symbols.Dreieck, Symbols.Kreis]
-        case Symbols.Zylinder: return [Symbols.Kreis, Symbols.Viereck]
-        case Symbols.Prisma: return [Symbols.Viereck, Symbols.Dreieck]
-        case Symbols.Wuerfel: return [Symbols.Viereck, Symbols.Viereck]
-        case Symbols.Pyramide: return [Symbols.Dreieck, Symbols.Dreieck]
-        case Symbols.Kugel: return [Symbols.Kreis, Symbols.Kreis]
-        default: return []
-        }
-    }
-
-    function shapeForBasePair(a, b) {
-        if (a > b) { var t = a; a = b; b = t }
-        if (a === Symbols.Dreieck && b === Symbols.Dreieck) return Symbols.Pyramide
-        if (a === Symbols.Dreieck && b === Symbols.Viereck) return Symbols.Prisma
-        if (a === Symbols.Dreieck && b === Symbols.Kreis) return Symbols.Kegel
-        if (a === Symbols.Viereck && b === Symbols.Viereck) return Symbols.Wuerfel
-        if (a === Symbols.Viereck && b === Symbols.Kreis) return Symbols.Zylinder
-        if (a === Symbols.Kreis && b === Symbols.Kreis) return Symbols.Kugel
-        return 0
-    }
-
     function outerValue(idx) {
         return idx === 0 ? outer1 : (idx === 1 ? outer2 : outer3)
     }
@@ -101,24 +79,9 @@ Rectangle {
                 zeroIdx = i
         }
         if (setIdx.length === 2 && zeroIdx >= 0) {
-            var counts = {}
-            counts[Symbols.Dreieck] = 0
-            counts[Symbols.Viereck] = 0
-            counts[Symbols.Kreis] = 0
-            for (var j = 0; j < setIdx.length; ++j) {
-                var pair = baseSymbolsFor(vals[setIdx[j]])
-                for (var k = 0; k < pair.length; ++k)
-                    counts[pair[k]]++
-            }
-            var remaining = []
-            var symbolsList = [Symbols.Dreieck, Symbols.Viereck, Symbols.Kreis]
-            for (var s = 0; s < symbolsList.length; ++s) {
-                var need = 2 - counts[symbolsList[s]]
-                for (var n = 0; n < need; ++n)
-                    remaining.push(symbolsList[s])
-            }
+            var remaining = ShapeMath.remainingBasePair(vals[setIdx[0]], vals[setIdx[1]])
             if (remaining.length === 2) {
-                var inferredShape = shapeForBasePair(remaining[0], remaining[1])
+                var inferredShape = ShapeMath.shapeForBasePair(remaining[0], remaining[1])
                 if (inferredShape > 0) {
                     setOuterValue(zeroIdx, inferredShape)
                     inferredOuterIndex = zeroIdx

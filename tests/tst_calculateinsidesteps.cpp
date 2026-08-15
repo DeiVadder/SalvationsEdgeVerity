@@ -17,6 +17,11 @@ private slots:
     void calculateStepsConvergesToFromBaseSymbolTarget();
     void finalShapeMatchesPairToShape();
     void resetClearsSteps();
+
+    void checkIsValidChallenge_data();
+    void checkIsValidChallenge();
+    void calculateStepsChallengeConvergesToOuterTargets();
+    void calculateStepsChallengeHandlesPureDouble();
 };
 
 void TestCalculateInsideSteps::init()
@@ -108,6 +113,76 @@ void TestCalculateInsideSteps::resetClearsSteps()
     QCOMPARE(m_calc->numberOfSteps(), 0);
     QCOMPARE(spy.count(), 1);
     QCOMPARE(m_calc->finalShapeForPlayer(0), CalculateSteps::Undefined);
+}
+
+void TestCalculateInsideSteps::checkIsValidChallenge_data()
+{
+    QTest::addColumn<CalculateSteps::SymbolTypes>("t1");
+    QTest::addColumn<CalculateSteps::SymbolTypes>("t2");
+    QTest::addColumn<CalculateSteps::SymbolTypes>("t3");
+    QTest::addColumn<bool>("expectedValid");
+
+    // Kugel={Kreis,Kreis}, Prisma={Viereck,Dreieck} twice -> Kreis:2,
+    // Viereck:2, Dreieck:2. Balanced, includes one pure double.
+    QTest::newRow("balanced, one pure double")
+        << CalculateSteps::Kugel << CalculateSteps::Prisma << CalculateSteps::Prisma << true;
+    // Kegel={Dreieck,Kreis}, Zylinder={Kreis,Viereck}, Prisma={Viereck,Dreieck}
+    // -> Dreieck:2, Kreis:2, Viereck:2. Balanced, no pure doubles (mirrors
+    // the default/non-challenge case).
+    QTest::newRow("balanced, all mixed")
+        << CalculateSteps::Kegel << CalculateSteps::Zylinder << CalculateSteps::Prisma << true;
+    // All three Kugel -> Kreis:6, Dreieck:0, Viereck:0. Unbalanced.
+    QTest::newRow("unbalanced, all same pure double")
+        << CalculateSteps::Kugel << CalculateSteps::Kugel << CalculateSteps::Kugel << false;
+    QTest::newRow("undefined target slot")
+        << CalculateSteps::Kugel << CalculateSteps::Undefined << CalculateSteps::Prisma << false;
+}
+
+void TestCalculateInsideSteps::checkIsValidChallenge()
+{
+    QFETCH(CalculateSteps::SymbolTypes, t1);
+    QFETCH(CalculateSteps::SymbolTypes, t2);
+    QFETCH(CalculateSteps::SymbolTypes, t3);
+    QFETCH(bool, expectedValid);
+
+    QCOMPARE(m_calc->checkIsValidChallenge(CalculateSteps::Dreieck, CalculateSteps::Viereck,
+                                            CalculateSteps::Kreis, t1, t2, t3),
+             expectedValid);
+}
+
+// Same self-consistency check as calculateStepsConvergesToFromBaseSymbolTarget,
+// but with challenge targets that carry no pure double (should behave the
+// same as the default target formula in substance, just entered explicitly).
+void TestCalculateInsideSteps::calculateStepsChallengeConvergesToOuterTargets()
+{
+    m_calc->calculateStepsChallenge(CalculateSteps::Dreieck, CalculateSteps::Viereck,
+                                     CalculateSteps::Kreis, CalculateSteps::Kegel,
+                                     CalculateSteps::Zylinder, CalculateSteps::Prisma);
+
+    QVERIFY(m_calc->isSolved());
+    QVERIFY(m_calc->numberOfSteps() > 0);
+    QCOMPARE(m_calc->finalShapeForPlayer(0), CalculateSteps::Kegel);
+    QCOMPARE(m_calc->finalShapeForPlayer(1), CalculateSteps::Zylinder);
+    QCOMPARE(m_calc->finalShapeForPlayer(2), CalculateSteps::Prisma);
+}
+
+// The actual point of challenge mode: one target is a pure double
+// (Kugel={Kreis,Kreis}), so player 0 must end up with both Kreis copies
+// instead of the default one-each split.
+void TestCalculateInsideSteps::calculateStepsChallengeHandlesPureDouble()
+{
+    QVERIFY(m_calc->checkIsValidChallenge(CalculateSteps::Dreieck, CalculateSteps::Viereck,
+                                           CalculateSteps::Kreis, CalculateSteps::Kugel,
+                                           CalculateSteps::Prisma, CalculateSteps::Prisma));
+
+    m_calc->calculateStepsChallenge(CalculateSteps::Dreieck, CalculateSteps::Viereck,
+                                     CalculateSteps::Kreis, CalculateSteps::Kugel,
+                                     CalculateSteps::Prisma, CalculateSteps::Prisma);
+
+    QVERIFY(m_calc->isSolved());
+    QCOMPARE(m_calc->finalShapeForPlayer(0), CalculateSteps::Kugel);
+    QCOMPARE(m_calc->finalShapeForPlayer(1), CalculateSteps::Prisma);
+    QCOMPARE(m_calc->finalShapeForPlayer(2), CalculateSteps::Prisma);
 }
 
 QTEST_MAIN(TestCalculateInsideSteps)

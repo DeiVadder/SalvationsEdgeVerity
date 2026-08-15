@@ -37,6 +37,27 @@ void CalculateInsideSteps::calculateSteps(SymbolTypes player1Symbol,
     numberOfStepsChanged();
 }
 
+void CalculateInsideSteps::calculateStepsChallenge(SymbolTypes player1Symbol,
+                                                    SymbolTypes player2Symbol,
+                                                    SymbolTypes player3Symbol,
+                                                    SymbolTypes outerTarget1,
+                                                    SymbolTypes outerTarget2,
+                                                    SymbolTypes outerTarget3)
+{
+    QVector<QVector<SymbolTypes>> start = {{player1Symbol, player1Symbol},
+                                            {player2Symbol, player2Symbol},
+                                            {player3Symbol, player3Symbol}};
+    QVector<QVector<SymbolTypes>> target = {CalculateSteps::toBaseSymbols(outerTarget1),
+                                             CalculateSteps::toBaseSymbols(outerTarget2),
+                                             CalculateSteps::toBaseSymbols(outerTarget3)};
+
+    m_engine->solve(start, target);
+
+    m_targetShapePerPlayer = {outerTarget1, outerTarget2, outerTarget3};
+
+    numberOfStepsChanged();
+}
+
 int CalculateInsideSteps::numberOfSteps()
 {
     return m_engine->numberOfSteps();
@@ -67,6 +88,33 @@ bool CalculateInsideSteps::checkIsValid(SymbolTypes player1Symbol,
         return false;
 
     return true;
+}
+
+bool CalculateInsideSteps::checkIsValidChallenge(SymbolTypes player1Symbol,
+                                                  SymbolTypes player2Symbol,
+                                                  SymbolTypes player3Symbol,
+                                                  SymbolTypes outerTarget1,
+                                                  SymbolTypes outerTarget2,
+                                                  SymbolTypes outerTarget3)
+{
+    if (!checkIsValid(player1Symbol, player2Symbol, player3Symbol))
+        return false;
+
+    QVector<QVector<SymbolTypes>> target = {CalculateSteps::toBaseSymbols(outerTarget1),
+                                             CalculateSteps::toBaseSymbols(outerTarget2),
+                                             CalculateSteps::toBaseSymbols(outerTarget3)};
+
+    QVector<SymbolTypes> failure{CalculateSteps::Undefined, CalculateSteps::Undefined};
+    if (target.contains(failure))
+        return false;
+
+    int cntKreis{0}, cntDreieck{0}, cntViereck{0};
+    for (const auto &pair : target) {
+        cntKreis += pair.count(CalculateSteps::Kreis);
+        cntDreieck += pair.count(CalculateSteps::Dreieck);
+        cntViereck += pair.count(CalculateSteps::Viereck);
+    }
+    return cntKreis == cntDreieck && cntKreis == cntViereck;
 }
 
 CalculateInsideSteps::SymbolTypes CalculateInsideSteps::finalShapeForPlayer(int player) const
