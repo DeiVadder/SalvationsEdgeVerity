@@ -12489,7 +12489,7 @@ function checkIncomingModuleAPI() {
 }
 
 var ASM_CONSTS = {
-  12938041: () => {
+  12940873: () => {
     Module.qtSuspendResumeControl = ({
       resume: null,
       asyncifyEnabled: false,
@@ -12498,7 +12498,7 @@ var ASM_CONSTS = {
       exclusiveEventHandler: 0
     });
   },
-  12938186: $0 => {
+  12941018: $0 => {
     function createNamedFunction(name, parent, obj) {
       return {
         [name]: function(...args) {

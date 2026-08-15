@@ -30,32 +30,42 @@ Rectangle {
     implicitWidth: 320
     implicitHeight: content.implicitHeight + 24
 
+    // Step number stretched across the whole card height, with a clear
+    // vertical divider to its right - reads as a single anchor point for
+    // the step instead of competing with the swap/target rows for space.
+    Text {
+        id: numberText
+        anchors.left: parent.left
+        anchors.top: parent.top
+        anchors.bottom: parent.bottom
+        anchors.leftMargin: 14
+        width: 26
+        verticalAlignment: Text.AlignVCenter
+        horizontalAlignment: Text.AlignHCenter
+        text: root.stepNumber
+        color: "#3b82f6"
+        font.bold: true
+        font.pixelSize: 20
+    }
+
+    Rectangle {
+        id: numberDivider
+        anchors.left: numberText.right
+        anchors.leftMargin: 12
+        anchors.top: parent.top
+        anchors.bottom: parent.bottom
+        width: 1
+        color: "#333333"
+    }
+
     Column {
         id: content
-        anchors.left: parent.left
+        anchors.left: numberDivider.right
         anchors.right: parent.right
         anchors.top: parent.top
         anchors.margins: 12
+        anchors.leftMargin: 14
         spacing: 10
-
-        Row {
-            spacing: 10
-
-            Rectangle {
-                width: 26
-                height: 26
-                radius: 13
-                color: "#3b82f6"
-
-                Text {
-                    anchors.centerIn: parent
-                    text: root.stepNumber
-                    color: "white"
-                    font.bold: true
-                    font.pixelSize: 13
-                }
-            }
-        }
 
         // Both this row and the TARGET SHAPE row below split the same
         // width into the same 3 node-indexed columns, so a carry here
