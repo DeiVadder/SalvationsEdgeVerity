@@ -36,6 +36,11 @@ Rectangle {
     property int player2: 0
     property int player3: 0
 
+    // Which statue/room the app's user is personally standing at - purely
+    // a display hint (highlights "your" column/step everywhere below), the
+    // solver itself treats all 3 nodes identically. -1 = not marked yet.
+    property int myPosition: -1
+
     // Same "2 distinct picks force the 3rd" inference as InputPanel's inside
     // symbols - the 3 solo statues always show pairwise-distinct symbols.
     property int inferredPlayerIndex: -1
@@ -51,13 +56,11 @@ Rectangle {
     property int target3: 0
     property int inferredTargetIndex: -1
 
-    // Detailed mode: enter what's actually on each player's wall right now
-    // (2 symbols each) and get a real LFG or Fast cleanse/distribute
-    // sequence instead of assuming an already-cleansed start. UNVERIFIED
-    // AGAINST REAL GAMEPLAY - see calculateinsidesteps.h and
-    // fastcleanseresolver.h.
-    property bool detailedMode: false
-    property string cleanseMethod: "fast" // "fast" | "lfg"
+    // What's actually on each player's wall right now (2 symbols each) -
+    // always required, drives the real LFG cleanse/distribute sequence
+    // (default) or the experimental Fast shortcut. UNVERIFIED AGAINST REAL
+    // GAMEPLAY - see calculateinsidesteps.h and fastcleanseresolver.h.
+    property string cleanseMethod: "lfg" // "lfg" (default) | "fast" (experimental)
     property int wall1a: 0
     property int wall1b: 0
     property int wall2a: 0
@@ -124,6 +127,7 @@ Rectangle {
         player1 = 0; player2 = 0; player3 = 0
         target1 = 0; target2 = 0; target3 = 0
         wall1a = 0; wall1b = 0; wall2a = 0; wall2b = 0; wall3a = 0; wall3b = 0
+        myPosition = -1
         inferredPlayerIndex = -1
         inferredTargetIndex = -1
         hasNoSolution = false
@@ -227,86 +231,59 @@ Rectangle {
             insideCalculator.reset()
             return
         }
-        if (root.detailedMode) {
-            var wallsSet = wall1a > 0 && wall1b > 0 && wall2a > 0 && wall2b > 0
-                && wall3a > 0 && wall3b > 0
-            if (!wallsSet) {
-                hasNoSolution = false
-                insideCalculator.reset()
-                return
-            }
-
-            if (root.challengeMode) {
-                // Fast's decision table is only proven for the default
-                // target formula (see calculateinsidesteps.h) - Challenge
-                // mode always distributes via LFG instead, whose generic
-                // engine already handles arbitrary balanced targets. The
-                // Fast button is disabled below while Challenge Mode is on.
-                if (target1 <= 0 || target2 <= 0 || target3 <= 0) {
-                    hasNoSolution = false
-                    insideCalculator.reset()
-                    return
-                }
-                if (!insideCalculator.checkIsValidWallChallenge(player1, player2, player3,
-                                                                  wall1a, wall1b, wall2a, wall2b,
-                                                                  wall3a, wall3b,
-                                                                  target1, target2, target3)) {
-                    hasNoSolution = true
-                    insideCalculator.reset()
-                    return
-                }
-                insideCalculator.calculateStepsLFGChallenge(player1, player2, player3,
-                                                              wall1a, wall1b, wall2a, wall2b,
-                                                              wall3a, wall3b,
-                                                              target1, target2, target3)
-                hasNoSolution = !(insideCalculator.isCleanseSolved() && insideCalculator.isSolved())
-                return
-            }
-
-            if (!insideCalculator.checkIsValidWall(player1, player2, player3,
-                                                     wall1a, wall1b, wall2a, wall2b,
-                                                     wall3a, wall3b)) {
-                hasNoSolution = true
-                insideCalculator.reset()
-                return
-            }
-            if (root.cleanseMethod === "lfg") {
-                insideCalculator.calculateStepsLFG(player1, player2, player3,
-                                                     wall1a, wall1b, wall2a, wall2b,
-                                                     wall3a, wall3b)
-                hasNoSolution = !(insideCalculator.isCleanseSolved() && insideCalculator.isSolved())
-            } else {
-                insideCalculator.calculateStepsFast(player1, player2, player3,
-                                                      wall1a, wall1b, wall2a, wall2b,
-                                                      wall3a, wall3b)
-                hasNoSolution = !insideCalculator.isFastSolved()
-            }
+        var wallsSet = wall1a > 0 && wall1b > 0 && wall2a > 0 && wall2b > 0
+            && wall3a > 0 && wall3b > 0
+        if (!wallsSet) {
+            hasNoSolution = false
+            insideCalculator.reset()
             return
         }
+
         if (root.challengeMode) {
+            // Fast's decision table is only proven for the default target
+            // formula (see calculateinsidesteps.h) - Challenge mode always
+            // distributes via LFG instead, whose generic engine already
+            // handles arbitrary balanced targets. The Fast button is
+            // disabled below while Challenge Mode is on.
             if (target1 <= 0 || target2 <= 0 || target3 <= 0) {
                 hasNoSolution = false
                 insideCalculator.reset()
                 return
             }
-            if (!insideCalculator.checkIsValidChallenge(player1, player2, player3,
-                                                          target1, target2, target3)) {
+            if (!insideCalculator.checkIsValidWallChallenge(player1, player2, player3,
+                                                              wall1a, wall1b, wall2a, wall2b,
+                                                              wall3a, wall3b,
+                                                              target1, target2, target3)) {
                 hasNoSolution = true
                 insideCalculator.reset()
                 return
             }
-            insideCalculator.calculateStepsChallenge(player1, player2, player3,
-                                                       target1, target2, target3)
-            hasNoSolution = !insideCalculator.isSolved()
+            insideCalculator.calculateStepsLFGChallenge(player1, player2, player3,
+                                                          wall1a, wall1b, wall2a, wall2b,
+                                                          wall3a, wall3b,
+                                                          target1, target2, target3)
+            hasNoSolution = !(insideCalculator.isCleanseSolved() && insideCalculator.isSolved())
             return
         }
-        if (!insideCalculator.checkIsValid(player1, player2, player3)) {
+
+        if (!insideCalculator.checkIsValidWall(player1, player2, player3,
+                                                 wall1a, wall1b, wall2a, wall2b,
+                                                 wall3a, wall3b)) {
             hasNoSolution = true
             insideCalculator.reset()
             return
         }
-        insideCalculator.calculateSteps(player1, player2, player3)
-        hasNoSolution = !insideCalculator.isSolved()
+        if (root.cleanseMethod === "lfg") {
+            insideCalculator.calculateStepsLFG(player1, player2, player3,
+                                                 wall1a, wall1b, wall2a, wall2b,
+                                                 wall3a, wall3b)
+            hasNoSolution = !(insideCalculator.isCleanseSolved() && insideCalculator.isSolved())
+        } else {
+            insideCalculator.calculateStepsFast(player1, player2, player3,
+                                                  wall1a, wall1b, wall2a, wall2b,
+                                                  wall3a, wall3b)
+            hasNoSolution = !insideCalculator.isFastSolved()
+        }
     }
 
     onPlayer1Changed: tryCalculate()
@@ -320,7 +297,6 @@ Rectangle {
             root.cleanseMethod = "lfg"
         tryCalculate()
     }
-    onDetailedModeChanged: tryCalculate()
     onCleanseMethodChanged: tryCalculate()
     onWall1aChanged: tryCalculate()
     onWall1bChanged: tryCalculate()
@@ -419,9 +395,53 @@ Rectangle {
             }
 
             Text {
-                text: qsTr("Each player's own statue symbol")
+                text: qsTr("Each player's own statue symbol - your own is required, teammates' are only needed so the give/take instructions can name the right person")
                 color: "#999999"
                 font.pixelSize: 11
+                wrapMode: Text.WordWrap
+                width: parent.width
+            }
+
+            Row {
+                spacing: 14
+
+                Text {
+                    text: qsTr("Which statue are you?")
+                    color: "#cccccc"
+                    font.pixelSize: 13
+                    anchors.verticalCenter: parent.verticalCenter
+                }
+
+                Row {
+                    spacing: 8
+                    anchors.verticalCenter: parent.verticalCenter
+
+                    Repeater {
+                        model: 3
+
+                        delegate: Rectangle {
+                            id: posButton
+                            required property int index
+                            width: 56
+                            height: 28
+                            radius: 6
+                            color: root.myPosition === posButton.index ? "#3b82f6" : "#2a2a2a"
+                            border.color: "#444444"
+
+                            Text {
+                                anchors.centerIn: parent
+                                text: root.playerLabels[posButton.index]
+                                color: "#ffffff"
+                                font.pixelSize: 12
+                            }
+
+                            MouseArea {
+                                anchors.fill: parent
+                                onClicked: root.myPosition = (root.myPosition === posButton.index ? -1 : posButton.index)
+                            }
+                        }
+                    }
+                }
             }
 
             Row {
@@ -435,12 +455,15 @@ Rectangle {
                     delegate: Column {
                         id: playerCol
                         required property int index
+                        readonly property bool isMe: playerCol.index === root.myPosition
                         width: (playerRow.width - playerRow.spacing * 2) / 3
                         spacing: 6
 
                         Text {
-                            text: root.playerLabels[playerCol.index]
-                            color: "#999999"
+                            text: playerCol.isMe ? qsTr("%1 (You)").arg(root.playerLabels[playerCol.index])
+                                                  : root.playerLabels[playerCol.index]
+                            color: playerCol.isMe ? "#7fb2ff" : "#999999"
+                            font.bold: playerCol.isMe
                             font.pixelSize: 11
                             anchors.horizontalCenter: parent.horizontalCenter
                         }
@@ -546,44 +569,9 @@ Rectangle {
                 }
             }
 
-            Row {
-                spacing: 14
-
-                Text {
-                    text: qsTr("Detailed mode (wall input, LFG/Fast)")
-                    color: "#cccccc"
-                    font.pixelSize: 13
-                    anchors.verticalCenter: parent.verticalCenter
-                }
-
-                Rectangle {
-                    width: 40
-                    height: 22
-                    radius: 11
-                    anchors.verticalCenter: parent.verticalCenter
-                    color: root.detailedMode ? "#3b82f6" : "#333333"
-
-                    Rectangle {
-                        width: 18
-                        height: 18
-                        radius: 9
-                        color: "white"
-                        y: 2
-                        x: root.detailedMode ? parent.width - width - 2 : 2
-                        Behavior on x { NumberAnimation { duration: 120 } }
-                    }
-
-                    MouseArea {
-                        anchors.fill: parent
-                        onClicked: root.detailedMode = !root.detailedMode
-                    }
-                }
-            }
-
             Column {
                 width: parent.width
                 spacing: 8
-                visible: root.detailedMode
 
                 Text {
                     text: qsTr("UNVERIFIED against real gameplay - sanity-check in a live run before trusting this")
@@ -593,11 +581,19 @@ Rectangle {
                     width: parent.width
                 }
 
+                Text {
+                    text: qsTr("LFG is the default: it walks through the cleanse (sort) phase, a sync point to wait for your teammates, then the distribute phase. Fast is an experimental shortcut that skips the sort step entirely.")
+                    color: "#999999"
+                    font.pixelSize: 11
+                    wrapMode: Text.WordWrap
+                    width: parent.width
+                }
+
                 Row {
                     spacing: 10
 
                     Repeater {
-                        model: [{key: "fast", label: qsTr("Fast")}, {key: "lfg", label: qsTr("LFG")}]
+                        model: [{key: "lfg", label: qsTr("LFG")}, {key: "fast", label: qsTr("Fast (Experimental)")}]
 
                         delegate: Rectangle {
                             id: methodButton
@@ -654,12 +650,15 @@ Rectangle {
                         delegate: Column {
                             id: wallCol
                             required property int index
+                            readonly property bool isMe: wallCol.index === root.myPosition
                             width: (wallRow.width - wallRow.spacing * 2) / 3
                             spacing: 4
 
                             Text {
-                                text: root.playerLabels[wallCol.index]
-                                color: "#999999"
+                                text: wallCol.isMe ? qsTr("%1 (You)").arg(root.playerLabels[wallCol.index])
+                                                    : root.playerLabels[wallCol.index]
+                                color: wallCol.isMe ? "#7fb2ff" : "#999999"
+                                font.bold: wallCol.isMe
                                 font.pixelSize: 11
                                 anchors.horizontalCenter: parent.horizontalCenter
                             }
@@ -734,11 +733,14 @@ Rectangle {
                     delegate: Column {
                         id: shapeEntry
                         required property int index
+                        readonly property bool isMe: shapeEntry.index === root.myPosition
                         spacing: 4
 
                         Text {
-                            text: root.playerLabels[shapeEntry.index]
-                            color: "#999999"
+                            text: shapeEntry.isMe ? qsTr("%1 (You)").arg(root.playerLabels[shapeEntry.index])
+                                                   : root.playerLabels[shapeEntry.index]
+                            color: shapeEntry.isMe ? "#7fb2ff" : "#999999"
+                            font.bold: shapeEntry.isMe
                             font.pixelSize: 10
                             anchors.horizontalCenter: parent.horizontalCenter
                         }
@@ -748,7 +750,8 @@ Rectangle {
                             height: 60
                             radius: 6
                             color: "#161616"
-                            border.color: "#333333"
+                            border.color: shapeEntry.isMe ? "#3b82f6" : "#333333"
+                            border.width: shapeEntry.isMe ? 2 : 1
 
                             Image {
                                 anchors.centerIn: parent
@@ -778,35 +781,11 @@ Rectangle {
                     width: parent.width
                     spacing: 10
 
-                    // Default / Challenge mode.
-                    Repeater {
-                        model: root.detailedMode ? 0 : root.stepCount
-
-                        delegate: StepCard {
-                            id: stepCard
-                            required property int index
-                            width: stepsColumn.width
-                            stepNumber: stepCard.index + 1
-                            nodeLabels: root.playerLabels
-                            // Guarded on calculationVersion (not just the
-                            // invokable calls below) so this binding
-                            // actually re-evaluates on recalculation - a
-                            // plain invokable call with no property read
-                            // never re-fires on its own in QML.
-                            instructions: root.calculationVersion >= 0 ? [
-                                root.insideCalculator.getInstructionForStep(stepCard.index, 0),
-                                root.insideCalculator.getInstructionForStep(stepCard.index, 1),
-                                root.insideCalculator.getInstructionForStep(stepCard.index, 2)
-                            ] : [0, 0, 0]
-                            expectedState: root.finalShapes
-                        }
-                    }
-
-                    // LFG: cleanse phase, sync callout, then distribute phase.
+                    // LFG (default): cleanse phase, sync callout, then distribute phase.
                     Column {
                         width: stepsColumn.width
                         spacing: 10
-                        visible: root.detailedMode && root.cleanseMethod === "lfg"
+                        visible: root.cleanseMethod === "lfg"
 
                         Text {
                             visible: root.cleanseStepCount > 0
@@ -817,7 +796,7 @@ Rectangle {
                         }
 
                         Repeater {
-                            model: (root.detailedMode && root.cleanseMethod === "lfg") ? root.cleanseStepCount : 0
+                            model: root.cleanseMethod === "lfg" ? root.cleanseStepCount : 0
 
                             delegate: StepCard {
                                 id: cleanseCard
@@ -825,6 +804,7 @@ Rectangle {
                                 width: stepsColumn.width
                                 stepNumber: cleanseCard.index + 1
                                 nodeLabels: root.playerLabels
+                                highlightIndex: root.myPosition
                                 instructions: root.calculationVersion >= 0 ? [
                                     root.insideCalculator.getCleanseInstructionForStep(cleanseCard.index, 0),
                                     root.insideCalculator.getCleanseInstructionForStep(cleanseCard.index, 1),
@@ -859,7 +839,7 @@ Rectangle {
                         }
 
                         Repeater {
-                            model: (root.detailedMode && root.cleanseMethod === "lfg") ? root.stepCount : 0
+                            model: root.cleanseMethod === "lfg" ? root.stepCount : 0
 
                             delegate: StepCard {
                                 id: distributeCard
@@ -867,6 +847,7 @@ Rectangle {
                                 width: stepsColumn.width
                                 stepNumber: distributeCard.index + 1
                                 nodeLabels: root.playerLabels
+                                highlightIndex: root.myPosition
                                 instructions: root.calculationVersion >= 0 ? [
                                     root.insideCalculator.getInstructionForStep(distributeCard.index, 0),
                                     root.insideCalculator.getInstructionForStep(distributeCard.index, 1),
@@ -877,14 +858,14 @@ Rectangle {
                         }
                     }
 
-                    // Fast: local decision-table rounds, no sync callout.
+                    // Fast (experimental): local decision-table rounds, no sync callout.
                     Column {
                         width: stepsColumn.width
                         spacing: 10
-                        visible: root.detailedMode && root.cleanseMethod === "fast"
+                        visible: root.cleanseMethod === "fast"
 
                         Repeater {
-                            model: (root.detailedMode && root.cleanseMethod === "fast") ? root.fastRoundCount : 0
+                            model: root.cleanseMethod === "fast" ? root.fastRoundCount : 0
 
                             delegate: Column {
                                 id: fastRoundBlock
@@ -903,12 +884,15 @@ Rectangle {
                                     model: root.fastTransfersForRound(fastRoundBlock.index)
 
                                     delegate: Rectangle {
+                                        id: transferRow
                                         required property var modelData
+                                        readonly property bool involvesMe: root.myPosition >= 0
+                                            && (modelData.from === root.myPosition || modelData.to === root.myPosition)
                                         width: stepsColumn.width
                                         height: 34
                                         radius: 6
-                                        color: "#161616"
-                                        border.color: "#333333"
+                                        color: transferRow.involvesMe ? "#1e3a5f" : "#161616"
+                                        border.color: transferRow.involvesMe ? "#3b82f6" : "#333333"
 
                                         Row {
                                             anchors.left: parent.left
@@ -944,7 +928,7 @@ Rectangle {
                     Text {
                         visible: !root.hasNoSolution && root.stepCount === 0
                                  && root.cleanseStepCount === 0 && root.fastRoundCount === 0
-                        text: qsTr("Select all 3 starting symbols to see the solution.")
+                        text: qsTr("Select each player's symbol and wall (2 symbols each) to see the solution.")
                         color: "#666666"
                         font.pixelSize: 12
                     }

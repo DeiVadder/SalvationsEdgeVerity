@@ -14,6 +14,10 @@ Rectangle {
     // state after each individual step would need replaying the swap
     // sequence, deferred as a follow-up)
     property var expectedState: [0, 0, 0]
+    // Node index to call out as "you" (e.g. the Inside panel's own solo
+    // statue) - tints that column in both rows below. -1 = no highlight,
+    // used by the Outside panel where every node is equally "the team".
+    property int highlightIndex: -1
 
     readonly property var activeIndices: {
         var idx = []
@@ -85,6 +89,14 @@ Rectangle {
                     width: swapRow.width / root.instructions.length
                     height: swapContent.implicitHeight
 
+                    Rectangle {
+                        anchors.fill: parent
+                        anchors.margins: -4
+                        radius: 6
+                        color: "#1e3a5f"
+                        visible: swapEntry.index === root.highlightIndex
+                    }
+
                     Row {
                         id: swapContent
                         visible: root.instructions[swapEntry.index] !== 0
@@ -132,6 +144,14 @@ Rectangle {
                     required property int index
                     width: targetRow.width / root.expectedState.length
                     height: stateContent.implicitHeight
+
+                    Rectangle {
+                        anchors.fill: parent
+                        anchors.margins: -4
+                        radius: 6
+                        color: "#1e3a5f"
+                        visible: stateEntry.index === root.highlightIndex
+                    }
 
                     Row {
                         id: stateContent
