@@ -1,8 +1,13 @@
 #ifndef CALCULATESTEPS_H
 #define CALCULATESTEPS_H
 
+#include <memory>
+
 #include <QDebug>
 #include <QObject>
+#include <QVector>
+
+class SymbolSwapEngine;
 
 class CalculateSteps : public QObject
 {
@@ -23,6 +28,11 @@ public:
     };
     Q_ENUM(SymbolTypes)
     explicit CalculateSteps(QObject *parent = nullptr);
+    ~CalculateSteps() override;
+
+    static QVector<SymbolTypes> toBaseSymbols(SymbolTypes type);
+    static QVector<SymbolTypes> fromBaseSymbol(SymbolTypes type);
+    static SymbolTypes pairToShape(SymbolTypes a, SymbolTypes b);
 
     // Precondition: callers must call checkIsValid() with the same arguments first.
     // calculateSteps() does not validate internally; invalid input will not hang
@@ -35,7 +45,7 @@ public:
                                     SymbolTypes outerStatue2,
                                     SymbolTypes outerStatue3);
 
-    Q_INVOKABLE int numberOfSteps() { return m_swapOperations.size() / 2; }
+    Q_INVOKABLE int numberOfSteps();
     Q_INVOKABLE SymbolTypes getInstructionForStep(int step, int statue);
 
     Q_INVOKABLE bool checkIsValid(SymbolTypes innerStatue1,
@@ -52,17 +62,7 @@ signals:
     void numberOfStepsChanged();
 
 private:
-    QVector<SymbolTypes> toBaseSymbols(SymbolTypes type);
-    QVector<SymbolTypes> fromBaseSymbol(SymbolTypes type);
-    void orderSymbolsInPairs(QVector<QVector<SymbolTypes>> &toOrder);
-
-    bool isFinished(const QVector<QVector<SymbolTypes>> &start,
-                    const QVector<QVector<SymbolTypes>> &ziel);
-
-    bool findAndSwap(QVector<QVector<SymbolTypes>> &start, QVector<QVector<SymbolTypes>> &stop);
-
-private:
-    QVector<QPair<int, SymbolTypes>> m_swapOperations;
+    std::unique_ptr<SymbolSwapEngine> m_engine;
 };
 
 #endif // CALCULATESTEPS_H

@@ -14,6 +14,8 @@ qt_add_executable(SalvationsEdgeVerity
     main.cpp
     calculatesteps.cpp
     calculatesteps.h
+    symbolswapengine.cpp
+    symbolswapengine.h
 )
 
 qt_add_qml_module(SalvationsEdgeVerity
@@ -45,12 +47,6 @@ target_link_libraries(SalvationsEdgeVerity PRIVATE
     Qt6::Quick
     Qt6::Svg
 )
-
-# if(ANDROID)
-#     set_target_properties(SalvationsEdgeVerity PROPERTIES
-#         QT_ANDROID_PACKAGE_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/android"
-#     )
-# endif()
 
 include(CTest)
 if(BUILD_TESTING)

@@ -2,7 +2,20 @@ qt_add_executable(tst_calculatesteps
     tst_calculatesteps.cpp
     ${CMAKE_SOURCE_DIR}/calculatesteps.cpp
     ${CMAKE_SOURCE_DIR}/calculatesteps.h
+    ${CMAKE_SOURCE_DIR}/symbolswapengine.cpp
+    ${CMAKE_SOURCE_DIR}/symbolswapengine.h
 )
 target_include_directories(tst_calculatesteps PRIVATE ${CMAKE_SOURCE_DIR})
 target_link_libraries(tst_calculatesteps PRIVATE Qt6::Test Qt6::Core)
 add_test(NAME tst_calculatesteps COMMAND tst_calculatesteps)
+
+qt_add_executable(tst_symbolswapengine
+    tst_symbolswapengine.cpp
+    ${CMAKE_SOURCE_DIR}/symbolswapengine.cpp
+    ${CMAKE_SOURCE_DIR}/symbolswapengine.h
+    ${CMAKE_SOURCE_DIR}/calculatesteps.cpp
+    ${CMAKE_SOURCE_DIR}/calculatesteps.h
+)
+target_include_directories(tst_symbolswapengine PRIVATE ${CMAKE_SOURCE_DIR})
+target_link_libraries(tst_symbolswapengine PRIVATE Qt6::Test Qt6::Core)
+add_test(NAME tst_symbolswapengine COMMAND tst_symbolswapengine)
