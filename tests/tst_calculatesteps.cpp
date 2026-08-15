@@ -26,6 +26,7 @@ private slots:
 
     void targetShapeForStatueMatchesFromBaseSymbol();
     void isSolvedReflectsCalculationState();
+    void calculationVersionBumpsOnEveryCall();
 };
 
 void TestCalculateSteps::init()
@@ -177,6 +178,36 @@ void TestCalculateSteps::isSolvedReflectsCalculationState()
 
     m_calc->reset();
     QVERIFY(!m_calc->isSolved());
+}
+
+// calculationVersion exists specifically so QML bindings that only call
+// plain Q_INVOKABLE methods (getInstructionForStep(), targetShapeForStatue())
+// have a reliable NOTIFY-backed trigger to depend on - unlike numberOfSteps,
+// which can legitimately stay the same across two different calculations
+// with different actual results, this counter must strictly increase on
+// every single calculateSteps()/reset() call, with no exceptions.
+void TestCalculateSteps::calculationVersionBumpsOnEveryCall()
+{
+    QSignalSpy spy(m_calc, &CalculateSteps::calculationVersionChanged);
+    int previous = m_calc->calculationVersion();
+
+    m_calc->calculateSteps(CalculateSteps::Dreieck, CalculateSteps::Viereck, CalculateSteps::Kreis,
+                            CalculateSteps::Wuerfel, CalculateSteps::Pyramide, CalculateSteps::Kugel);
+    QCOMPARE(m_calc->calculationVersion(), previous + 1);
+    previous = m_calc->calculationVersion();
+
+    // A second call, different scenario, regardless of whether the result
+    // happens to share the same step count as the first - the version must
+    // bump unconditionally either way.
+    m_calc->calculateSteps(CalculateSteps::Viereck, CalculateSteps::Dreieck, CalculateSteps::Kreis,
+                            CalculateSteps::Wuerfel, CalculateSteps::Pyramide, CalculateSteps::Kugel);
+    QCOMPARE(m_calc->calculationVersion(), previous + 1);
+    previous = m_calc->calculationVersion();
+
+    m_calc->reset();
+    QCOMPARE(m_calc->calculationVersion(), previous + 1);
+
+    QCOMPARE(spy.count(), 3);
 }
 
 QTEST_MAIN(TestCalculateSteps)

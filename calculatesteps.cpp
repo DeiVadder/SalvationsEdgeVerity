@@ -9,6 +9,13 @@ CalculateSteps::CalculateSteps(QObject *parent)
 
 CalculateSteps::~CalculateSteps() = default;
 
+void CalculateSteps::bumpCalculationVersion()
+{
+    ++m_calculationVersion;
+    emit calculationVersionChanged();
+    emit numberOfStepsChanged();
+}
+
 void CalculateSteps::calculateSteps(SymbolTypes innerStatue1,
                                     SymbolTypes innerStatue2,
                                     SymbolTypes innerStatue3,
@@ -29,7 +36,7 @@ void CalculateSteps::calculateSteps(SymbolTypes innerStatue1,
     for (const auto &pair : stop)
         m_targetShapePerStatue.append(pairToShape(pair.at(0), pair.at(1)));
 
-    numberOfStepsChanged();
+    bumpCalculationVersion();
 }
 
 int CalculateSteps::numberOfSteps()
@@ -107,7 +114,7 @@ void CalculateSteps::reset()
 {
     m_engine->reset();
     m_targetShapePerStatue.clear();
-    numberOfStepsChanged();
+    bumpCalculationVersion();
 }
 
 QVector<CalculateSteps::SymbolTypes> CalculateSteps::toBaseSymbols(SymbolTypes type)

@@ -9,16 +9,20 @@ Rectangle {
     property CalculateSteps stepCalculator
     readonly property var statueLabels: ["LEFT", "MID", "RIGHT"]
 
-    // Re-evaluated whenever numberOfSteps changes (calculateSteps()/reset()
-    // both emit it) so the view stays in sync without extra plumbing.
     readonly property int stepCount: stepCalculator ? stepCalculator.numberOfSteps : 0
-    // targetShapeForStatue() is a plain method call, not a bindable
-    // property - QML can't tell this binding needs to re-run when the
-    // underlying data changes unless the expression also reads an actual
-    // NOTIFY-equipped property. Referencing stepCount here (already
-    // implied true once stepCalculator exists) is what makes this
-    // re-evaluate every time calculateSteps()/reset() fires.
-    readonly property var targetShapes: (stepCalculator && root.stepCount >= 0)
+    // targetShapeForStatue()/getInstructionForStep() are plain method
+    // calls, not bindable properties - QML can't tell a binding needs to
+    // re-run when the underlying data changes unless the expression also
+    // reads an actual NOTIFY-equipped property. stepCount alone isn't
+    // reliable for that: two different valid input combinations can
+    // produce the same step count with different actual instructions, and
+    // QML only re-fires a dependent binding when a watched property's
+    // VALUE changes, not merely when its NOTIFY signal fires unchanged.
+    // calculationVersion is a plain counter bumped on every single
+    // calculateSteps()/reset() call, so its value always differs from
+    // before - safe to depend on for this trick.
+    readonly property int calculationVersion: stepCalculator ? stepCalculator.calculationVersion : 0
+    readonly property var targetShapes: (stepCalculator && root.calculationVersion >= 0)
         ? [stepCalculator.targetShapeForStatue(0), stepCalculator.targetShapeForStatue(1),
            stepCalculator.targetShapeForStatue(2)]
         : [0, 0, 0]
@@ -125,11 +129,11 @@ Rectangle {
                         width: stepsColumn.width
                         stepNumber: stepCard.index + 1
                         nodeLabels: root.statueLabels
-                        instructions: [
+                        instructions: root.calculationVersion >= 0 ? [
                             root.stepCalculator.getInstructionForStep(stepCard.index, 0),
                             root.stepCalculator.getInstructionForStep(stepCard.index, 1),
                             root.stepCalculator.getInstructionForStep(stepCard.index, 2)
-                        ]
+                        ] : [0, 0, 0]
                         expectedState: root.targetShapes
                     }
                 }

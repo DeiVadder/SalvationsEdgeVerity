@@ -13,6 +13,16 @@ class CalculateSteps : public QObject
 {
     Q_OBJECT
     Q_PROPERTY(int numberOfSteps READ numberOfSteps NOTIFY numberOfStepsChanged FINAL)
+    // Bumped on every calculateSteps()/reset() call. numberOfSteps alone
+    // isn't a reliable QML re-evaluation trigger for bindings that only
+    // call plain Q_INVOKABLE methods (e.g. targetShapeForStatue(),
+    // getInstructionForStep()) - two different valid (inner,outer)
+    // combinations can produce the same step count with different actual
+    // instructions, and QML only re-fires a dependent binding when a
+    // watched property's VALUE changes, not merely when its NOTIFY signal
+    // fires with an unchanged value. This counter always changes, so it's
+    // always safe to depend on for that trick (see SolutionPanel.qml).
+    Q_PROPERTY(int calculationVersion READ calculationVersion NOTIFY calculationVersionChanged FINAL)
 public:
     enum SymbolTypes {
         Undefined = 0,
@@ -64,15 +74,21 @@ public:
                                   SymbolTypes outerStatue2,
                                   SymbolTypes outerStatue3);
 
+    int calculationVersion() const { return m_calculationVersion; }
+
 public slots:
     void reset();
 
 signals:
     void numberOfStepsChanged();
+    void calculationVersionChanged();
 
 private:
+    void bumpCalculationVersion();
+
     std::unique_ptr<SymbolSwapEngine> m_engine;
     QVector<SymbolTypes> m_targetShapePerStatue;
+    int m_calculationVersion = 0;
 };
 
 #endif // CALCULATESTEPS_H

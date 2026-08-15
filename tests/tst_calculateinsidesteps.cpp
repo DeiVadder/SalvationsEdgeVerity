@@ -41,6 +41,7 @@ private slots:
     void checkIsValidWallExhaustive();
     void calculateStepsLFGConvergesInTwoPhases();
     void calculateStepsFastDelegatesToResolver();
+    void calculationVersionBumpsOnEveryCallPath();
 };
 
 void TestCalculateInsideSteps::init()
@@ -325,6 +326,53 @@ void TestCalculateInsideSteps::calculateStepsFastDelegatesToResolver()
     QCOMPARE(m_calc->finalShapeForPlayer(0), CalculateSteps::Zylinder);
     QCOMPARE(m_calc->finalShapeForPlayer(1), CalculateSteps::Kegel);
     QCOMPARE(m_calc->finalShapeForPlayer(2), CalculateSteps::Prisma);
+}
+
+// calculationVersion must strictly increase on every single calculate*()/
+// reset() call regardless of which internal engine it touches - this is
+// what QML's Fast/LFG-mode-only bindings rely on for a reliable
+// re-evaluation trigger (see InsideRoomPanel.qml and the class doc
+// comment in calculateinsidesteps.h for why numberOfSteps alone wasn't
+// sufficient: calculateStepsFast() never touches the engine numberOfSteps
+// reads from).
+void TestCalculateInsideSteps::calculationVersionBumpsOnEveryCallPath()
+{
+    QSignalSpy spy(m_calc, &CalculateInsideSteps::calculationVersionChanged);
+    int previous = m_calc->calculationVersion();
+
+    m_calc->calculateSteps(CalculateSteps::Dreieck, CalculateSteps::Viereck, CalculateSteps::Kreis);
+    QCOMPARE(m_calc->calculationVersion(), previous + 1);
+    previous = m_calc->calculationVersion();
+
+    m_calc->calculateStepsChallenge(CalculateSteps::Dreieck, CalculateSteps::Viereck,
+                                     CalculateSteps::Kreis, CalculateSteps::Kegel,
+                                     CalculateSteps::Zylinder, CalculateSteps::Prisma);
+    QCOMPARE(m_calc->calculationVersion(), previous + 1);
+    previous = m_calc->calculationVersion();
+
+    m_calc->calculateStepsLFG(CalculateSteps::Dreieck, CalculateSteps::Viereck,
+                               CalculateSteps::Kreis, CalculateSteps::Viereck,
+                               CalculateSteps::Kreis, CalculateSteps::Dreieck,
+                               CalculateSteps::Kreis, CalculateSteps::Dreieck,
+                               CalculateSteps::Viereck);
+    QCOMPARE(m_calc->calculationVersion(), previous + 1);
+    previous = m_calc->calculationVersion();
+
+    // The exact case the fix targets: calculateStepsFast() never touches
+    // m_engine (numberOfSteps's source), so only calculationVersion can
+    // reliably signal that this call happened.
+    m_calc->calculateStepsFast(CalculateSteps::Dreieck, CalculateSteps::Viereck,
+                                CalculateSteps::Kreis, CalculateSteps::Dreieck,
+                                CalculateSteps::Dreieck, CalculateSteps::Viereck,
+                                CalculateSteps::Viereck, CalculateSteps::Kreis,
+                                CalculateSteps::Kreis);
+    QCOMPARE(m_calc->calculationVersion(), previous + 1);
+    previous = m_calc->calculationVersion();
+
+    m_calc->reset();
+    QCOMPARE(m_calc->calculationVersion(), previous + 1);
+
+    QCOMPARE(spy.count(), 5);
 }
 
 QTEST_MAIN(TestCalculateInsideSteps)
