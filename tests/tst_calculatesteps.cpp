@@ -25,6 +25,7 @@ private slots:
     void calculateStepsWithInvalidInputDoesNotHang();
 
     void targetShapeForStatueMatchesFromBaseSymbol();
+    void isSolvedReflectsCalculationState();
 };
 
 void TestCalculateSteps::init()
@@ -164,6 +165,18 @@ void TestCalculateSteps::targetShapeForStatueMatchesFromBaseSymbol()
 
     m_calc->reset();
     QCOMPARE(m_calc->targetShapeForStatue(0), CalculateSteps::Undefined);
+}
+
+void TestCalculateSteps::isSolvedReflectsCalculationState()
+{
+    QVERIFY(!m_calc->isSolved());
+
+    m_calc->calculateSteps(CalculateSteps::Dreieck, CalculateSteps::Viereck, CalculateSteps::Kreis,
+                            CalculateSteps::Wuerfel, CalculateSteps::Pyramide, CalculateSteps::Kugel);
+    QVERIFY(m_calc->isSolved());
+
+    m_calc->reset();
+    QVERIFY(!m_calc->isSolved());
 }
 
 QTEST_MAIN(TestCalculateSteps)

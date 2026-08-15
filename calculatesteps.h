@@ -51,6 +51,11 @@ public:
     // target), cached from the last calculateSteps() call. Undefined if
     // the index is out of range or nothing has been calculated yet.
     Q_INVOKABLE SymbolTypes targetShapeForStatue(int statue) const;
+    // False before any calculateSteps() call, and after one that got stuck
+    // before reaching the target (no valid swap partner found - the
+    // computed instruction list is then incomplete). True once a
+    // calculateSteps() call actually reached the target.
+    Q_INVOKABLE bool isSolved() const;
 
     Q_INVOKABLE bool checkIsValid(SymbolTypes innerStatue1,
                                   SymbolTypes innerStatue2,

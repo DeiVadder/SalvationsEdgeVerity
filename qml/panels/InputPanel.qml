@@ -22,26 +22,176 @@ Rectangle {
     property int outer2: 0
     property int outer3: 0
 
+    // Once 2 of the 3 inside symbols are picked (and distinct), the 3rd is
+    // forced - the game always shows 3 pairwise-distinct callouts. Track
+    // which slot (if any) currently holds that inferred guess so it can be
+    // highlighted and still overridden by the user.
+    property int inferredInnerIndex: -1
+    // Each base 2D symbol appears exactly twice across the 3 outside 3D
+    // shapes (checkIsValid() enforces this). Once 2 of the 3 shapes are
+    // picked, the base-symbol pair needed for the 3rd is always forced.
+    property int inferredOuterIndex: -1
+    property bool hasNoSolution: false
+
     signal invalidInput()
 
     function reset() {
         inner1 = 0; inner2 = 0; inner3 = 0
         outer1 = 0; outer2 = 0; outer3 = 0
+        inferredInnerIndex = -1
+        inferredOuterIndex = -1
+        hasNoSolution = false
         stepCalculator.reset()
+    }
+
+    function baseSymbolsFor(shape) {
+        switch (shape) {
+        case Symbols.Kegel: return [Symbols.Dreieck, Symbols.Kreis]
+        case Symbols.Zylinder: return [Symbols.Kreis, Symbols.Viereck]
+        case Symbols.Prisma: return [Symbols.Viereck, Symbols.Dreieck]
+        case Symbols.Wuerfel: return [Symbols.Viereck, Symbols.Viereck]
+        case Symbols.Pyramide: return [Symbols.Dreieck, Symbols.Dreieck]
+        case Symbols.Kugel: return [Symbols.Kreis, Symbols.Kreis]
+        default: return []
+        }
+    }
+
+    function shapeForBasePair(a, b) {
+        if (a > b) { var t = a; a = b; b = t }
+        if (a === Symbols.Dreieck && b === Symbols.Dreieck) return Symbols.Pyramide
+        if (a === Symbols.Dreieck && b === Symbols.Viereck) return Symbols.Prisma
+        if (a === Symbols.Dreieck && b === Symbols.Kreis) return Symbols.Kegel
+        if (a === Symbols.Viereck && b === Symbols.Viereck) return Symbols.Wuerfel
+        if (a === Symbols.Viereck && b === Symbols.Kreis) return Symbols.Zylinder
+        if (a === Symbols.Kreis && b === Symbols.Kreis) return Symbols.Kugel
+        return 0
+    }
+
+    function outerValue(idx) {
+        return idx === 0 ? outer1 : (idx === 1 ? outer2 : outer3)
+    }
+
+    function setOuterValue(idx, value) {
+        if (idx === 0) outer1 = value
+        else if (idx === 1) outer2 = value
+        else outer3 = value
+    }
+
+    function setOuter(idx, value) {
+        if (idx === inferredOuterIndex) {
+            inferredOuterIndex = -1
+        } else if (inferredOuterIndex >= 0) {
+            // A manual tap on one of the other two slots invalidates the
+            // current guess - clear it so the stale value can't linger.
+            setOuterValue(inferredOuterIndex, 0)
+            inferredOuterIndex = -1
+        }
+        setOuterValue(idx, value)
+        maybeInferMissingOuter()
+    }
+
+    function maybeInferMissingOuter() {
+        var vals = [outer1, outer2, outer3]
+        var setIdx = []
+        var zeroIdx = -1
+        for (var i = 0; i < 3; ++i) {
+            if (vals[i] > 0)
+                setIdx.push(i)
+            else
+                zeroIdx = i
+        }
+        if (setIdx.length === 2 && zeroIdx >= 0) {
+            var counts = {}
+            counts[Symbols.Dreieck] = 0
+            counts[Symbols.Viereck] = 0
+            counts[Symbols.Kreis] = 0
+            for (var j = 0; j < setIdx.length; ++j) {
+                var pair = baseSymbolsFor(vals[setIdx[j]])
+                for (var k = 0; k < pair.length; ++k)
+                    counts[pair[k]]++
+            }
+            var remaining = []
+            var symbolsList = [Symbols.Dreieck, Symbols.Viereck, Symbols.Kreis]
+            for (var s = 0; s < symbolsList.length; ++s) {
+                var need = 2 - counts[symbolsList[s]]
+                for (var n = 0; n < need; ++n)
+                    remaining.push(symbolsList[s])
+            }
+            if (remaining.length === 2) {
+                var inferredShape = shapeForBasePair(remaining[0], remaining[1])
+                if (inferredShape > 0) {
+                    setOuterValue(zeroIdx, inferredShape)
+                    inferredOuterIndex = zeroIdx
+                }
+            }
+        } else if (setIdx.length < 2) {
+            inferredOuterIndex = -1
+        }
+    }
+
+    function innerValue(idx) {
+        return idx === 0 ? inner1 : (idx === 1 ? inner2 : inner3)
+    }
+
+    function setInnerValue(idx, value) {
+        if (idx === 0) inner1 = value
+        else if (idx === 1) inner2 = value
+        else inner3 = value
+    }
+
+    function setInner(idx, value) {
+        // Tapping the slot that was previously a guess makes it manual.
+        if (idx === inferredInnerIndex)
+            inferredInnerIndex = -1
+        // If another slot is still an inferred guess and this tap now
+        // duplicates it, that guess is stale - clear it back out.
+        if (inferredInnerIndex >= 0 && innerValue(inferredInnerIndex) === value) {
+            setInnerValue(inferredInnerIndex, 0)
+            inferredInnerIndex = -1
+        }
+        setInnerValue(idx, value)
+        maybeInferMissingInner()
+    }
+
+    function maybeInferMissingInner() {
+        var vals = [inner1, inner2, inner3]
+        var setIdx = []
+        var zeroIdx = -1
+        for (var i = 0; i < 3; ++i) {
+            if (vals[i] > 0)
+                setIdx.push(i)
+            else
+                zeroIdx = i
+        }
+        if (setIdx.length === 2 && zeroIdx >= 0 && vals[setIdx[0]] !== vals[setIdx[1]]) {
+            var all = [Symbols.Dreieck, Symbols.Viereck, Symbols.Kreis]
+            var remaining = all.filter(function (v) {
+                return v !== vals[setIdx[0]] && v !== vals[setIdx[1]]
+            })
+            if (remaining.length === 1) {
+                setInnerValue(zeroIdx, remaining[0])
+                inferredInnerIndex = zeroIdx
+            }
+        } else if (setIdx.length < 2) {
+            inferredInnerIndex = -1
+        }
     }
 
     function tryCalculate() {
         if (inner1 <= 0 || inner2 <= 0 || inner3 <= 0
                 || outer1 <= 0 || outer2 <= 0 || outer3 <= 0) {
+            hasNoSolution = false
             stepCalculator.reset()
             return
         }
         if (!stepCalculator.checkIsValid(inner1, inner2, inner3, outer1, outer2, outer3)) {
+            hasNoSolution = true
             stepCalculator.reset()
             invalidInput()
             return
         }
         stepCalculator.calculateSteps(inner1, inner2, inner3, outer1, outer2, outer3)
+        hasNoSolution = !stepCalculator.isSolved()
     }
 
     onInner1Changed: tryCalculate()
@@ -59,6 +209,22 @@ Rectangle {
         anchors.fill: parent
         anchors.margins: 16
         spacing: 18
+
+        Rectangle {
+            width: parent.width
+            height: 36
+            radius: 6
+            color: "#3a1a1a"
+            border.color: "#a33"
+            visible: root.hasNoSolution
+
+            Text {
+                anchors.centerIn: parent
+                text: "No solution for this combination - check your inputs"
+                color: "#ffb4b4"
+                font.pixelSize: 12
+            }
+        }
 
         Text {
             text: "Select all inside 2D shapes"
@@ -95,11 +261,8 @@ Rectangle {
                         options: root.symbols2d
                         selected: innerCol.index === 0 ? root.inner1
                                                         : (innerCol.index === 1 ? root.inner2 : root.inner3)
-                        onTapped: (value) => {
-                            if (innerCol.index === 0) root.inner1 = value
-                            else if (innerCol.index === 1) root.inner2 = value
-                            else root.inner3 = value
-                        }
+                        selectionIsInferred: innerCol.index === root.inferredInnerIndex
+                        onTapped: (value) => root.setInner(innerCol.index, value)
                     }
                 }
             }
@@ -140,11 +303,8 @@ Rectangle {
                         options: root.symbols3d
                         selected: outerCol.index === 0 ? root.outer1
                                                         : (outerCol.index === 1 ? root.outer2 : root.outer3)
-                        onTapped: (value) => {
-                            if (outerCol.index === 0) root.outer1 = value
-                            else if (outerCol.index === 1) root.outer2 = value
-                            else root.outer3 = value
-                        }
+                        selectionIsInferred: outerCol.index === root.inferredOuterIndex
+                        onTapped: (value) => root.setOuter(outerCol.index, value)
                     }
                 }
             }

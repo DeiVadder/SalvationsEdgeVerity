@@ -20,6 +20,10 @@ qt_add_executable(SalvationsEdgeVerity
     encounterprogress.h
     calculateinsidesteps.cpp
     calculateinsidesteps.h
+    ghostplayerslot.cpp
+    ghostplayerslot.h
+    ghostphasehelper.cpp
+    ghostphasehelper.h
 )
 
 qt_add_qml_module(SalvationsEdgeVerity
@@ -34,6 +38,8 @@ qt_add_qml_module(SalvationsEdgeVerity
         qml/panels/SolutionPanel.qml
         qml/panels/InsideRoomPanel.qml
         qml/challenge/ShapeUsageTracker.qml
+        qml/ghost/GhostPlayerSlotCard.qml
+        qml/ghost/GhostPhaseHelperPanel.qml
 )
 
 target_sources(SalvationsEdgeVerity PRIVATE rsc.qrc)

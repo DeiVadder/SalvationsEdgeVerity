@@ -45,3 +45,23 @@ qt_add_executable(tst_calculateinsidesteps
 target_include_directories(tst_calculateinsidesteps PRIVATE ${CMAKE_SOURCE_DIR})
 target_link_libraries(tst_calculateinsidesteps PRIVATE Qt6::Test Qt6::Core)
 add_test(NAME tst_calculateinsidesteps COMMAND tst_calculateinsidesteps)
+
+qt_add_executable(tst_ghostplayerslot
+    tst_ghostplayerslot.cpp
+    ${CMAKE_SOURCE_DIR}/ghostplayerslot.cpp
+    ${CMAKE_SOURCE_DIR}/ghostplayerslot.h
+)
+target_include_directories(tst_ghostplayerslot PRIVATE ${CMAKE_SOURCE_DIR})
+target_link_libraries(tst_ghostplayerslot PRIVATE Qt6::Test Qt6::Core)
+add_test(NAME tst_ghostplayerslot COMMAND tst_ghostplayerslot)
+
+qt_add_executable(tst_ghostphasehelper
+    tst_ghostphasehelper.cpp
+    ${CMAKE_SOURCE_DIR}/ghostphasehelper.cpp
+    ${CMAKE_SOURCE_DIR}/ghostphasehelper.h
+    ${CMAKE_SOURCE_DIR}/ghostplayerslot.cpp
+    ${CMAKE_SOURCE_DIR}/ghostplayerslot.h
+)
+target_include_directories(tst_ghostphasehelper PRIVATE ${CMAKE_SOURCE_DIR})
+target_link_libraries(tst_ghostphasehelper PRIVATE Qt6::Test Qt6::Core)
+add_test(NAME tst_ghostphasehelper COMMAND tst_ghostphasehelper)

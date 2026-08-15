@@ -42,6 +42,11 @@ CalculateSteps::SymbolTypes CalculateSteps::getInstructionForStep(int step, int 
     return m_engine->getInstructionForStep(step, statue);
 }
 
+bool CalculateSteps::isSolved() const
+{
+    return m_engine->isSolved();
+}
+
 bool CalculateSteps::checkIsValid(SymbolTypes innerStatue1,
                                   SymbolTypes innerStatue2,
                                   SymbolTypes innerStatue3,

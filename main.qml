@@ -6,6 +6,7 @@ import CalculateSteps 1.0
 
 import "qml/panels"
 import "qml/challenge"
+import "qml/ghost"
 
 ApplicationWindow {
     id: root
@@ -15,7 +16,7 @@ ApplicationWindow {
     title: qsTr("Salvation's Edge Verity Encounter")
     color: "#050505"
 
-    // 0 = outside dissection puzzle (existing), 1 = inside/solo-room puzzle
+    // 0 = outside dissection puzzle, 1 = inside/solo-room puzzle, 2 = ghost phase helper
     property int puzzleMode: 0
     readonly property bool wideLayout: width >= height * 1.15
 
@@ -29,6 +30,10 @@ ApplicationWindow {
 
     EncounterProgress {
         id: encounterProgress
+    }
+
+    GhostPhaseHelper {
+        id: ghostHelper
     }
 
     Column {
@@ -53,7 +58,7 @@ ApplicationWindow {
 
             Rectangle {
                 id: modeToggle
-                width: 220
+                width: 320
                 height: 34
                 radius: 6
                 color: "#161616"
@@ -65,7 +70,7 @@ ApplicationWindow {
                     anchors.margins: 2
 
                     Rectangle {
-                        width: parent.width / 2
+                        width: parent.width / 3
                         height: parent.height
                         radius: 5
                         color: root.puzzleMode === 0 ? "#3b82f6" : "transparent"
@@ -82,7 +87,7 @@ ApplicationWindow {
                         }
                     }
                     Rectangle {
-                        width: parent.width / 2
+                        width: parent.width / 3
                         height: parent.height
                         radius: 5
                         color: root.puzzleMode === 1 ? "#3b82f6" : "transparent"
@@ -96,6 +101,23 @@ ApplicationWindow {
                         MouseArea {
                             anchors.fill: parent
                             onClicked: root.puzzleMode = 1
+                        }
+                    }
+                    Rectangle {
+                        width: parent.width / 3
+                        height: parent.height
+                        radius: 5
+                        color: root.puzzleMode === 2 ? "#3b82f6" : "transparent"
+                        Text {
+                            anchors.centerIn: parent
+                            text: "Ghosts"
+                            color: root.puzzleMode === 2 ? "white" : "#999999"
+                            font.pixelSize: 12
+                            font.bold: root.puzzleMode === 2
+                        }
+                        MouseArea {
+                            anchors.fill: parent
+                            onClicked: root.puzzleMode = 2
                         }
                     }
                 }
@@ -122,8 +144,10 @@ ApplicationWindow {
                     onClicked: {
                         if (root.puzzleMode === 0)
                             outsideInput.reset()
-                        else
+                        else if (root.puzzleMode === 1)
                             insidePanel.reset()
+                        else
+                            ghostHelper.reset()
                     }
                 }
             }
@@ -165,9 +189,18 @@ ApplicationWindow {
             insideCalculator: insideStepCalculator
         }
 
+        // Ghost phase helper
+        GhostPhaseHelperPanel {
+            width: parent.width
+            height: parent.height - y
+            visible: root.puzzleMode === 2
+            ghostHelper: ghostHelper
+        }
+
         ShapeUsageTracker {
             width: parent.width
             progress: encounterProgress
+            visible: root.puzzleMode !== 2 && encounterProgress.challengeModeEnabled
         }
     }
 }

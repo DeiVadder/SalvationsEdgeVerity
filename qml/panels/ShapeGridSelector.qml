@@ -9,6 +9,11 @@ Item {
     property var options: []
     property int columns: 3
     property int selected: 0
+    // True when `selected` was auto-filled by the parent (e.g. the last of
+    // 3 symbols inferred once the other 2 are known) rather than tapped by
+    // the user - rendered with an amber border instead of blue so the user
+    // can see it's a guess they can still override.
+    property bool selectionIsInferred: false
     property real cellSpacing: 8
     // If set (>=0), cellSize is derived from this instead of the explicit
     // cellSize below - avoids fixed-pixel cells overflowing a narrower
@@ -43,7 +48,9 @@ Item {
                 height: root.cellSize
                 radius: 6
                 color: "#1a1a1a"
-                border.color: modelData === root.selected ? "#3b82f6" : "#3a3a3a"
+                border.color: modelData === root.selected
+                              ? (root.selectionIsInferred ? "#eab308" : "#3b82f6")
+                              : "#3a3a3a"
                 border.width: modelData === root.selected ? 3 : 1
 
                 Image {

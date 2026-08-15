@@ -4,6 +4,7 @@
 #include "calculateinsidesteps.h"
 #include "calculatesteps.h"
 #include "encounterprogress.h"
+#include "ghostphasehelper.h"
 
 int main(int argc, char *argv[])
 {
@@ -14,6 +15,7 @@ int main(int argc, char *argv[])
     qmlRegisterUncreatableType<CalculateSteps>("SymbolEnums", 1, 0, "Symbols", "Enum for Symbols");
     qmlRegisterType<CalculateInsideSteps>("CalculateSteps", 1, 0, "CalculateInsideSteps");
     qmlRegisterType<EncounterProgress>("CalculateSteps", 1, 0, "EncounterProgress");
+    qmlRegisterType<GhostPhaseHelper>("CalculateSteps", 1, 0, "GhostPhaseHelper");
 
     QQmlApplicationEngine engine;
     const QUrl url(QStringLiteral("qrc:/qt/qml/SalvationsEdgeVerityApp/main.qml"));
