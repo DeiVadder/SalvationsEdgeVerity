@@ -19,3 +19,16 @@ qt_add_executable(tst_symbolswapengine
 target_include_directories(tst_symbolswapengine PRIVATE ${CMAKE_SOURCE_DIR})
 target_link_libraries(tst_symbolswapengine PRIVATE Qt6::Test Qt6::Core)
 add_test(NAME tst_symbolswapengine COMMAND tst_symbolswapengine)
+
+qt_add_executable(tst_encounterprogress
+    tst_encounterprogress.cpp
+    ${CMAKE_SOURCE_DIR}/encounterprogress.cpp
+    ${CMAKE_SOURCE_DIR}/encounterprogress.h
+    ${CMAKE_SOURCE_DIR}/calculatesteps.cpp
+    ${CMAKE_SOURCE_DIR}/calculatesteps.h
+    ${CMAKE_SOURCE_DIR}/symbolswapengine.cpp
+    ${CMAKE_SOURCE_DIR}/symbolswapengine.h
+)
+target_include_directories(tst_encounterprogress PRIVATE ${CMAKE_SOURCE_DIR})
+target_link_libraries(tst_encounterprogress PRIVATE Qt6::Test Qt6::Core)
+add_test(NAME tst_encounterprogress COMMAND tst_encounterprogress)

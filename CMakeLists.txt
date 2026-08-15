@@ -16,6 +16,8 @@ qt_add_executable(SalvationsEdgeVerity
     calculatesteps.h
     symbolswapengine.cpp
     symbolswapengine.h
+    encounterprogress.cpp
+    encounterprogress.h
 )
 
 qt_add_qml_module(SalvationsEdgeVerity
