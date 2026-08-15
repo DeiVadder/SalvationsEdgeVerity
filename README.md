@@ -55,16 +55,6 @@ Supported platforms: macOS (desktop) and WebAssembly (browser, see Method 1). An
     ./build/SalvationsEdgeVerity
     ```
 
--------
-
-### Method 3: Use Precompiled Binary
-
-1. Download the precompiled binary from the [releases page](https://github.com/DeiVadder/SalvationsEdgeVerity/releases/download/1.0.0/Salvations.Edge.Encounter.4.Verity.zip).
-
-2. Unzip the downloaded file to a location of your choice.
-
-3. Navigate to the unzipped directory and run the executable `SalvationsEdgeEncounter.exe`.
-
 ## Usage
 
 **SalvationsEdgeVerity** is a helper app for the Destiny 2 raid "Salvation's Edge," specifically for Encounter 4: Verity.
