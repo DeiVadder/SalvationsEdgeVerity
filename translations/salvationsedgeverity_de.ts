@@ -254,6 +254,14 @@
     </message>
 </context>
 <context>
+    <name>ShapeGridSelector</name>
+    <message>
+        <location filename="../qml/panels/ShapeGridSelector.qml" line="85"/>
+        <source>%1 + %2</source>
+        <translation>%1 + %2</translation>
+    </message>
+</context>
+<context>
     <name>ShapeIcons</name>
     <message>
         <location filename="../qml/js/ShapeIcons.js" line="24"/>
@@ -395,7 +403,7 @@
     <message>
         <location filename="../main.qml" line="16"/>
         <source>Salvation&apos;s Edge Verity Encounter</source>
-        <translation>Salvation's Edge Verity Encounter</translation>
+        <translation>Salvation&apos;s Edge Verity Encounter</translation>
     </message>
     <message>
         <location filename="../main.qml" line="79"/>
@@ -413,17 +421,17 @@
         <translation>Geister</translation>
     </message>
     <message>
-        <location filename="../main.qml" line="137"/>
+        <location filename="../main.qml" line="198"/>
         <source>Reset</source>
         <translation>Zurücksetzen</translation>
     </message>
     <message>
-        <location filename="../main.qml" line="193"/>
+        <location filename="../main.qml" line="254"/>
         <source>Selection</source>
         <translation>Auswahl</translation>
     </message>
     <message>
-        <location filename="../main.qml" line="209"/>
+        <location filename="../main.qml" line="270"/>
         <source>Solution</source>
         <translation>Lösung</translation>
     </message>

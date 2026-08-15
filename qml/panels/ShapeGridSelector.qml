@@ -1,5 +1,7 @@
 import QtQuick
+import QtQuick.Controls
 import "../js/ShapeIcons.js" as ShapeIcons
+import "../js/ShapeMath.js" as ShapeMath
 
 // Grid of tappable shape icons; exactly one can be selected at a time.
 // Replaces the old popup-until-chosen Selection2d/Selection3dShape pattern.
@@ -44,6 +46,13 @@ Item {
                 id: cell
                 required property var modelData
 
+                // 3D shapes (4-9) are each a combination of 2 of the 3 base
+                // 2D symbols (see ShapeMath.baseSymbolsFor) - shown on hover
+                // since the combination isn't otherwise visible once picked.
+                // 2D options (1-3) have no such breakdown.
+                readonly property bool is3dShape: cell.modelData >= 4
+                readonly property var baseSymbols: cell.is3dShape ? ShapeMath.baseSymbolsFor(cell.modelData) : []
+
                 width: root.cellSize
                 height: root.cellSize
                 radius: 6
@@ -64,9 +73,18 @@ Item {
                 }
 
                 MouseArea {
+                    id: mouseArea
                     anchors.fill: parent
+                    hoverEnabled: true
                     onClicked: root.tapped(cell.modelData)
                 }
+
+                ToolTip.visible: cell.is3dShape && mouseArea.containsMouse
+                ToolTip.delay: 400
+                ToolTip.text: cell.baseSymbols.length === 2
+                    ? qsTr("%1 + %2").arg(ShapeIcons.shapeName(cell.baseSymbols[0]))
+                                     .arg(ShapeIcons.shapeName(cell.baseSymbols[1]))
+                    : ""
             }
         }
     }
