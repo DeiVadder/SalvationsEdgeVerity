@@ -81,22 +81,6 @@ Rectangle {
         ? [insideCalculator.finalShapeForPlayer(0), insideCalculator.finalShapeForPlayer(1),
            insideCalculator.finalShapeForPlayer(2)]
         : [0, 0, 0]
-    readonly property int sortTransferCount: (insideCalculator && root.calculationVersion >= 0)
-        ? insideCalculator.numberOfSortTransfers() : 0
-    readonly property var sortTransfers: {
-        var result = []
-        if (!insideCalculator || root.calculationVersion < 0)
-            return result
-        var total = root.sortTransferCount
-        for (var i = 0; i < total; ++i) {
-            result.push({
-                from: insideCalculator.sortTransferFrom(i),
-                to: insideCalculator.sortTransferTo(i),
-                symbol: insideCalculator.sortTransferSymbol(i)
-            })
-        }
-        return result
-    }
     readonly property int fastRoundCount: (insideCalculator && root.calculationVersion >= 0)
         ? insideCalculator.numberOfFastRounds() : 0
     readonly property int fastTransferCount: (insideCalculator && root.calculationVersion >= 0)
@@ -239,85 +223,62 @@ Rectangle {
         }
     }
 
+    // Distribute-phase math only ever depends on the 3 players' own
+    // symbols (fromBaseSymbol(own) - see calculateinsidesteps.cpp), never
+    // on wall contents, so it can always be computed once all 3 own
+    // symbols are picked. Sort-phase (what YOU give away) is computed
+    // separately below from your own wall alone - see mySortTransfers.
+    // LFG/Fast/Challenge Mode selection is hidden for now (see mySortTransfers
+    // and the hidden UI blocks below) - restore the old wall-based
+    // multi-player calculateStepsLFG()/Challenge()/Fast() flow here if that
+    // comes back.
     function tryCalculate() {
         if (player1 <= 0 || player2 <= 0 || player3 <= 0) {
             hasNoSolution = false
             insideCalculator.reset()
             return
         }
-        var wallsSet = wall1a > 0 && wall1b > 0 && wall2a > 0 && wall2b > 0
-            && wall3a > 0 && wall3b > 0
-        if (!wallsSet) {
-            hasNoSolution = false
-            insideCalculator.reset()
-            return
-        }
-
-        if (root.challengeMode) {
-            // Fast's decision table is only proven for the default target
-            // formula (see calculateinsidesteps.h) - Challenge mode always
-            // distributes via LFG instead, whose generic engine already
-            // handles arbitrary balanced targets. The Fast button is
-            // disabled below while Challenge Mode is on.
-            if (target1 <= 0 || target2 <= 0 || target3 <= 0) {
-                hasNoSolution = false
-                insideCalculator.reset()
-                return
-            }
-            if (!insideCalculator.checkIsValidWallChallenge(player1, player2, player3,
-                                                              wall1a, wall1b, wall2a, wall2b,
-                                                              wall3a, wall3b,
-                                                              target1, target2, target3)) {
-                hasNoSolution = true
-                insideCalculator.reset()
-                return
-            }
-            insideCalculator.calculateStepsLFGChallenge(player1, player2, player3,
-                                                          wall1a, wall1b, wall2a, wall2b,
-                                                          wall3a, wall3b,
-                                                          target1, target2, target3)
-            hasNoSolution = !(insideCalculator.isSortSolved() && insideCalculator.isSolved())
-            return
-        }
-
-        if (!insideCalculator.checkIsValidWall(player1, player2, player3,
-                                                 wall1a, wall1b, wall2a, wall2b,
-                                                 wall3a, wall3b)) {
+        if (!insideCalculator.checkIsValid(player1, player2, player3)) {
             hasNoSolution = true
             insideCalculator.reset()
             return
         }
-        if (root.cleanseMethod === "lfg") {
-            insideCalculator.calculateStepsLFG(player1, player2, player3,
-                                                 wall1a, wall1b, wall2a, wall2b,
-                                                 wall3a, wall3b)
-            hasNoSolution = !(insideCalculator.isSortSolved() && insideCalculator.isSolved())
-        } else {
-            insideCalculator.calculateStepsFast(player1, player2, player3,
-                                                  wall1a, wall1b, wall2a, wall2b,
-                                                  wall3a, wall3b)
-            hasNoSolution = !insideCalculator.isFastSolved()
-        }
+        insideCalculator.calculateSteps(player1, player2, player3)
+        hasNoSolution = false
     }
 
     onPlayer1Changed: tryCalculate()
     onPlayer2Changed: tryCalculate()
     onPlayer3Changed: tryCalculate()
-    onChallengeModeChanged: {
-        // Fast isn't offered under Challenge Mode (see tryCalculate()) -
-        // force LFG so cleanseMethod can't be left pointing at a method
-        // that's about to be hidden/disabled in the UI below.
-        if (root.challengeMode)
-            root.cleanseMethod = "lfg"
-        tryCalculate()
+
+    // What YOU personally give away this round: any foreign symbol on your
+    // own wall goes to whichever of the 3 players owns it - the only
+    // teammate data this needs is their OWN symbols (already picked above),
+    // not their wall contents, so teammates' walls are no longer collected
+    // in the UI. Matches the 2 confirmed special cases: wall already shows
+    // 2x your own symbol -> 0 gives; wall shows 0x your own symbol -> 2 gives.
+    readonly property var mySortTransfers: {
+        var result = []
+        if (root.myPosition < 0)
+            return result
+        var own = [root.player1, root.player2, root.player3]
+        var myOwn = own[root.myPosition]
+        if (myOwn <= 0)
+            return result
+        var mySlots = [root.wallValue(root.myPosition, 0), root.wallValue(root.myPosition, 1)]
+        for (var i = 0; i < 2; ++i) {
+            var sym = mySlots[i]
+            if (sym > 0 && sym !== myOwn) {
+                var owner = own.indexOf(sym)
+                if (owner >= 0 && owner !== root.myPosition)
+                    result.push({from: root.myPosition, to: owner, symbol: sym})
+            }
+        }
+        return result
     }
-    onCleanseMethodChanged: tryCalculate()
-    onWall1aChanged: tryCalculate()
-    onWall1bChanged: tryCalculate()
-    onWall2aChanged: tryCalculate()
-    onWall2bChanged: tryCalculate()
-    onWall3aChanged: tryCalculate()
-    onWall3bChanged: tryCalculate()
+
+    readonly property bool myWallComplete: root.myPosition >= 0
+        && root.wallValue(root.myPosition, 0) > 0 && root.wallValue(root.myPosition, 1) > 0
 
     color: "#0d0d0d"
     radius: 10
@@ -496,9 +457,11 @@ Rectangle {
                 }
             }
 
+            // Challenge Mode / outside-escape-shape targets - hidden for
+            // now (comes later), state kept so it's a 1-line revert.
             Row {
                 spacing: 14
-                visible: root.encounterProgress !== null && root.encounterProgress !== undefined
+                visible: false
 
                 Text {
                     text: qsTr("Challenge Mode")
@@ -537,7 +500,7 @@ Rectangle {
             Column {
                 width: parent.width
                 spacing: 6
-                visible: root.challengeMode
+                visible: false
 
                 Text {
                     text: qsTr("Outside escape shapes (called by outside team)")
@@ -596,15 +559,18 @@ Rectangle {
                 }
 
                 Text {
-                    text: qsTr("LFG is the default: it walks through the sort phase, a sync point to wait for your teammates, then the distribute phase. Fast is an experimental shortcut that skips the sort step entirely.")
+                    text: qsTr("Sort: give away any wall symbol that isn't your own to whoever owns it, wait for teammates, then distribute.")
                     color: "#999999"
                     font.pixelSize: 11
                     wrapMode: Text.WordWrap
                     width: parent.width
                 }
 
+                // LFG/Fast method choice - hidden for now (comes later),
+                // sort is always computed the LFG way in the meantime.
                 Row {
                     spacing: 10
+                    visible: false
 
                     Repeater {
                         model: [{key: "lfg", label: qsTr("LFG")}, {key: "fast", label: qsTr("Fast (Experimental)")}]
@@ -612,16 +578,10 @@ Rectangle {
                         delegate: Rectangle {
                             id: methodButton
                             required property var modelData
-                            // Fast isn't offered under Challenge Mode -
-                            // its decision table is only proven for the
-                            // default target formula (calculateinsidesteps.h).
-                            readonly property bool disabledForChallenge:
-                                modelData.key === "fast" && root.challengeMode
                             width: methodLabel.implicitWidth + 20
                             height: 28
                             radius: 6
                             color: root.cleanseMethod === modelData.key ? "#3b82f6" : "#2a2a2a"
-                            opacity: disabledForChallenge ? 0.4 : 1
                             border.color: "#444444"
 
                             Text {
@@ -634,7 +594,6 @@ Rectangle {
 
                             MouseArea {
                                 anchors.fill: parent
-                                enabled: !methodButton.disabledForChallenge
                                 onClicked: root.cleanseMethod = methodButton.modelData.key
                             }
                         }
@@ -642,55 +601,31 @@ Rectangle {
                 }
 
                 Text {
-                    visible: root.challengeMode
-                    text: qsTr("Fast isn't available in Challenge Mode - using LFG")
-                    color: "#777777"
-                    font.pixelSize: 10
-                }
-
-                Text {
-                    text: qsTr("Your wall right now (2 symbols per player) - tap a 2nd symbol to complete the pair, or double-tap one symbol for 2 of the same")
+                    text: root.myPosition >= 0
+                          ? qsTr("Your wall right now (2 symbols) - tap a 2nd symbol to complete the pair, or double-tap one symbol for 2 of the same")
+                          : qsTr("Pick which statue you are above to enter your wall")
                     color: "#999999"
                     font.pixelSize: 11
                     wrapMode: Text.WordWrap
                     width: parent.width
                 }
 
-                Row {
-                    id: wallRow
+                // Only your own wall is needed (see mySortTransfers above) -
+                // teammates' walls would just be noise here.
+                Column {
                     width: parent.width
-                    spacing: 12
+                    spacing: 4
+                    visible: root.myPosition >= 0
 
-                    Repeater {
-                        model: 3
-
-                        delegate: Column {
-                            id: wallCol
-                            required property int index
-                            readonly property bool isMe: wallCol.index === root.myPosition
-                            width: (wallRow.width - wallRow.spacing * 2) / 3
-                            spacing: 4
-
-                            Text {
-                                text: wallCol.isMe ? qsTr("%1 (You)").arg(root.playerLabels[wallCol.index])
-                                                    : root.playerLabels[wallCol.index]
-                                color: wallCol.isMe ? "#7fb2ff" : "#999999"
-                                font.bold: wallCol.isMe
-                                font.pixelSize: 11
-                                anchors.horizontalCenter: parent.horizontalCenter
-                            }
-
-                            WallPairSelector {
-                                totalWidth: wallCol.width
-                                cellSpacing: 4
-                                options: root.symbols2d
-                                slotA: root.wallValue(wallCol.index, 0)
-                                slotB: root.wallValue(wallCol.index, 1)
-                                onPairChanged: (a, b) => {
-                                    root.setWallValue(wallCol.index, 0, a)
-                                    root.setWallValue(wallCol.index, 1, b)
-                                }
-                            }
+                    WallPairSelector {
+                        totalWidth: Math.min(parent.width, 220)
+                        cellSpacing: 4
+                        options: root.symbols2d
+                        slotA: root.myPosition >= 0 ? root.wallValue(root.myPosition, 0) : 0
+                        slotB: root.myPosition >= 0 ? root.wallValue(root.myPosition, 1) : 0
+                        onPairChanged: (a, b) => {
+                            root.setWallValue(root.myPosition, 0, a)
+                            root.setWallValue(root.myPosition, 1, b)
                         }
                     }
                 }
@@ -728,10 +663,16 @@ Rectangle {
 
             Text {
                 id: escapeTitle
-                text: qsTr("Escape shapes")
+                text: qsTr("Solution")
                 color: "#ffffff"
                 font.pixelSize: 18
                 font.bold: true
+            }
+
+            Text {
+                text: qsTr("Statue positions")
+                color: "#999999"
+                font.pixelSize: 11
             }
 
             Row {
@@ -764,12 +705,16 @@ Rectangle {
                             border.color: shapeEntry.isMe ? "#3b82f6" : "#333333"
                             border.width: shapeEntry.isMe ? 2 : 1
 
+                            // Seeded live from the own-symbol picks on the
+                            // left (not the computed final escape shape -
+                            // that's redundant with each StepCard's own
+                            // expected-state footer further down).
                             Image {
                                 anchors.centerIn: parent
                                 width: 40
                                 height: 40
                                 fillMode: Image.PreserveAspectFit
-                                source: ShapeIcons.iconSource(root.finalShapes[shapeEntry.index])
+                                source: ShapeIcons.iconSource(root.playerValue(shapeEntry.index))
                             }
                         }
                     }
@@ -799,15 +744,22 @@ Rectangle {
                         visible: root.cleanseMethod === "lfg"
 
                         Text {
-                            visible: root.sortTransferCount > 0
+                            visible: root.mySortTransfers.length > 0
                             text: qsTr("SORT PHASE")
                             color: "#888888"
                             font.pixelSize: 10
                             font.letterSpacing: 1
                         }
 
+                        Text {
+                            visible: root.myWallComplete && root.mySortTransfers.length === 0
+                            text: qsTr("Nothing to give - you already have 2 of your own symbol")
+                            color: "#888888"
+                            font.pixelSize: 11
+                        }
+
                         Repeater {
-                            model: root.cleanseMethod === "lfg" ? root.sortTransfers : []
+                            model: root.cleanseMethod === "lfg" ? root.mySortTransfers : []
 
                             delegate: Rectangle {
                                 id: sortRow
@@ -849,7 +801,7 @@ Rectangle {
                         }
 
                         Rectangle {
-                            visible: root.sortTransferCount > 0
+                            visible: root.myWallComplete
                             width: stepsColumn.width
                             height: 32
                             radius: 6
@@ -961,8 +913,7 @@ Rectangle {
 
                     Text {
                         visible: !root.hasNoSolution && root.stepCount === 0
-                                 && root.sortTransferCount === 0 && root.fastRoundCount === 0
-                        text: qsTr("Select each player's symbol and wall (2 symbols each) to see the solution.")
+                        text: qsTr("Select each player's own symbol to see the solution.")
                         color: "#666666"
                         font.pixelSize: 12
                     }
