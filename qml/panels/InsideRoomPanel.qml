@@ -78,6 +78,12 @@ Rectangle {
         var result = []
         if (!insideCalculator)
             return result
+        // Read calculationVersion directly (not just fastTransferCount,
+        // an intermediate derived value that can legitimately repeat
+        // across two different calculations with the same transfer
+        // count) so this binding always re-evaluates on recalculation.
+        if (root.calculationVersion < 0)
+            return result
         var total = root.fastTransferCount
         for (var i = 0; i < total; ++i) {
             if (insideCalculator.fastTransferRound(i) === round) {
@@ -665,11 +671,16 @@ Rectangle {
                             width: stepsColumn.width
                             stepNumber: stepCard.index + 1
                             nodeLabels: root.playerLabels
-                            instructions: [
+                            // Guarded on calculationVersion (not just the
+                            // invokable calls below) so this binding
+                            // actually re-evaluates on recalculation - a
+                            // plain invokable call with no property read
+                            // never re-fires on its own in QML.
+                            instructions: root.calculationVersion >= 0 ? [
                                 root.insideCalculator.getInstructionForStep(stepCard.index, 0),
                                 root.insideCalculator.getInstructionForStep(stepCard.index, 1),
                                 root.insideCalculator.getInstructionForStep(stepCard.index, 2)
-                            ]
+                            ] : [0, 0, 0]
                             expectedState: root.finalShapes
                         }
                     }
@@ -697,11 +708,11 @@ Rectangle {
                                 width: stepsColumn.width
                                 stepNumber: cleanseCard.index + 1
                                 nodeLabels: root.playerLabels
-                                instructions: [
+                                instructions: root.calculationVersion >= 0 ? [
                                     root.insideCalculator.getCleanseInstructionForStep(cleanseCard.index, 0),
                                     root.insideCalculator.getCleanseInstructionForStep(cleanseCard.index, 1),
                                     root.insideCalculator.getCleanseInstructionForStep(cleanseCard.index, 2)
-                                ]
+                                ] : [0, 0, 0]
                                 expectedState: [root.player1, root.player2, root.player3]
                             }
                         }
@@ -739,11 +750,11 @@ Rectangle {
                                 width: stepsColumn.width
                                 stepNumber: distributeCard.index + 1
                                 nodeLabels: root.playerLabels
-                                instructions: [
+                                instructions: root.calculationVersion >= 0 ? [
                                     root.insideCalculator.getInstructionForStep(distributeCard.index, 0),
                                     root.insideCalculator.getInstructionForStep(distributeCard.index, 1),
                                     root.insideCalculator.getInstructionForStep(distributeCard.index, 2)
-                                ]
+                                ] : [0, 0, 0]
                                 expectedState: root.finalShapes
                             }
                         }
