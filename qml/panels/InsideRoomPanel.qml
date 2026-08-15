@@ -232,6 +232,34 @@ Rectangle {
                 insideCalculator.reset()
                 return
             }
+
+            if (root.challengeMode) {
+                // Fast's decision table is only proven for the default
+                // target formula (see calculateinsidesteps.h) - Challenge
+                // mode always distributes via LFG instead, whose generic
+                // engine already handles arbitrary balanced targets. The
+                // Fast button is disabled below while Challenge Mode is on.
+                if (target1 <= 0 || target2 <= 0 || target3 <= 0) {
+                    hasNoSolution = false
+                    insideCalculator.reset()
+                    return
+                }
+                if (!insideCalculator.checkIsValidWallChallenge(player1, player2, player3,
+                                                                  wall1a, wall1b, wall2a, wall2b,
+                                                                  wall3a, wall3b,
+                                                                  target1, target2, target3)) {
+                    hasNoSolution = true
+                    insideCalculator.reset()
+                    return
+                }
+                insideCalculator.calculateStepsLFGChallenge(player1, player2, player3,
+                                                              wall1a, wall1b, wall2a, wall2b,
+                                                              wall3a, wall3b,
+                                                              target1, target2, target3)
+                hasNoSolution = !(insideCalculator.isCleanseSolved() && insideCalculator.isSolved())
+                return
+            }
+
             if (!insideCalculator.checkIsValidWall(player1, player2, player3,
                                                      wall1a, wall1b, wall2a, wall2b,
                                                      wall3a, wall3b)) {
@@ -281,7 +309,14 @@ Rectangle {
     onPlayer1Changed: tryCalculate()
     onPlayer2Changed: tryCalculate()
     onPlayer3Changed: tryCalculate()
-    onChallengeModeChanged: tryCalculate()
+    onChallengeModeChanged: {
+        // Fast isn't offered under Challenge Mode (see tryCalculate()) -
+        // force LFG so cleanseMethod can't be left pointing at a method
+        // that's about to be hidden/disabled in the UI below.
+        if (root.challengeMode)
+            root.cleanseMethod = "lfg"
+        tryCalculate()
+    }
     onDetailedModeChanged: tryCalculate()
     onCleanseMethodChanged: tryCalculate()
     onWall1aChanged: tryCalculate()
@@ -562,26 +597,41 @@ Rectangle {
                         model: [{key: "fast", label: "Fast"}, {key: "lfg", label: "LFG"}]
 
                         delegate: Rectangle {
+                            id: methodButton
                             required property var modelData
+                            // Fast isn't offered under Challenge Mode -
+                            // its decision table is only proven for the
+                            // default target formula (calculateinsidesteps.h).
+                            readonly property bool disabledForChallenge:
+                                modelData.key === "fast" && root.challengeMode
                             width: 64
                             height: 28
                             radius: 6
                             color: root.cleanseMethod === modelData.key ? "#3b82f6" : "#2a2a2a"
+                            opacity: disabledForChallenge ? 0.4 : 1
                             border.color: "#444444"
 
                             Text {
                                 anchors.centerIn: parent
-                                text: modelData.label
+                                text: methodButton.modelData.label
                                 color: "#ffffff"
                                 font.pixelSize: 12
                             }
 
                             MouseArea {
                                 anchors.fill: parent
-                                onClicked: root.cleanseMethod = modelData.key
+                                enabled: !methodButton.disabledForChallenge
+                                onClicked: root.cleanseMethod = methodButton.modelData.key
                             }
                         }
                     }
+                }
+
+                Text {
+                    visible: root.challengeMode
+                    text: "Fast isn't available in Challenge Mode - using LFG"
+                    color: "#777777"
+                    font.pixelSize: 10
                 }
 
                 Text {

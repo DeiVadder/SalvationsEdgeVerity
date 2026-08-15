@@ -122,8 +122,40 @@ public:
     Q_INVOKABLE SymbolTypes getCleanseInstructionForStep(int step, int player);
     Q_INVOKABLE bool isCleanseSolved() const;
 
+    // LFG + Challenge: cleanse phase unchanged (wall -> self-pair), but the
+    // distribute phase targets the outside caller's 3 shapes instead of
+    // the default fromBaseSymbol(p) - safe to combine because both phases
+    // reuse the same generic SymbolSwapEngine already proven (exhaustively,
+    // see tst_symbolswapengine.cpp) to converge for ANY balanced target,
+    // not just the default one. Precondition: checkIsValidWallChallenge().
+    Q_INVOKABLE bool checkIsValidWallChallenge(SymbolTypes player1Symbol,
+                                                SymbolTypes player2Symbol,
+                                                SymbolTypes player3Symbol,
+                                                SymbolTypes wall1a, SymbolTypes wall1b,
+                                                SymbolTypes wall2a, SymbolTypes wall2b,
+                                                SymbolTypes wall3a, SymbolTypes wall3b,
+                                                SymbolTypes outerTarget1,
+                                                SymbolTypes outerTarget2,
+                                                SymbolTypes outerTarget3);
+    Q_INVOKABLE void calculateStepsLFGChallenge(SymbolTypes player1Symbol,
+                                                 SymbolTypes player2Symbol,
+                                                 SymbolTypes player3Symbol,
+                                                 SymbolTypes wall1a, SymbolTypes wall1b,
+                                                 SymbolTypes wall2a, SymbolTypes wall2b,
+                                                 SymbolTypes wall3a, SymbolTypes wall3b,
+                                                 SymbolTypes outerTarget1,
+                                                 SymbolTypes outerTarget2,
+                                                 SymbolTypes outerTarget3);
+
     // Fast: local per-player decision table, no phases, no synchronization
-    // callout - see FastCleanseResolver.
+    // callout - see FastCleanseResolver. Deliberately NOT offered in
+    // Challenge mode: the decision table's 5 cases were derived and
+    // exhaustively verified only for the default "two other symbols"
+    // target shape. Generic Challenge targets (in particular pure-double
+    // ones) can produce a room/target combination none of the 5 cases
+    // matches (e.g. wall={B,C}, own=A, target={A,A}) - the player would
+    // simply never act, silently stuck forever. Fixing that needs a real
+    // redesign + fresh exhaustive verification, not a parameter add.
     Q_INVOKABLE void calculateStepsFast(SymbolTypes player1Symbol,
                                          SymbolTypes player2Symbol,
                                          SymbolTypes player3Symbol,

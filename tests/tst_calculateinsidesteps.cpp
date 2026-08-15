@@ -42,6 +42,11 @@ private slots:
     void calculateStepsLFGConvergesInTwoPhases();
     void calculateStepsFastDelegatesToResolver();
     void calculationVersionBumpsOnEveryCallPath();
+
+    void checkIsValidWallChallenge_data();
+    void checkIsValidWallChallenge();
+    void calculateStepsLFGChallengeConvergesToOuterTargets();
+    void calculateStepsLFGChallengeHandlesPureDouble();
 };
 
 void TestCalculateInsideSteps::init()
@@ -373,6 +378,102 @@ void TestCalculateInsideSteps::calculationVersionBumpsOnEveryCallPath()
     QCOMPARE(m_calc->calculationVersion(), previous + 1);
 
     QCOMPARE(spy.count(), 5);
+}
+
+void TestCalculateInsideSteps::checkIsValidWallChallenge_data()
+{
+    QTest::addColumn<CalculateSteps::SymbolTypes>("t1");
+    QTest::addColumn<CalculateSteps::SymbolTypes>("t2");
+    QTest::addColumn<CalculateSteps::SymbolTypes>("t3");
+    QTest::addColumn<bool>("expectedValid");
+
+    QTest::newRow("balanced, one pure double")
+        << CalculateSteps::Kugel << CalculateSteps::Prisma << CalculateSteps::Prisma << true;
+    QTest::newRow("balanced, all mixed")
+        << CalculateSteps::Kegel << CalculateSteps::Zylinder << CalculateSteps::Prisma << true;
+    QTest::newRow("unbalanced")
+        << CalculateSteps::Kugel << CalculateSteps::Kugel << CalculateSteps::Kugel << false;
+    QTest::newRow("undefined target slot")
+        << CalculateSteps::Kugel << CalculateSteps::Undefined << CalculateSteps::Prisma << false;
+}
+
+void TestCalculateInsideSteps::checkIsValidWallChallenge()
+{
+    QFETCH(CalculateSteps::SymbolTypes, t1);
+    QFETCH(CalculateSteps::SymbolTypes, t2);
+    QFETCH(CalculateSteps::SymbolTypes, t3);
+    QFETCH(bool, expectedValid);
+
+    QCOMPARE(m_calc->checkIsValidWallChallenge(CalculateSteps::Dreieck, CalculateSteps::Viereck,
+                                                CalculateSteps::Kreis,
+                                                CalculateSteps::Viereck, CalculateSteps::Kreis,
+                                                CalculateSteps::Dreieck, CalculateSteps::Kreis,
+                                                CalculateSteps::Dreieck, CalculateSteps::Viereck,
+                                                t1, t2, t3),
+             expectedValid);
+
+    // Unbalanced wall rejects regardless of target validity.
+    QVERIFY(!m_calc->checkIsValidWallChallenge(CalculateSteps::Dreieck, CalculateSteps::Viereck,
+                                                CalculateSteps::Kreis,
+                                                CalculateSteps::Dreieck, CalculateSteps::Dreieck,
+                                                CalculateSteps::Dreieck, CalculateSteps::Dreieck,
+                                                CalculateSteps::Kreis, CalculateSteps::Kreis,
+                                                t1, t2, t3));
+}
+
+// Same wall as calculateStepsLFGConvergesInTwoPhases, but distributing to
+// the outside caller's shapes instead of the default fromBaseSymbol(own).
+void TestCalculateInsideSteps::calculateStepsLFGChallengeConvergesToOuterTargets()
+{
+    QVERIFY(m_calc->checkIsValidWallChallenge(CalculateSteps::Dreieck, CalculateSteps::Viereck,
+                                               CalculateSteps::Kreis,
+                                               CalculateSteps::Viereck, CalculateSteps::Kreis,
+                                               CalculateSteps::Dreieck, CalculateSteps::Kreis,
+                                               CalculateSteps::Dreieck, CalculateSteps::Viereck,
+                                               CalculateSteps::Kegel, CalculateSteps::Zylinder,
+                                               CalculateSteps::Prisma));
+
+    m_calc->calculateStepsLFGChallenge(CalculateSteps::Dreieck, CalculateSteps::Viereck,
+                                        CalculateSteps::Kreis,
+                                        CalculateSteps::Viereck, CalculateSteps::Kreis,
+                                        CalculateSteps::Dreieck, CalculateSteps::Kreis,
+                                        CalculateSteps::Dreieck, CalculateSteps::Viereck,
+                                        CalculateSteps::Kegel, CalculateSteps::Zylinder,
+                                        CalculateSteps::Prisma);
+
+    QVERIFY(m_calc->isCleanseSolved());
+    QVERIFY(m_calc->isSolved());
+    QCOMPARE(m_calc->finalShapeForPlayer(0), CalculateSteps::Kegel);
+    QCOMPARE(m_calc->finalShapeForPlayer(1), CalculateSteps::Zylinder);
+    QCOMPARE(m_calc->finalShapeForPlayer(2), CalculateSteps::Prisma);
+}
+
+// The case Fast deliberately doesn't support: a pure-double Challenge
+// target. LFG handles it fine since both its phases reuse the exhaustively
+// verified generic SymbolSwapEngine.
+void TestCalculateInsideSteps::calculateStepsLFGChallengeHandlesPureDouble()
+{
+    QVERIFY(m_calc->checkIsValidWallChallenge(CalculateSteps::Dreieck, CalculateSteps::Viereck,
+                                               CalculateSteps::Kreis,
+                                               CalculateSteps::Viereck, CalculateSteps::Kreis,
+                                               CalculateSteps::Dreieck, CalculateSteps::Kreis,
+                                               CalculateSteps::Dreieck, CalculateSteps::Viereck,
+                                               CalculateSteps::Kugel, CalculateSteps::Prisma,
+                                               CalculateSteps::Prisma));
+
+    m_calc->calculateStepsLFGChallenge(CalculateSteps::Dreieck, CalculateSteps::Viereck,
+                                        CalculateSteps::Kreis,
+                                        CalculateSteps::Viereck, CalculateSteps::Kreis,
+                                        CalculateSteps::Dreieck, CalculateSteps::Kreis,
+                                        CalculateSteps::Dreieck, CalculateSteps::Viereck,
+                                        CalculateSteps::Kugel, CalculateSteps::Prisma,
+                                        CalculateSteps::Prisma);
+
+    QVERIFY(m_calc->isCleanseSolved());
+    QVERIFY(m_calc->isSolved());
+    QCOMPARE(m_calc->finalShapeForPlayer(0), CalculateSteps::Kugel);
+    QCOMPARE(m_calc->finalShapeForPlayer(1), CalculateSteps::Prisma);
+    QCOMPARE(m_calc->finalShapeForPlayer(2), CalculateSteps::Prisma);
 }
 
 QTEST_MAIN(TestCalculateInsideSteps)

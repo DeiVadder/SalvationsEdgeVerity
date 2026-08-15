@@ -181,6 +181,63 @@ void CalculateInsideSteps::calculateStepsLFG(SymbolTypes player1Symbol,
     bumpCalculationVersion();
 }
 
+bool CalculateInsideSteps::checkIsValidWallChallenge(SymbolTypes player1Symbol,
+                                                      SymbolTypes player2Symbol,
+                                                      SymbolTypes player3Symbol,
+                                                      SymbolTypes wall1a, SymbolTypes wall1b,
+                                                      SymbolTypes wall2a, SymbolTypes wall2b,
+                                                      SymbolTypes wall3a, SymbolTypes wall3b,
+                                                      SymbolTypes outerTarget1,
+                                                      SymbolTypes outerTarget2,
+                                                      SymbolTypes outerTarget3)
+{
+    if (!checkIsValidWall(player1Symbol, player2Symbol, player3Symbol,
+                           wall1a, wall1b, wall2a, wall2b, wall3a, wall3b))
+        return false;
+
+    QVector<QVector<SymbolTypes>> target = {CalculateSteps::toBaseSymbols(outerTarget1),
+                                             CalculateSteps::toBaseSymbols(outerTarget2),
+                                             CalculateSteps::toBaseSymbols(outerTarget3)};
+
+    QVector<SymbolTypes> failure{CalculateSteps::Undefined, CalculateSteps::Undefined};
+    if (target.contains(failure))
+        return false;
+
+    int cntKreis{0}, cntDreieck{0}, cntViereck{0};
+    for (const auto &pair : target) {
+        cntKreis += pair.count(CalculateSteps::Kreis);
+        cntDreieck += pair.count(CalculateSteps::Dreieck);
+        cntViereck += pair.count(CalculateSteps::Viereck);
+    }
+    return cntKreis == cntDreieck && cntKreis == cntViereck;
+}
+
+void CalculateInsideSteps::calculateStepsLFGChallenge(SymbolTypes player1Symbol,
+                                                       SymbolTypes player2Symbol,
+                                                       SymbolTypes player3Symbol,
+                                                       SymbolTypes wall1a, SymbolTypes wall1b,
+                                                       SymbolTypes wall2a, SymbolTypes wall2b,
+                                                       SymbolTypes wall3a, SymbolTypes wall3b,
+                                                       SymbolTypes outerTarget1,
+                                                       SymbolTypes outerTarget2,
+                                                       SymbolTypes outerTarget3)
+{
+    QVector<QVector<SymbolTypes>> wallPairs = {{wall1a, wall1b}, {wall2a, wall2b}, {wall3a, wall3b}};
+    QVector<QVector<SymbolTypes>> selfPairs = {{player1Symbol, player1Symbol},
+                                                {player2Symbol, player2Symbol},
+                                                {player3Symbol, player3Symbol}};
+    QVector<QVector<SymbolTypes>> target = {CalculateSteps::toBaseSymbols(outerTarget1),
+                                             CalculateSteps::toBaseSymbols(outerTarget2),
+                                             CalculateSteps::toBaseSymbols(outerTarget3)};
+
+    m_cleanseEngine->solve(wallPairs, selfPairs);
+    m_engine->solve(selfPairs, target);
+
+    m_targetShapePerPlayer = {outerTarget1, outerTarget2, outerTarget3};
+
+    bumpCalculationVersion();
+}
+
 int CalculateInsideSteps::numberOfCleanseSteps()
 {
     return m_cleanseEngine->numberOfSteps();
