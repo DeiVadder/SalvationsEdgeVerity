@@ -611,21 +611,49 @@ Rectangle {
                 }
 
                 // Only your own wall is needed (see mySortTransfers above) -
-                // teammates' walls would just be noise here.
-                Column {
+                // teammates' walls would just be noise here. Laid out over
+                // the same 3-column geometry as the LEFT/MID/RIGHT symbol
+                // row above so the wall selector lines up under whichever
+                // column matches your picked position, instead of always
+                // sitting at the left.
+                Row {
+                    id: wallAlignRow
                     width: parent.width
-                    spacing: 4
+                    spacing: 12
                     visible: root.myPosition >= 0
 
-                    WallPairSelector {
-                        totalWidth: Math.min(parent.width, 220)
-                        cellSpacing: 4
-                        options: root.symbols2d
-                        slotA: root.myPosition >= 0 ? root.wallValue(root.myPosition, 0) : 0
-                        slotB: root.myPosition >= 0 ? root.wallValue(root.myPosition, 1) : 0
-                        onPairChanged: (a, b) => {
-                            root.setWallValue(root.myPosition, 0, a)
-                            root.setWallValue(root.myPosition, 1, b)
+                    Repeater {
+                        model: 3
+
+                        delegate: Column {
+                            id: wallSlot
+                            required property int index
+                            width: (wallAlignRow.width - wallAlignRow.spacing * 2) / 3
+                            spacing: 4
+
+                            Text {
+                                visible: wallSlot.index === root.myPosition
+                                text: qsTr("%1 (You)").arg(root.playerLabels[wallSlot.index])
+                                color: "#7fb2ff"
+                                font.bold: true
+                                font.pixelSize: 11
+                                anchors.horizontalCenter: parent.horizontalCenter
+                            }
+
+                            WallPairSelector {
+                                visible: wallSlot.index === root.myPosition
+                                totalWidth: wallSlot.width
+                                cellSpacing: 4
+                                options: root.symbols2d
+                                slotA: wallSlot.index === root.myPosition ? root.wallValue(root.myPosition, 0) : 0
+                                slotB: wallSlot.index === root.myPosition ? root.wallValue(root.myPosition, 1) : 0
+                                onPairChanged: (a, b) => {
+                                    if (wallSlot.index === root.myPosition) {
+                                        root.setWallValue(root.myPosition, 0, a)
+                                        root.setWallValue(root.myPosition, 1, b)
+                                    }
+                                }
+                            }
                         }
                     }
                 }
@@ -817,7 +845,7 @@ Rectangle {
                         }
 
                         Text {
-                            visible: root.stepCount > 0
+                            visible: root.stepCount > 0 && root.myWallComplete
                             text: qsTr("DISTRIBUTE PHASE")
                             color: "#888888"
                             font.pixelSize: 10
@@ -825,7 +853,7 @@ Rectangle {
                         }
 
                         Repeater {
-                            model: root.cleanseMethod === "lfg" ? root.stepCount : 0
+                            model: (root.cleanseMethod === "lfg" && root.myWallComplete) ? root.stepCount : 0
 
                             delegate: StepCard {
                                 id: distributeCard
@@ -914,6 +942,13 @@ Rectangle {
                     Text {
                         visible: !root.hasNoSolution && root.stepCount === 0
                         text: qsTr("Select each player's own symbol to see the solution.")
+                        color: "#666666"
+                        font.pixelSize: 12
+                    }
+
+                    Text {
+                        visible: !root.hasNoSolution && root.stepCount > 0 && !root.myWallComplete
+                        text: qsTr("Enter your wall above to see the sort and distribute steps.")
                         color: "#666666"
                         font.pixelSize: 12
                     }

@@ -227,7 +227,7 @@
     </message>
     <message>
         <location filename="../qml/panels/InsideRoomPanel.qml" line="328"/>
-        <location filename="../qml/panels/InsideRoomPanel.qml" line="666"/>
+        <location filename="../qml/panels/InsideRoomPanel.qml" line="694"/>
         <source>Solution</source>
         <translation>Lösung</translation>
     </message>
@@ -253,7 +253,8 @@
     </message>
     <message>
         <location filename="../qml/panels/InsideRoomPanel.qml" line="438"/>
-        <location filename="../qml/panels/InsideRoomPanel.qml" line="692"/>
+        <location filename="../qml/panels/InsideRoomPanel.qml" line="636"/>
+        <location filename="../qml/panels/InsideRoomPanel.qml" line="720"/>
         <source>%1 (You)</source>
         <translation>%1 (Du)</translation>
     </message>
@@ -298,54 +299,59 @@
         <translation>Wähle oben deine Statue aus, um deine Wand einzugeben</translation>
     </message>
     <message>
-        <location filename="../qml/panels/InsideRoomPanel.qml" line="673"/>
+        <location filename="../qml/panels/InsideRoomPanel.qml" line="701"/>
         <source>Statue positions</source>
         <translation>Statuen-Positionen</translation>
     </message>
     <message>
-        <location filename="../qml/panels/InsideRoomPanel.qml" line="916"/>
+        <location filename="../qml/panels/InsideRoomPanel.qml" line="944"/>
         <source>Select each player&apos;s own symbol to see the solution.</source>
         <translation>Wähle das eigene Symbol jedes Spielers, um die Lösung zu sehen.</translation>
     </message>
     <message>
-        <location filename="../qml/panels/InsideRoomPanel.qml" line="643"/>
+        <location filename="../qml/panels/InsideRoomPanel.qml" line="951"/>
+        <source>Enter your wall above to see the sort and distribute steps.</source>
+        <translation>Gib oben deine Wand ein, um die Sortier- und Verteilschritte zu sehen.</translation>
+    </message>
+    <message>
+        <location filename="../qml/panels/InsideRoomPanel.qml" line="671"/>
         <source>Reset</source>
         <translation>Zurücksetzen</translation>
     </message>
     <message>
-        <location filename="../qml/panels/InsideRoomPanel.qml" line="821"/>
+        <location filename="../qml/panels/InsideRoomPanel.qml" line="849"/>
         <source>DISTRIBUTE PHASE</source>
         <translation>VERTEILPHASE</translation>
     </message>
     <message>
-        <location filename="../qml/panels/InsideRoomPanel.qml" line="863"/>
+        <location filename="../qml/panels/InsideRoomPanel.qml" line="891"/>
         <source>ROUND %1</source>
         <translation>RUNDE %1</translation>
     </message>
     <message>
-        <location filename="../qml/panels/InsideRoomPanel.qml" line="782"/>
-        <location filename="../qml/panels/InsideRoomPanel.qml" line="890"/>
+        <location filename="../qml/panels/InsideRoomPanel.qml" line="810"/>
+        <location filename="../qml/panels/InsideRoomPanel.qml" line="918"/>
         <source>%1 gives</source>
         <translation>%1 gibt</translation>
     </message>
     <message>
-        <location filename="../qml/panels/InsideRoomPanel.qml" line="748"/>
+        <location filename="../qml/panels/InsideRoomPanel.qml" line="776"/>
         <source>SORT PHASE</source>
         <translation>SORTIERPHASE</translation>
     </message>
     <message>
-        <location filename="../qml/panels/InsideRoomPanel.qml" line="756"/>
+        <location filename="../qml/panels/InsideRoomPanel.qml" line="784"/>
         <source>Nothing to give - you already have 2 of your own symbol</source>
         <translation>Nichts abzugeben - du hast bereits 2x dein eigenes Symbol</translation>
     </message>
     <message>
-        <location filename="../qml/panels/InsideRoomPanel.qml" line="795"/>
-        <location filename="../qml/panels/InsideRoomPanel.qml" line="903"/>
+        <location filename="../qml/panels/InsideRoomPanel.qml" line="823"/>
+        <location filename="../qml/panels/InsideRoomPanel.qml" line="931"/>
         <source>to %1</source>
         <translation>an %1</translation>
     </message>
     <message>
-        <location filename="../qml/panels/InsideRoomPanel.qml" line="813"/>
+        <location filename="../qml/panels/InsideRoomPanel.qml" line="841"/>
         <source>Wait until all 3 players have sorted, then distribute</source>
         <translation>Warten bis alle 3 Spieler sortiert haben, dann verteilen</translation>
     </message>
