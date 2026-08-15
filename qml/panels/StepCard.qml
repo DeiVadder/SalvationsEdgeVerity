@@ -18,6 +18,10 @@ Rectangle {
     // statue) - tints that column in both rows below. -1 = no highlight,
     // used by the Outside panel where every node is equally "the team".
     property int highlightIndex: -1
+    // Tap-to-check-off state, purely local UI memory (not persisted, not
+    // read by any calculation) - lets a player tick off steps as they
+    // physically complete them without losing their place mid-encounter.
+    property bool done: false
 
     readonly property var activeIndices: {
         var idx = []
@@ -29,10 +33,42 @@ Rectangle {
 
     color: "#161616"
     radius: 8
-    border.color: "#333333"
-    border.width: 1
+    border.color: root.done ? "#2e7d46" : "#333333"
+    border.width: root.done ? 2 : 1
+    opacity: root.done ? 0.55 : 1
     implicitWidth: 320
     implicitHeight: content.implicitHeight + 24
+
+    Behavior on opacity { NumberAnimation { duration: 120 } }
+    Behavior on border.color { ColorAnimation { duration: 120 } }
+
+    MouseArea {
+        id: doneArea
+        anchors.fill: parent
+        onClicked: root.done = !root.done
+    }
+
+    // Checkmark badge, top-right corner - only real feedback needed since
+    // border + dimming already read as "done" but could be missed at a
+    // glance while scanning down a list of cards.
+    Rectangle {
+        width: 22
+        height: 22
+        radius: 11
+        anchors.top: parent.top
+        anchors.right: parent.right
+        anchors.margins: 6
+        color: "#2e7d46"
+        visible: root.done
+
+        Text {
+            anchors.centerIn: parent
+            text: "✓"
+            color: "#ffffff"
+            font.bold: true
+            font.pixelSize: 13
+        }
+    }
 
     // Step number stretched across the whole card height, with a clear
     // vertical divider to its right - reads as a single anchor point for
