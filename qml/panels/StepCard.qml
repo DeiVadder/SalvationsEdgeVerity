@@ -39,7 +39,7 @@ Rectangle {
         spacing: 10
 
         Row {
-            spacing: 10
+            spacing: 24
 
             Rectangle {
                 width: 26
@@ -57,21 +57,10 @@ Rectangle {
                 }
             }
 
-            Text {
-                text: qsTr("Both carries below happen together")
-                color: "#888888"
-                font.pixelSize: 11
-                anchors.verticalCenter: parent.verticalCenter
-            }
-        }
-
-        // One line per carry, not a compact "A ⇄ B" row - each icon here
-        // is a separate physical hand-off (2 statues, 2 different orbs
-        // moving in opposite directions), easy to misread as "one action"
-        // when squeezed onto a single line.
-        Column {
-            spacing: 6
-
+            // Each entry is a separate physical hand-off, spread apart
+            // (not squeezed together with a "⇄") so it's clear these are
+            // 2 different orbs carried in 2 different directions, done at
+            // the same time.
             Repeater {
                 model: root.activeIndices
 
@@ -79,6 +68,7 @@ Rectangle {
                     id: swapEntry
                     required property var modelData
                     spacing: 6
+                    anchors.verticalCenter: parent.verticalCenter
 
                     Image {
                         width: 20

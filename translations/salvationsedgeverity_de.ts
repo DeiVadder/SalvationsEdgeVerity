@@ -471,17 +471,12 @@
         <translation>RECHTS</translation>
     </message>
     <message>
-        <location filename="../qml/panels/StepCard.qml" line="61"/>
-        <source>Both carries below happen together</source>
-        <translation>Beide Wege unten passieren gleichzeitig</translation>
-    </message>
-    <message>
-        <location filename="../qml/panels/StepCard.qml" line="90"/>
+        <location filename="../qml/panels/StepCard.qml" line="80"/>
         <source>%1 → %2</source>
         <translation>%1 → %2</translation>
     </message>
     <message>
-        <location filename="../qml/panels/StepCard.qml" line="106"/>
+        <location filename="../qml/panels/StepCard.qml" line="96"/>
         <source>TARGET SHAPE</source>
         <translation>ZIELFORM</translation>
     </message>
