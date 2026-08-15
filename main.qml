@@ -52,7 +52,7 @@ ApplicationWindow {
                 font.pixelSize: 18
                 font.bold: true
                 anchors.verticalCenter: parent.verticalCenter
-                width: parent.width - modeToggle.width - resetButton.width - 24
+                width: parent.width - modeToggle.width - languageToggle.width - resetButton.width - 36
                 elide: Text.ElideRight
             }
 
@@ -76,7 +76,7 @@ ApplicationWindow {
                         color: root.puzzleMode === 0 ? "#3b82f6" : "transparent"
                         Text {
                             anchors.centerIn: parent
-                            text: "Outside"
+                            text: qsTr("Outside")
                             color: root.puzzleMode === 0 ? "white" : "#999999"
                             font.pixelSize: 12
                             font.bold: root.puzzleMode === 0
@@ -93,7 +93,7 @@ ApplicationWindow {
                         color: root.puzzleMode === 1 ? "#3b82f6" : "transparent"
                         Text {
                             anchors.centerIn: parent
-                            text: "Inside"
+                            text: qsTr("Inside")
                             color: root.puzzleMode === 1 ? "white" : "#999999"
                             font.pixelSize: 12
                             font.bold: root.puzzleMode === 1
@@ -110,7 +110,7 @@ ApplicationWindow {
                         color: root.puzzleMode === 2 ? "#3b82f6" : "transparent"
                         Text {
                             anchors.centerIn: parent
-                            text: "Ghosts"
+                            text: qsTr("Ghosts")
                             color: root.puzzleMode === 2 ? "white" : "#999999"
                             font.pixelSize: 12
                             font.bold: root.puzzleMode === 2
@@ -118,6 +118,67 @@ ApplicationWindow {
                         MouseArea {
                             anchors.fill: parent
                             onClicked: root.puzzleMode = 2
+                        }
+                    }
+                }
+            }
+
+            Rectangle {
+                id: languageToggle
+                width: 68
+                height: 34
+                radius: 6
+                color: "#161616"
+                border.color: "#333333"
+                anchors.verticalCenter: parent.verticalCenter
+
+                Row {
+                    anchors.centerIn: parent
+                    spacing: 6
+
+                    Rectangle {
+                        width: 26
+                        height: 20
+                        radius: 3
+                        color: "transparent"
+                        border.color: translationManager.currentLanguage === "en" ? "#3b82f6" : "transparent"
+                        border.width: 2
+                        anchors.verticalCenter: parent.verticalCenter
+
+                        Image {
+                            anchors.centerIn: parent
+                            width: 20
+                            height: 13
+                            fillMode: Image.PreserveAspectFit
+                            source: "qrc:/images/svg/flags/flag_en.svg"
+                        }
+
+                        MouseArea {
+                            anchors.fill: parent
+                            onClicked: translationManager.setLanguage("en")
+                        }
+                    }
+
+                    Rectangle {
+                        width: 26
+                        height: 20
+                        radius: 3
+                        color: "transparent"
+                        border.color: translationManager.currentLanguage === "de" ? "#3b82f6" : "transparent"
+                        border.width: 2
+                        anchors.verticalCenter: parent.verticalCenter
+
+                        Image {
+                            anchors.centerIn: parent
+                            width: 20
+                            height: 13
+                            fillMode: Image.PreserveAspectFit
+                            source: "qrc:/images/svg/flags/flag_de.svg"
+                        }
+
+                        MouseArea {
+                            anchors.fill: parent
+                            onClicked: translationManager.setLanguage("de")
                         }
                     }
                 }
@@ -134,7 +195,7 @@ ApplicationWindow {
 
                 Text {
                     anchors.centerIn: parent
-                    text: "Reset"
+                    text: qsTr("Reset")
                     color: "#dddddd"
                     font.pixelSize: 13
                 }
@@ -190,7 +251,7 @@ ApplicationWindow {
                         color: outsideContainer.tab === 0 ? "#3b82f6" : "transparent"
                         Text {
                             anchors.centerIn: parent
-                            text: "Selection"
+                            text: qsTr("Selection")
                             color: outsideContainer.tab === 0 ? "white" : "#999999"
                             font.pixelSize: 12
                         }
@@ -206,7 +267,7 @@ ApplicationWindow {
                         color: outsideContainer.tab === 1 ? "#3b82f6" : "transparent"
                         Text {
                             anchors.centerIn: parent
-                            text: "Solution"
+                            text: qsTr("Solution")
                             color: outsideContainer.tab === 1 ? "white" : "#999999"
                             font.pixelSize: 12
                         }

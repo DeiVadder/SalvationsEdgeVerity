@@ -7,7 +7,7 @@ Rectangle {
     id: root
 
     property CalculateSteps stepCalculator
-    readonly property var statueLabels: ["LEFT", "MID", "RIGHT"]
+    readonly property var statueLabels: [qsTr("LEFT"), qsTr("MID"), qsTr("RIGHT")]
 
     readonly property int stepCount: stepCalculator ? stepCalculator.numberOfSteps : 0
     // targetShapeForStatue()/getInstructionForStep() are plain method
@@ -28,7 +28,7 @@ Rectangle {
         : [0, 0, 0]
 
     function copyForChat() {
-        var lines = ["Verity dissection:"]
+        var lines = [qsTr("Verity dissection:")]
         for (var s = 0; s < stepCount; s++) {
             var parts = []
             for (var i = 0; i < 3; i++) {
@@ -36,7 +36,7 @@ Rectangle {
                 if (sym !== 0)
                     parts.push(root.statueLabels[i] + " <- " + ShapeIcons.shapeName(sym))
             }
-            lines.push("Step " + (s + 1) + ": " + parts.join(", "))
+            lines.push(qsTr("Step %1: %2").arg(s + 1).arg(parts.join(", ")))
         }
         chatText.text = lines.join("\n")
         chatText.selectAll()
@@ -72,14 +72,14 @@ Rectangle {
         spacing: 14
 
         Text {
-            text: "Solution"
+            text: qsTr("Solution")
             color: "#ffffff"
             font.pixelSize: 18
             font.bold: true
         }
 
         Text {
-            text: "Statue positions"
+            text: qsTr("Statue positions")
             color: "#999999"
             font.pixelSize: 11
         }
@@ -146,7 +146,7 @@ Rectangle {
 
             Text {
                 visible: root.stepCount === 0
-                text: "Select all shapes to see the solution."
+                text: qsTr("Select all shapes to see the solution.")
                 color: "#666666"
                 font.pixelSize: 12
             }
@@ -160,7 +160,7 @@ Rectangle {
 
             Text {
                 anchors.centerIn: parent
-                text: "Copy for in-game chat"
+                text: qsTr("Copy for in-game chat")
                 color: root.stepCount > 0 ? "white" : "#777777"
                 font.pixelSize: 13
                 font.bold: true

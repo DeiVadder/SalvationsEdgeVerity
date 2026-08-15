@@ -1,0 +1,16 @@
+<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="100" cy="100" r="98" fill="#ffffff"/>
+    <g fill="#000000">
+        <circle cx="100" cy="100" r="62"/>
+        <rect x="150" y="87" width="30" height="26" rx="2" transform="rotate(0 100 100)"/>
+        <rect x="150" y="87" width="30" height="26" rx="2" transform="rotate(45 100 100)"/>
+        <rect x="150" y="87" width="30" height="26" rx="2" transform="rotate(90 100 100)"/>
+        <rect x="150" y="87" width="30" height="26" rx="2" transform="rotate(135 100 100)"/>
+        <rect x="150" y="87" width="30" height="26" rx="2" transform="rotate(180 100 100)"/>
+        <rect x="150" y="87" width="30" height="26" rx="2" transform="rotate(225 100 100)"/>
+        <rect x="150" y="87" width="30" height="26" rx="2" transform="rotate(270 100 100)"/>
+        <rect x="150" y="87" width="30" height="26" rx="2" transform="rotate(315 100 100)"/>
+    </g>
+    <circle cx="100" cy="100" r="44" fill="#ffffff"/>
+    <text x="95" y="118" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-weight="bold" font-style="italic" font-size="44" fill="#2ea44f">JH</text>
+</svg>

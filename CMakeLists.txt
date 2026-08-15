@@ -5,8 +5,9 @@ project(SalvationsEdgeVerity VERSION 1.0 LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_AUTORCC ON)
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-find_package(Qt6 6.11 REQUIRED COMPONENTS Quick Svg Test)
+find_package(Qt6 6.11 REQUIRED COMPONENTS Quick Svg Test LinguistTools)
 
 qt_standard_project_setup(REQUIRES 6.11)
 
@@ -26,6 +27,8 @@ qt_add_executable(SalvationsEdgeVerity
     cpp/ghost/ghostplayerslot.h
     cpp/ghost/ghostphasehelper.cpp
     cpp/ghost/ghostphasehelper.h
+    cpp/i18n/translationmanager.cpp
+    cpp/i18n/translationmanager.h
 )
 
 target_include_directories(SalvationsEdgeVerity PRIVATE ${CMAKE_SOURCE_DIR}/cpp)
@@ -52,6 +55,13 @@ target_sources(SalvationsEdgeVerity PRIVATE rsc.qrc)
 target_link_libraries(SalvationsEdgeVerity PRIVATE
     Qt6::Quick
     Qt6::Svg
+)
+
+# English (qsTr() source strings) + German. TS_FILES listed explicitly so
+# the embedded resource path is predictable (:/i18n/salvationsedgeverity_de.qm)
+# for TranslationManager to load by name - see cpp/i18n/translationmanager.cpp.
+qt_add_translations(SalvationsEdgeVerity
+    TS_FILES translations/salvationsedgeverity_de.ts
 )
 
 include(CTest)

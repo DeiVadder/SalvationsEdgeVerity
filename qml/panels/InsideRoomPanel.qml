@@ -24,7 +24,7 @@ Rectangle {
     // one half at a time via the tab bar instead.
     readonly property bool wideLayout: width >= height * 1.15
     property int tab: 0 // 0 = setup, 1 = solution - only used when narrow
-    readonly property var playerLabels: ["LEFT", "MID", "RIGHT"]
+    readonly property var playerLabels: [qsTr("LEFT"), qsTr("MID"), qsTr("RIGHT")]
     readonly property var symbols2d: [Symbols.Dreieck, Symbols.Viereck, Symbols.Kreis]
     readonly property var symbols3d: [Symbols.Kegel, Symbols.Wuerfel, Symbols.Zylinder,
         Symbols.Pyramide, Symbols.Prisma, Symbols.Kugel]
@@ -355,7 +355,7 @@ Rectangle {
                 color: root.tab === 0 ? "#3b82f6" : "transparent"
                 Text {
                     anchors.centerIn: parent
-                    text: "Setup"
+                    text: qsTr("Setup")
                     color: root.tab === 0 ? "white" : "#999999"
                     font.pixelSize: 12
                 }
@@ -371,7 +371,7 @@ Rectangle {
                 color: root.tab === 1 ? "#3b82f6" : "transparent"
                 Text {
                     anchors.centerIn: parent
-                    text: "Solution"
+                    text: qsTr("Solution")
                     color: root.tab === 1 ? "white" : "#999999"
                     font.pixelSize: 12
                 }
@@ -402,21 +402,21 @@ Rectangle {
 
                 Text {
                     anchors.centerIn: parent
-                    text: "No solution for this combination - check your inputs"
+                    text: qsTr("No solution for this combination - check your inputs")
                     color: "#ffb4b4"
                     font.pixelSize: 12
                 }
             }
 
             Text {
-                text: "Solo room symbols"
+                text: qsTr("Solo room symbols")
                 color: "#ffffff"
                 font.pixelSize: 18
                 font.bold: true
             }
 
             Text {
-                text: "Each player's own statue symbol"
+                text: qsTr("Each player's own statue symbol")
                 color: "#999999"
                 font.pixelSize: 11
             }
@@ -461,7 +461,7 @@ Rectangle {
                 visible: root.encounterProgress !== null && root.encounterProgress !== undefined
 
                 Text {
-                    text: "Challenge Mode"
+                    text: qsTr("Challenge Mode")
                     color: "#cccccc"
                     font.pixelSize: 13
                     anchors.verticalCenter: parent.verticalCenter
@@ -500,7 +500,7 @@ Rectangle {
                 visible: root.challengeMode
 
                 Text {
-                    text: "Outside escape shapes (called by outside team)"
+                    text: qsTr("Outside escape shapes (called by outside team)")
                     color: "#999999"
                     font.pixelSize: 11
                     wrapMode: Text.WordWrap
@@ -547,7 +547,7 @@ Rectangle {
                 spacing: 14
 
                 Text {
-                    text: "Detailed mode (wall input, LFG/Fast)"
+                    text: qsTr("Detailed mode (wall input, LFG/Fast)")
                     color: "#cccccc"
                     font.pixelSize: 13
                     anchors.verticalCenter: parent.verticalCenter
@@ -583,7 +583,7 @@ Rectangle {
                 visible: root.detailedMode
 
                 Text {
-                    text: "UNVERIFIED against real gameplay - sanity-check in a live run before trusting this"
+                    text: qsTr("UNVERIFIED against real gameplay - sanity-check in a live run before trusting this")
                     color: "#e0a030"
                     font.pixelSize: 11
                     wrapMode: Text.WordWrap
@@ -594,7 +594,7 @@ Rectangle {
                     spacing: 10
 
                     Repeater {
-                        model: [{key: "fast", label: "Fast"}, {key: "lfg", label: "LFG"}]
+                        model: [{key: "fast", label: qsTr("Fast")}, {key: "lfg", label: qsTr("LFG")}]
 
                         delegate: Rectangle {
                             id: methodButton
@@ -629,13 +629,13 @@ Rectangle {
 
                 Text {
                     visible: root.challengeMode
-                    text: "Fast isn't available in Challenge Mode - using LFG"
+                    text: qsTr("Fast isn't available in Challenge Mode - using LFG")
                     color: "#777777"
                     font.pixelSize: 10
                 }
 
                 Text {
-                    text: "Your wall right now (2 symbols per player)"
+                    text: qsTr("Your wall right now (2 symbols per player)")
                     color: "#999999"
                     font.pixelSize: 11
                 }
@@ -692,7 +692,7 @@ Rectangle {
 
                 Text {
                     anchors.centerIn: parent
-                    text: "Reset"
+                    text: qsTr("Reset")
                     color: "#dddddd"
                     font.pixelSize: 13
                 }
@@ -715,7 +715,7 @@ Rectangle {
 
             Text {
                 id: escapeTitle
-                text: "Escape shapes"
+                text: qsTr("Escape shapes")
                 color: "#ffffff"
                 font.pixelSize: 18
                 font.bold: true
@@ -807,7 +807,7 @@ Rectangle {
 
                         Text {
                             visible: root.cleanseStepCount > 0
-                            text: "CLEANSE PHASE"
+                            text: qsTr("CLEANSE PHASE")
                             color: "#888888"
                             font.pixelSize: 10
                             font.letterSpacing: 1
@@ -841,7 +841,7 @@ Rectangle {
 
                             Text {
                                 anchors.centerIn: parent
-                                text: "Wait until all 3 players have cleansed, then distribute"
+                                text: qsTr("Wait until all 3 players have cleansed, then distribute")
                                 color: "#9dc4e8"
                                 font.pixelSize: 11
                             }
@@ -849,7 +849,7 @@ Rectangle {
 
                         Text {
                             visible: root.stepCount > 0
-                            text: "DISTRIBUTE PHASE"
+                            text: qsTr("DISTRIBUTE PHASE")
                             color: "#888888"
                             font.pixelSize: 10
                             font.letterSpacing: 1
@@ -890,7 +890,7 @@ Rectangle {
                                 spacing: 6
 
                                 Text {
-                                    text: "ROUND " + (fastRoundBlock.index + 1)
+                                    text: qsTr("ROUND %1").arg(fastRoundBlock.index + 1)
                                     color: "#888888"
                                     font.pixelSize: 10
                                     font.letterSpacing: 1
@@ -914,7 +914,7 @@ Rectangle {
                                             spacing: 8
 
                                             Text {
-                                                text: root.playerLabels[modelData.from] + " gives"
+                                                text: qsTr("%1 gives").arg(root.playerLabels[modelData.from])
                                                 color: "#dddddd"
                                                 font.pixelSize: 12
                                             }
@@ -927,7 +927,7 @@ Rectangle {
                                             }
 
                                             Text {
-                                                text: "to " + root.playerLabels[modelData.to]
+                                                text: qsTr("to %1").arg(root.playerLabels[modelData.to])
                                                 color: "#dddddd"
                                                 font.pixelSize: 12
                                             }
@@ -941,7 +941,7 @@ Rectangle {
                     Text {
                         visible: !root.hasNoSolution && root.stepCount === 0
                                  && root.cleanseStepCount === 0 && root.fastRoundCount === 0
-                        text: "Select all 3 starting symbols to see the solution."
+                        text: qsTr("Select all 3 starting symbols to see the solution.")
                         color: "#666666"
                         font.pixelSize: 12
                     }

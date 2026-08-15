@@ -21,15 +21,15 @@ function iconSource(symbol) {
 
 function shapeName(symbol) {
     switch (symbol) {
-    case 1: return "Triangle"
-    case 2: return "Square"
-    case 3: return "Circle"
-    case 4: return "Cone"
-    case 5: return "Cube"
-    case 6: return "Cylinder"
-    case 7: return "Pyramid"
-    case 8: return "Prism"
-    case 9: return "Sphere"
+    case 1: return qsTr("Triangle")
+    case 2: return qsTr("Square")
+    case 3: return qsTr("Circle")
+    case 4: return qsTr("Cone")
+    case 5: return qsTr("Cube")
+    case 6: return qsTr("Cylinder")
+    case 7: return qsTr("Pyramid")
+    case 8: return qsTr("Prism")
+    case 9: return qsTr("Sphere")
     default: return ""
     }
 }

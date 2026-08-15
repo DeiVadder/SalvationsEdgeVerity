@@ -29,7 +29,7 @@ Rectangle {
             spacing: 10
 
             Text {
-                text: "Varied Geometry"
+                text: qsTr("Varied Geometry")
                 color: "#ffffff"
                 font.pixelSize: 14
                 font.bold: true
@@ -37,7 +37,7 @@ Rectangle {
             }
 
             Text {
-                text: root.progress ? (root.progress.usedShapeCount + " / 6 used") : ""
+                text: root.progress ? qsTr("%1 / 6 used").arg(root.progress.usedShapeCount) : ""
                 color: "#999999"
                 font.pixelSize: 12
                 anchors.verticalCenter: parent.verticalCenter
@@ -53,7 +53,7 @@ Rectangle {
 
                 Text {
                     anchors.centerIn: parent
-                    text: "New encounter"
+                    text: qsTr("New encounter")
                     color: "#cccccc"
                     font.pixelSize: 10
                 }

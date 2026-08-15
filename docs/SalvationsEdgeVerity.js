@@ -12489,7 +12489,7 @@ function checkIncomingModuleAPI() {
 }
 
 var ASM_CONSTS = {
-  12880217: () => {
+  12898233: () => {
     Module.qtSuspendResumeControl = ({
       resume: null,
       asyncifyEnabled: false,
@@ -12498,7 +12498,7 @@ var ASM_CONSTS = {
       exclusiveEventHandler: 0
     });
   },
-  12880362: $0 => {
+  12898378: $0 => {
     function createNamedFunction(name, parent, obj) {
       return {
         [name]: function(...args) {
@@ -13511,6 +13511,17 @@ function invoke_iijiii(index, a1, a2, a3, a4, a5) {
   }
 }
 
+function invoke_iiiiiii(index, a1, a2, a3, a4, a5, a6) {
+  var sp = stackSave();
+  try {
+    return getWasmTableEntry(index)(a1, a2, a3, a4, a5, a6);
+  } catch (e) {
+    stackRestore(sp);
+    if (e !== e + 0) throw e;
+    _setThrew(1, 0);
+  }
+}
+
 function invoke_iiji(index, a1, a2, a3) {
   var sp = stackSave();
   try {
@@ -13614,17 +13625,6 @@ function invoke_viijiiii(index, a1, a2, a3, a4, a5, a6, a7) {
   var sp = stackSave();
   try {
     getWasmTableEntry(index)(a1, a2, a3, a4, a5, a6, a7);
-  } catch (e) {
-    stackRestore(sp);
-    if (e !== e + 0) throw e;
-    _setThrew(1, 0);
-  }
-}
-
-function invoke_iiiiiii(index, a1, a2, a3, a4, a5, a6) {
-  var sp = stackSave();
-  try {
-    return getWasmTableEntry(index)(a1, a2, a3, a4, a5, a6);
   } catch (e) {
     stackRestore(sp);
     if (e !== e + 0) throw e;

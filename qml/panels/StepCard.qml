@@ -6,7 +6,7 @@ Rectangle {
     id: root
 
     property int stepNumber: 1
-    property var nodeLabels: ["LEFT", "MID", "RIGHT"]
+    property var nodeLabels: [qsTr("LEFT"), qsTr("MID"), qsTr("RIGHT")]
     // instructions[i] = symbol handed to node i this step, or 0 if untouched
     property var instructions: [0, 0, 0]
     // targetState[i] = the shape/symbol node i needs to end up as overall
@@ -95,7 +95,7 @@ Rectangle {
         }
 
         Text {
-            text: "TARGET SHAPE"
+            text: qsTr("TARGET SHAPE")
             color: "#888888"
             font.pixelSize: 10
             font.letterSpacing: 1

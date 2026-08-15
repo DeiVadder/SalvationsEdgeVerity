@@ -9,5 +9,7 @@
         <file>images/svg/pyramide.svg</file>
         <file>images/svg/prisma.svg</file>
         <file>images/svg/kugel.svg</file>
+        <file>images/svg/flags/flag_en.svg</file>
+        <file>images/svg/flags/flag_de.svg</file>
     </qresource>
 </RCC>

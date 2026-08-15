@@ -7,7 +7,7 @@ Rectangle {
     id: root
 
     property GhostPhaseHelper ghostHelper
-    readonly property var positionLabels: ["LEFT", "MID", "RIGHT"]
+    readonly property var positionLabels: [qsTr("LEFT"), qsTr("MID"), qsTr("RIGHT")]
     // Reflow to 1 column on phone-width screens so cards stay usable
     // instead of being squeezed unreadably narrow.
     readonly property int gridColumns: width < 480 ? 1 : 2
@@ -21,12 +21,12 @@ Rectangle {
     }
 
     function copyForChat() {
-        var lines = ["Verity Ghost Phase:"]
+        var lines = [qsTr("Verity Ghost Phase:")]
         var players = root.ghostHelper ? root.ghostHelper.players : []
         for (var i = 0; i < players.length; ++i) {
             var slot = players[i]
-            var name = slot.playerName.length > 0 ? slot.playerName : "Player " + (i + 1)
-            lines.push(root.positionLabelForIndex(i) + " - " + name + ": " + slot.manualNote)
+            var name = slot.playerName.length > 0 ? slot.playerName : qsTr("Player %1").arg(i + 1)
+            lines.push(qsTr("%1 - %2: %3").arg(root.positionLabelForIndex(i)).arg(name).arg(slot.manualNote))
         }
         chatText.text = lines.join("\n")
         chatText.selectAll()
@@ -57,7 +57,7 @@ Rectangle {
                 spacing: 12
 
                 Text {
-                    text: "Verity Ghost Phase Helper"
+                    text: qsTr("Verity Ghost Phase Helper")
                     color: "#ffffff"
                     font.pixelSize: 18
                     font.bold: true
@@ -76,7 +76,7 @@ Rectangle {
 
                     Text {
                         anchors.centerIn: parent
-                        text: "Copy ghost callouts"
+                        text: qsTr("Copy ghost callouts")
                         color: "white"
                         font.pixelSize: 12
                         font.bold: true
@@ -99,7 +99,7 @@ Rectangle {
 
                     Text {
                         anchors.centerIn: parent
-                        text: "Reset"
+                        text: qsTr("Reset")
                         color: "#dddddd"
                         font.pixelSize: 13
                     }

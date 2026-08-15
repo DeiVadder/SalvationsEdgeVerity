@@ -11,7 +11,7 @@ Rectangle {
 
     property CalculateSteps stepCalculator
     property var encounterProgress
-    readonly property var statueLabels: ["LEFT", "MID", "RIGHT"]
+    readonly property var statueLabels: [qsTr("LEFT"), qsTr("MID"), qsTr("RIGHT")]
     readonly property var symbols2d: [Symbols.Dreieck, Symbols.Viereck, Symbols.Kreis]
     readonly property var symbols3d: [Symbols.Kegel, Symbols.Wuerfel, Symbols.Zylinder,
         Symbols.Pyramide, Symbols.Prisma, Symbols.Kugel]
@@ -196,14 +196,14 @@ Rectangle {
 
             Text {
                 anchors.centerIn: parent
-                text: "No solution for this combination - check your inputs"
+                text: qsTr("No solution for this combination - check your inputs")
                 color: "#ffb4b4"
                 font.pixelSize: 12
             }
         }
 
         Text {
-            text: "Select all inside 2D shapes"
+            text: qsTr("Select all inside 2D shapes")
             color: "#ffffff"
             font.pixelSize: 15
             font.bold: true
@@ -245,7 +245,7 @@ Rectangle {
         }
 
         Text {
-            text: "Select all outside 3D shapes"
+            text: qsTr("Select all outside 3D shapes")
             color: "#ffffff"
             font.pixelSize: 15
             font.bold: true
@@ -291,7 +291,7 @@ Rectangle {
             visible: root.encounterProgress !== null && root.encounterProgress !== undefined
 
             Text {
-                text: "Challenge Mode"
+                text: qsTr("Challenge Mode")
                 color: "#cccccc"
                 font.pixelSize: 13
                 anchors.verticalCenter: parent.verticalCenter
@@ -333,7 +333,7 @@ Rectangle {
 
             Text {
                 anchors.centerIn: parent
-                text: "Reset"
+                text: qsTr("Reset")
                 color: "#dddddd"
                 font.pixelSize: 13
             }

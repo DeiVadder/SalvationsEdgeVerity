@@ -30,7 +30,7 @@ Rectangle {
         spacing: 8
 
         Text {
-            text: "PLAYER " + (root.slotIndex + 1) + " / " + root.positionLabel
+            text: qsTr("PLAYER %1 / %2").arg(root.slotIndex + 1).arg(root.positionLabel)
             color: "#999999"
             font.pixelSize: 11
             font.bold: true
@@ -39,7 +39,7 @@ Rectangle {
         TextField {
             width: parent.width
             height: 44
-            placeholderText: "Player name"
+            placeholderText: qsTr("Player name")
             text: root.slot ? root.slot.playerName : ""
             onTextEdited: if (root.slot) root.slot.playerName = text
         }
@@ -47,7 +47,7 @@ Rectangle {
         ComboBox {
             width: parent.width
             height: 44
-            model: ["Titan", "Hunter", "Warlock"]
+            model: [qsTr("Titan"), qsTr("Hunter"), qsTr("Warlock")]
             currentIndex: root.slot ? root.slot.classType : 0
             onActivated: (idx) => { if (root.slot) root.slot.classType = idx }
         }
@@ -55,7 +55,7 @@ Rectangle {
         TextField {
             width: parent.width
             height: 44
-            placeholderText: "Ghost or fashion note"
+            placeholderText: qsTr("Ghost or fashion note")
             text: root.slot ? root.slot.manualNote : ""
             onTextEdited: if (root.slot) root.slot.manualNote = text
         }
