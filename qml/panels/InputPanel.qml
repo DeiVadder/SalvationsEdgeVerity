@@ -13,8 +13,11 @@ Rectangle {
     property var encounterProgress
     readonly property var statueLabels: [qsTr("LEFT"), qsTr("MID"), qsTr("RIGHT")]
     readonly property var symbols2d: [Symbols.Dreieck, Symbols.Viereck, Symbols.Kreis]
-    readonly property var symbols3d: [Symbols.Kegel, Symbols.Wuerfel, Symbols.Zylinder,
-        Symbols.Pyramide, Symbols.Prisma, Symbols.Kugel]
+    // Row 2 (Pyramide/Wuerfel/Kugel) are the 3 "pure double" shapes,
+    // ordered to match symbols2d's Dreieck/Viereck/Kreis columns above -
+    // row 1 holds the remaining 3 mixed-pair shapes.
+    readonly property var symbols3d: [Symbols.Kegel, Symbols.Zylinder, Symbols.Prisma,
+        Symbols.Pyramide, Symbols.Wuerfel, Symbols.Kugel]
 
     property int inner1: 0
     property int inner2: 0
