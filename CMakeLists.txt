@@ -48,6 +48,7 @@ qt_add_qml_module(SalvationsEdgeVerity
         qml/js/ShapeIcons.js
         qml/js/ShapeMath.js
         qml/panels/ShapeGridSelector.qml
+        qml/panels/WallPairSelector.qml
         qml/panels/StepCard.qml
         qml/panels/InputPanel.qml
         qml/panels/SolutionPanel.qml

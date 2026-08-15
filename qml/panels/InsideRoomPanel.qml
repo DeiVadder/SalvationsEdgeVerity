@@ -603,7 +603,7 @@ Rectangle {
                             // default target formula (calculateinsidesteps.h).
                             readonly property bool disabledForChallenge:
                                 modelData.key === "fast" && root.challengeMode
-                            width: 64
+                            width: methodLabel.implicitWidth + 20
                             height: 28
                             radius: 6
                             color: root.cleanseMethod === modelData.key ? "#3b82f6" : "#2a2a2a"
@@ -611,6 +611,7 @@ Rectangle {
                             border.color: "#444444"
 
                             Text {
+                                id: methodLabel
                                 anchors.centerIn: parent
                                 text: methodButton.modelData.label
                                 color: "#ffffff"
@@ -634,9 +635,11 @@ Rectangle {
                 }
 
                 Text {
-                    text: qsTr("Your wall right now (2 symbols per player)")
+                    text: qsTr("Your wall right now (2 symbols per player) - tap a 2nd symbol to complete the pair, or double-tap one symbol for 2 of the same")
                     color: "#999999"
                     font.pixelSize: 11
+                    wrapMode: Text.WordWrap
+                    width: parent.width
                 }
 
                 Row {
@@ -663,22 +666,16 @@ Rectangle {
                                 anchors.horizontalCenter: parent.horizontalCenter
                             }
 
-                            ShapeGridSelector {
-                                columns: 3
+                            WallPairSelector {
                                 totalWidth: wallCol.width
                                 cellSpacing: 4
                                 options: root.symbols2d
-                                selected: root.wallValue(wallCol.index, 0)
-                                onTapped: (value) => root.setWallValue(wallCol.index, 0, value)
-                            }
-
-                            ShapeGridSelector {
-                                columns: 3
-                                totalWidth: wallCol.width
-                                cellSpacing: 4
-                                options: root.symbols2d
-                                selected: root.wallValue(wallCol.index, 1)
-                                onTapped: (value) => root.setWallValue(wallCol.index, 1, value)
+                                slotA: root.wallValue(wallCol.index, 0)
+                                slotB: root.wallValue(wallCol.index, 1)
+                                onPairChanged: (a, b) => {
+                                    root.setWallValue(wallCol.index, 0, a)
+                                    root.setWallValue(wallCol.index, 1, b)
+                                }
                             }
                         }
                     }

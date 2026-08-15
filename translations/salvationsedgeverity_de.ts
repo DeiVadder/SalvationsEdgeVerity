@@ -252,8 +252,8 @@
     </message>
     <message>
         <location filename="../qml/panels/InsideRoomPanel.qml" line="463"/>
-        <location filename="../qml/panels/InsideRoomPanel.qml" line="658"/>
-        <location filename="../qml/panels/InsideRoomPanel.qml" line="740"/>
+        <location filename="../qml/panels/InsideRoomPanel.qml" line="661"/>
+        <location filename="../qml/panels/InsideRoomPanel.qml" line="737"/>
         <source>%1 (You)</source>
         <translation>%1 (Du)</translation>
     </message>
@@ -288,57 +288,57 @@
         <translation>Fast (Experimentell)</translation>
     </message>
     <message>
-        <location filename="../qml/panels/InsideRoomPanel.qml" line="631"/>
+        <location filename="../qml/panels/InsideRoomPanel.qml" line="632"/>
         <source>Fast isn&apos;t available in Challenge Mode - using LFG</source>
         <translation>Fast ist im Challenge-Modus nicht verfügbar - LFG wird genutzt</translation>
     </message>
     <message>
-        <location filename="../qml/panels/InsideRoomPanel.qml" line="637"/>
-        <source>Your wall right now (2 symbols per player)</source>
-        <translation>Eure Wand gerade eben (2 Symbole pro Spieler)</translation>
+        <location filename="../qml/panels/InsideRoomPanel.qml" line="638"/>
+        <source>Your wall right now (2 symbols per player) - tap a 2nd symbol to complete the pair, or double-tap one symbol for 2 of the same</source>
+        <translation>Eure Wand gerade eben (2 Symbole pro Spieler) - ein 2. Symbol antippen, um das Paar zu vervollständigen, oder ein Symbol doppelt antippen für 2x dasselbe</translation>
     </message>
     <message>
-        <location filename="../qml/panels/InsideRoomPanel.qml" line="697"/>
+        <location filename="../qml/panels/InsideRoomPanel.qml" line="694"/>
         <source>Reset</source>
         <translation>Zurücksetzen</translation>
     </message>
     <message>
-        <location filename="../qml/panels/InsideRoomPanel.qml" line="720"/>
+        <location filename="../qml/panels/InsideRoomPanel.qml" line="717"/>
         <source>Escape shapes</source>
         <translation>Fluchtformen</translation>
     </message>
     <message>
-        <location filename="../qml/panels/InsideRoomPanel.qml" line="792"/>
+        <location filename="../qml/panels/InsideRoomPanel.qml" line="789"/>
         <source>CLEANSE PHASE</source>
         <translation>REINIGUNGSPHASE</translation>
     </message>
     <message>
-        <location filename="../qml/panels/InsideRoomPanel.qml" line="827"/>
+        <location filename="../qml/panels/InsideRoomPanel.qml" line="824"/>
         <source>Wait until all 3 players have cleansed, then distribute</source>
         <translation>Warten bis alle 3 Spieler gereinigt haben, dann verteilen</translation>
     </message>
     <message>
-        <location filename="../qml/panels/InsideRoomPanel.qml" line="835"/>
+        <location filename="../qml/panels/InsideRoomPanel.qml" line="832"/>
         <source>DISTRIBUTE PHASE</source>
         <translation>VERTEILPHASE</translation>
     </message>
     <message>
-        <location filename="../qml/panels/InsideRoomPanel.qml" line="877"/>
+        <location filename="../qml/panels/InsideRoomPanel.qml" line="874"/>
         <source>ROUND %1</source>
         <translation>RUNDE %1</translation>
     </message>
     <message>
-        <location filename="../qml/panels/InsideRoomPanel.qml" line="904"/>
+        <location filename="../qml/panels/InsideRoomPanel.qml" line="901"/>
         <source>%1 gives</source>
         <translation>%1 gibt</translation>
     </message>
     <message>
-        <location filename="../qml/panels/InsideRoomPanel.qml" line="917"/>
+        <location filename="../qml/panels/InsideRoomPanel.qml" line="914"/>
         <source>to %1</source>
         <translation>an %1</translation>
     </message>
     <message>
-        <location filename="../qml/panels/InsideRoomPanel.qml" line="931"/>
+        <location filename="../qml/panels/InsideRoomPanel.qml" line="928"/>
         <source>Select each player&apos;s symbol and wall (2 symbols each) to see the solution.</source>
         <translation>Symbol und Wand (je 2 Symbole) jedes Spielers auswählen, um die Lösung zu sehen.</translation>
     </message>
@@ -483,12 +483,12 @@
         <translation>RECHTS</translation>
     </message>
     <message>
-        <location filename="../qml/panels/StepCard.qml" line="112"/>
+        <location filename="../qml/panels/StepCard.qml" line="148"/>
         <source>%1 → %2</source>
         <translation>%1 → %2</translation>
     </message>
     <message>
-        <location filename="../qml/panels/StepCard.qml" line="129"/>
+        <location filename="../qml/panels/StepCard.qml" line="165"/>
         <source>TARGET SHAPE</source>
         <translation>ZIELFORM</translation>
     </message>
