@@ -57,15 +57,28 @@ Rectangle {
                 }
             }
 
+            Text {
+                text: qsTr("Both carries below happen together")
+                color: "#888888"
+                font.pixelSize: 11
+                anchors.verticalCenter: parent.verticalCenter
+            }
+        }
+
+        // One line per carry, not a compact "A ⇄ B" row - each icon here
+        // is a separate physical hand-off (2 statues, 2 different orbs
+        // moving in opposite directions), easy to misread as "one action"
+        // when squeezed onto a single line.
+        Column {
+            spacing: 6
+
             Repeater {
                 model: root.activeIndices
 
                 delegate: Row {
                     id: swapEntry
                     required property var modelData
-                    required property int index
                     spacing: 6
-                    anchors.verticalCenter: parent.verticalCenter
 
                     Image {
                         width: 20
@@ -74,15 +87,10 @@ Rectangle {
                         fillMode: Image.PreserveAspectFit
                     }
                     Text {
-                        text: root.nodeLabels[swapEntry.modelData]
+                        text: qsTr("%1 → %2").arg(ShapeIcons.shapeName(root.instructions[swapEntry.modelData]))
+                                                   .arg(root.nodeLabels[swapEntry.modelData])
                         color: "#dddddd"
                         font.pixelSize: 13
-                    }
-                    Text {
-                        visible: swapEntry.index < root.activeIndices.length - 1
-                        text: "⇄"
-                        color: "#888888"
-                        font.pixelSize: 14
                     }
                 }
             }
