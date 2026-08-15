@@ -1,5 +1,18 @@
 #include <QtTest>
+
 #include "calculateinsidesteps.h"
+
+namespace {
+int countSymbol(const std::initializer_list<CalculateSteps::SymbolTypes> &walls,
+                 CalculateSteps::SymbolTypes symbol)
+{
+    int count = 0;
+    for (auto s : walls)
+        if (s == symbol)
+            ++count;
+    return count;
+}
+} // namespace
 
 class TestCalculateInsideSteps : public QObject
 {
@@ -25,6 +38,7 @@ private slots:
 
     void checkIsValidWall_data();
     void checkIsValidWall();
+    void checkIsValidWallExhaustive();
     void calculateStepsLFGConvergesInTwoPhases();
     void calculateStepsFastDelegatesToResolver();
 };
@@ -231,6 +245,39 @@ void TestCalculateInsideSteps::checkIsValidWall()
     // Invalid player symbols reject regardless of wall balance.
     QVERIFY(!m_calc->checkIsValidWall(CalculateSteps::Dreieck, CalculateSteps::Dreieck,
                                        CalculateSteps::Kreis, w1a, w1b, w2a, w2b, w3a, w3b));
+}
+
+// Exhaustively checks checkIsValidWall()'s balance verdict against an
+// independently-computed reference count, across every one of the 3^6 =
+// 729 raw wall combinations (90 balanced, 639 unbalanced) - not just the
+// handful of hand-picked rows above.
+void TestCalculateInsideSteps::checkIsValidWallExhaustive()
+{
+    const QVector<CalculateSteps::SymbolTypes> symbols = {CalculateSteps::Dreieck,
+                                                            CalculateSteps::Viereck,
+                                                            CalculateSteps::Kreis};
+    int testedCount = 0;
+    int balancedCount = 0;
+
+    for (auto w1a : symbols) for (auto w1b : symbols)
+    for (auto w2a : symbols) for (auto w2b : symbols)
+    for (auto w3a : symbols) for (auto w3b : symbols) {
+        bool referenceBalanced =
+            countSymbol({w1a, w1b, w2a, w2b, w3a, w3b}, CalculateSteps::Dreieck) == 2
+            && countSymbol({w1a, w1b, w2a, w2b, w3a, w3b}, CalculateSteps::Viereck) == 2
+            && countSymbol({w1a, w1b, w2a, w2b, w3a, w3b}, CalculateSteps::Kreis) == 2;
+
+        bool actual = m_calc->checkIsValidWall(CalculateSteps::Dreieck, CalculateSteps::Viereck,
+                                                CalculateSteps::Kreis, w1a, w1b, w2a, w2b, w3a, w3b);
+
+        QCOMPARE(actual, referenceBalanced);
+        ++testedCount;
+        if (referenceBalanced)
+            ++balancedCount;
+    }
+
+    QCOMPARE(testedCount, 729);
+    QCOMPARE(balancedCount, 90);
 }
 
 // LFG phase 1 (cleanse: wall -> self-pair) and phase 2 (distribute:
