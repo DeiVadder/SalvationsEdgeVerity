@@ -47,6 +47,10 @@ public:
 
     Q_INVOKABLE int numberOfSteps();
     Q_INVOKABLE SymbolTypes getInstructionForStep(int step, int statue);
+    // The 3D shape statue `statue` needs to end up as (its dissection
+    // target), cached from the last calculateSteps() call. Undefined if
+    // the index is out of range or nothing has been calculated yet.
+    Q_INVOKABLE SymbolTypes targetShapeForStatue(int statue) const;
 
     Q_INVOKABLE bool checkIsValid(SymbolTypes innerStatue1,
                                   SymbolTypes innerStatue2,
@@ -63,6 +67,7 @@ signals:
 
 private:
     std::unique_ptr<SymbolSwapEngine> m_engine;
+    QVector<SymbolTypes> m_targetShapePerStatue;
 };
 
 #endif // CALCULATESTEPS_H

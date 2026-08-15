@@ -23,6 +23,8 @@ private slots:
     void getInstructionForStepValidRange();
 
     void calculateStepsWithInvalidInputDoesNotHang();
+
+    void targetShapeForStatueMatchesFromBaseSymbol();
 };
 
 void TestCalculateSteps::init()
@@ -143,6 +145,25 @@ void TestCalculateSteps::calculateStepsWithInvalidInputDoesNotHang()
     // hang; returning at all is the assertion.
     m_calc->calculateSteps(CalculateSteps::Dreieck, CalculateSteps::Dreieck, CalculateSteps::Kreis,
                             CalculateSteps::Wuerfel, CalculateSteps::Pyramide, CalculateSteps::Kugel);
+}
+
+void TestCalculateSteps::targetShapeForStatueMatchesFromBaseSymbol()
+{
+    m_calc->calculateSteps(CalculateSteps::Dreieck, CalculateSteps::Viereck, CalculateSteps::Kreis,
+                            CalculateSteps::Wuerfel, CalculateSteps::Pyramide, CalculateSteps::Kugel);
+
+    // fromBaseSymbol(Dreieck) = {Viereck, Kreis} -> Zylinder
+    QCOMPARE(m_calc->targetShapeForStatue(0), CalculateSteps::Zylinder);
+    // fromBaseSymbol(Viereck) = {Dreieck, Kreis} -> Kegel
+    QCOMPARE(m_calc->targetShapeForStatue(1), CalculateSteps::Kegel);
+    // fromBaseSymbol(Kreis) = {Dreieck, Viereck} -> Prisma
+    QCOMPARE(m_calc->targetShapeForStatue(2), CalculateSteps::Prisma);
+
+    QCOMPARE(m_calc->targetShapeForStatue(3), CalculateSteps::Undefined);
+    QCOMPARE(m_calc->targetShapeForStatue(-1), CalculateSteps::Undefined);
+
+    m_calc->reset();
+    QCOMPARE(m_calc->targetShapeForStatue(0), CalculateSteps::Undefined);
 }
 
 QTEST_MAIN(TestCalculateSteps)

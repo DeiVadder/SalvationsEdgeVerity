@@ -24,6 +24,11 @@ void CalculateSteps::calculateSteps(SymbolTypes innerStatue1,
                                           fromBaseSymbol(innerStatue3)};
 
     m_engine->solve(start, stop);
+
+    m_targetShapePerStatue.clear();
+    for (const auto &pair : stop)
+        m_targetShapePerStatue.append(pairToShape(pair.at(0), pair.at(1)));
+
     numberOfStepsChanged();
 }
 
@@ -88,9 +93,15 @@ bool CalculateSteps::checkIsValid(SymbolTypes innerStatue1,
     return true;
 }
 
+CalculateSteps::SymbolTypes CalculateSteps::targetShapeForStatue(int statue) const
+{
+    return m_targetShapePerStatue.value(statue, Undefined);
+}
+
 void CalculateSteps::reset()
 {
     m_engine->reset();
+    m_targetShapePerStatue.clear();
     numberOfStepsChanged();
 }
 

@@ -27,22 +27,13 @@ qt_add_qml_module(SalvationsEdgeVerity
     VERSION 1.0
     QML_FILES
         main.qml
-        OutsideRoom.qml
-        StatueStateMachine.qml
-        IconButton.qml
-        StatemachineRow.qml
-        qml/Layouts/LayoutInRow.qml
-        qml/Layouts/VisualStateMachineForRow.qml
-        qml/shapes/Selection2d.qml
-        qml/shapes/Selection3dShape.qml
-        qml/shapes/ShapePopup2d.qml
-        qml/shapes/ShapePopup3d.qml
-        qml/steps/StepX.qml
-        qml/Layouts/LayoutInColumn.qml
-        qml/Layouts/VisualStateMachineForCol.qml
-        qml/Layouts/LayoutInRowCol.qml
-        qml/Layouts/InputSymbols.qml
-        qml/Layouts/VisualSteps.qml
+        qml/js/ShapeIcons.js
+        qml/panels/ShapeGridSelector.qml
+        qml/panels/StepCard.qml
+        qml/panels/InputPanel.qml
+        qml/panels/SolutionPanel.qml
+        qml/panels/InsideRoomPanel.qml
+        qml/challenge/ShapeUsageTracker.qml
 )
 
 target_sources(SalvationsEdgeVerity PRIVATE rsc.qrc)
