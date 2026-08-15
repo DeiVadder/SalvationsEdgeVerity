@@ -76,7 +76,7 @@ public:
 
     Q_INVOKABLE int numberOfSteps();
     Q_INVOKABLE SymbolTypes getInstructionForStep(int step, int player);
-    Q_INVOKABLE bool isSolved() const;
+    Q_INVOKABLE [[nodiscard]] bool isSolved() const;
     Q_INVOKABLE bool checkIsValid(SymbolTypes player1Symbol,
                                    SymbolTypes player2Symbol,
                                    SymbolTypes player3Symbol);
@@ -91,8 +91,8 @@ public:
                                             SymbolTypes outerTarget1,
                                             SymbolTypes outerTarget2,
                                             SymbolTypes outerTarget3);
-    Q_INVOKABLE SymbolTypes finalShapeForPlayer(int player) const;
-    int calculationVersion() const { return m_calculationVersion; }
+    Q_INVOKABLE [[nodiscard]] SymbolTypes finalShapeForPlayer(int player) const;
+    [[nodiscard]] int calculationVersion() const { return m_calculationVersion; }
 
     // LFG / Fast: both take the actual observed wall content per player
     // (2 symbols each, NOT assumed to include the player's own symbol -
@@ -120,7 +120,7 @@ public:
                                         SymbolTypes wall3a, SymbolTypes wall3b);
     Q_INVOKABLE int numberOfCleanseSteps();
     Q_INVOKABLE SymbolTypes getCleanseInstructionForStep(int step, int player);
-    Q_INVOKABLE bool isCleanseSolved() const;
+    Q_INVOKABLE [[nodiscard]] bool isCleanseSolved() const;
 
     // LFG + Challenge: cleanse phase unchanged (wall -> self-pair), but the
     // distribute phase targets the outside caller's 3 shapes instead of
@@ -162,13 +162,13 @@ public:
                                          SymbolTypes wall1a, SymbolTypes wall1b,
                                          SymbolTypes wall2a, SymbolTypes wall2b,
                                          SymbolTypes wall3a, SymbolTypes wall3b);
-    Q_INVOKABLE int numberOfFastRounds() const;
-    Q_INVOKABLE int numberOfFastTransfers() const;
-    Q_INVOKABLE int fastTransferRound(int index) const;
-    Q_INVOKABLE int fastTransferFrom(int index) const;
-    Q_INVOKABLE int fastTransferTo(int index) const;
-    Q_INVOKABLE SymbolTypes fastTransferSymbol(int index) const;
-    Q_INVOKABLE bool isFastSolved() const;
+    Q_INVOKABLE [[nodiscard]] int numberOfFastRounds() const;
+    Q_INVOKABLE [[nodiscard]] int numberOfFastTransfers() const;
+    Q_INVOKABLE [[nodiscard]] int fastTransferRound(int index) const;
+    Q_INVOKABLE [[nodiscard]] int fastTransferFrom(int index) const;
+    Q_INVOKABLE [[nodiscard]] int fastTransferTo(int index) const;
+    Q_INVOKABLE [[nodiscard]] SymbolTypes fastTransferSymbol(int index) const;
+    Q_INVOKABLE [[nodiscard]] bool isFastSolved() const;
 
 public slots:
     void reset();

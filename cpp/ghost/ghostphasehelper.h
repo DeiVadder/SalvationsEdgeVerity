@@ -16,7 +16,7 @@ public:
 
     explicit GhostPhaseHelper(QObject *parent = nullptr);
 
-    QList<QObject *> players() const;
+    [[nodiscard]] QList<QObject *> players() const;
 
 public slots:
     void reset();

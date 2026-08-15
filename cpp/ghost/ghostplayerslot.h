@@ -16,13 +16,13 @@ class GhostPlayerSlot : public QObject
 public:
     explicit GhostPlayerSlot(QObject *parent = nullptr);
 
-    QString playerName() const;
+    [[nodiscard]] QString playerName() const;
     void setPlayerName(const QString &name);
 
-    int classType() const;
+    [[nodiscard]] int classType() const;
     void setClassType(int type);
 
-    QString manualNote() const;
+    [[nodiscard]] QString manualNote() const;
     void setManualNote(const QString &note);
 
 public slots:

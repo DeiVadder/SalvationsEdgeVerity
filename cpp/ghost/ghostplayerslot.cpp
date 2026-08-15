@@ -11,8 +11,9 @@ QString GhostPlayerSlot::playerName() const
 
 void GhostPlayerSlot::setPlayerName(const QString &name)
 {
-    if (m_playerName == name)
+    if (m_playerName == name) {
         return;
+    }
     m_playerName = name;
     playerNameChanged();
 }
@@ -24,8 +25,9 @@ int GhostPlayerSlot::classType() const
 
 void GhostPlayerSlot::setClassType(int type)
 {
-    if (m_classType == type)
+    if (m_classType == type) {
         return;
+    }
     m_classType = type;
     classTypeChanged();
 }
@@ -37,8 +39,9 @@ QString GhostPlayerSlot::manualNote() const
 
 void GhostPlayerSlot::setManualNote(const QString &note)
 {
-    if (m_manualNote == note)
+    if (m_manualNote == note) {
         return;
+    }
     m_manualNote = note;
     manualNoteChanged();
 }

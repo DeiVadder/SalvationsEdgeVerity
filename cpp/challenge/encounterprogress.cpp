@@ -21,13 +21,16 @@ bool EncounterProgress::isTrackedShape(CalculateSteps::SymbolTypes shape)
 
 void EncounterProgress::markShapeUsed(CalculateSteps::SymbolTypes shape)
 {
-    if (!isTrackedShape(shape))
+    if (!isTrackedShape(shape)) {
         return;
+    }
 
     // "May not repeat until all 6 have been used" - once every tracked shape
     // has appeared, the next mark starts a fresh cycle.
-    if (m_usedShapes.size() >= 6)
+    constexpr int kTrackedShapeCount = 6;
+    if (m_usedShapes.size() >= kTrackedShapeCount) {
         m_usedShapes.clear();
+    }
 
     m_usedShapes.insert(shape);
     usedShapesChanged();
@@ -48,8 +51,9 @@ QVector<CalculateSteps::SymbolTypes> EncounterProgress::availableShapes() const
                                                                     CalculateSteps::Kugel};
     QVector<CalculateSteps::SymbolTypes> result;
     for (auto shape : allShapes) {
-        if (!m_usedShapes.contains(shape))
+        if (!m_usedShapes.contains(shape)) {
             result.append(shape);
+        }
     }
     return result;
 }
@@ -67,13 +71,14 @@ bool EncounterProgress::challengeModeEnabled() const
 
 void EncounterProgress::setChallengeModeEnabled(bool enabled)
 {
-    if (m_challengeModeEnabled == enabled)
+    if (m_challengeModeEnabled == enabled) {
         return;
+    }
     m_challengeModeEnabled = enabled;
     challengeModeEnabledChanged();
 }
 
 int EncounterProgress::usedShapeCount() const
 {
-    return m_usedShapes.size();
+    return static_cast<int>(m_usedShapes.size());
 }

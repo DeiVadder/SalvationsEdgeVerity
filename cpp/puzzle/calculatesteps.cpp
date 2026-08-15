@@ -33,8 +33,9 @@ void CalculateSteps::calculateSteps(SymbolTypes innerStatue1,
     m_engine->solve(start, stop);
 
     m_targetShapePerStatue.clear();
-    for (const auto &pair : stop)
+    for (const auto &pair : stop) {
         m_targetShapePerStatue.append(pairToShape(pair.at(0), pair.at(1)));
+    }
 
     bumpCalculationVersion();
 }
@@ -75,27 +76,35 @@ bool CalculateSteps::checkIsValid(SymbolTypes innerStatue1,
         return false;
     }
 
-    int cntKreis{0}, cntDreieck{0}, cntViereck{0};
-    for (auto pair : start) {
-        if (pair.contains(Kreis))
-            cntKreis += pair.count(Kreis);
-        if (pair.contains(Dreieck))
-            cntDreieck += pair.count(Dreieck);
-        if (pair.contains(Viereck))
-            cntViereck += pair.count(Viereck);
+    int cntKreis{0};
+    int cntDreieck{0};
+    int cntViereck{0};
+    for (const auto &pair : start) {
+        if (pair.contains(Kreis)) {
+            cntKreis += static_cast<int>(pair.count(Kreis));
+        }
+        if (pair.contains(Dreieck)) {
+            cntDreieck += static_cast<int>(pair.count(Dreieck));
+        }
+        if (pair.contains(Viereck)) {
+            cntViereck += static_cast<int>(pair.count(Viereck));
+        }
     }
     if (cntKreis != cntDreieck || cntKreis != cntViereck) {
         qDebug() << Q_FUNC_INFO << "incorrect start" << cntKreis << cntDreieck << cntViereck;
         return false;
     }
 
-    for (auto pair : stop) {
-        if (pair.contains(Kreis))
+    for (const auto &pair : stop) {
+        if (pair.contains(Kreis)) {
             cntKreis++;
-        if (pair.contains(Dreieck))
+        }
+        if (pair.contains(Dreieck)) {
             cntDreieck++;
-        if (pair.contains(Viereck))
+        }
+        if (pair.contains(Viereck)) {
             cntViereck++;
+        }
     }
     if (cntKreis != cntDreieck || cntKreis != cntViereck) {
         qDebug() << Q_FUNC_INFO << "incorrect stop";
@@ -162,21 +171,28 @@ QVector<CalculateSteps::SymbolTypes> CalculateSteps::fromBaseSymbol(SymbolTypes 
 
 CalculateSteps::SymbolTypes CalculateSteps::pairToShape(SymbolTypes a, SymbolTypes b)
 {
-    if (a > b)
+    if (a > b) {
         std::swap(a, b);
+    }
 
-    if (a == Dreieck && b == Dreieck)
+    if (a == Dreieck && b == Dreieck) {
         return Pyramide;
-    if (a == Dreieck && b == Viereck)
+    }
+    if (a == Dreieck && b == Viereck) {
         return Prisma;
-    if (a == Dreieck && b == Kreis)
+    }
+    if (a == Dreieck && b == Kreis) {
         return Kegel;
-    if (a == Viereck && b == Viereck)
+    }
+    if (a == Viereck && b == Viereck) {
         return Wuerfel;
-    if (a == Viereck && b == Kreis)
+    }
+    if (a == Viereck && b == Kreis) {
         return Zylinder;
-    if (a == Kreis && b == Kreis)
+    }
+    if (a == Kreis && b == Kreis) {
         return Kugel;
+    }
 
     return Undefined;
 }

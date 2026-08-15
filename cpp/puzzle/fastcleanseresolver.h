@@ -48,10 +48,10 @@ public:
                  const QVector<QVector<SymbolTypes>> &wallPairs);
 
     void reset();
-    bool isSolved() const { return m_solved; }
-    int numberOfRounds() const { return m_roundCount; }
-    int numberOfTransfers() const { return m_transfers.size(); }
-    Transfer transfer(int index) const;
+    [[nodiscard]] bool isSolved() const { return m_solved; }
+    [[nodiscard]] int numberOfRounds() const { return m_roundCount; }
+    [[nodiscard]] int numberOfTransfers() const { return static_cast<int>(m_transfers.size()); }
+    [[nodiscard]] Transfer transfer(int index) const;
 
 private:
     QVector<Transfer> m_transfers;

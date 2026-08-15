@@ -12,9 +12,10 @@ namespace {
 QString detectDefaultLanguage()
 {
     QSettings settings;
-    const QString saved = settings.value(QStringLiteral("Language/code")).toString();
-    if (saved == QStringLiteral("en") || saved == QStringLiteral("de"))
+    QString saved = settings.value(QStringLiteral("Language/code")).toString();
+    if (saved == QStringLiteral("en") || saved == QStringLiteral("de")) {
         return saved;
+    }
     return QLocale::system().name().startsWith(QStringLiteral("de")) ? QStringLiteral("de")
                                                                       : QStringLiteral("en");
 }
@@ -28,8 +29,9 @@ TranslationManager::TranslationManager(QObject *parent)
 
 TranslationManager::~TranslationManager()
 {
-    if (m_translator)
+    if (m_translator) {
         QCoreApplication::removeTranslator(m_translator.get());
+    }
 }
 
 void TranslationManager::initialize()
@@ -66,16 +68,18 @@ void TranslationManager::applyLanguage(const QString &languageCode)
 
 void TranslationManager::setLanguage(const QString &languageCode)
 {
-    if (languageCode == m_currentLanguage)
+    if (languageCode == m_currentLanguage) {
         return;
+    }
 
     applyLanguage(languageCode);
 
     QSettings settings;
     settings.setValue(QStringLiteral("Language/code"), m_currentLanguage);
 
-    if (m_engine)
+    if (m_engine != nullptr) {
         m_engine->retranslate();
+    }
 
     emit currentLanguageChanged();
 }

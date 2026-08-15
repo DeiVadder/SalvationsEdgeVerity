@@ -12,8 +12,9 @@ namespace {
 int countSymbol(const PairSet &pairs, SymbolTypes symbol)
 {
     int count = 0;
-    for (const auto &pair : pairs)
-        count += pair.count(symbol);
+    for (const auto &pair : pairs) {
+        count += static_cast<int>(pair.count(symbol));
+    }
     return count;
 }
 
@@ -33,12 +34,18 @@ QVector<PairSet> allBalancedPairSets()
     const QVector<SymbolTypes> symbols = {SymbolTypes::Dreieck, SymbolTypes::Viereck,
                                            SymbolTypes::Kreis};
     QVector<PairSet> result;
-    for (auto a1a : symbols) for (auto a1b : symbols)
-    for (auto a2a : symbols) for (auto a2b : symbols)
-    for (auto a3a : symbols) for (auto a3b : symbols) {
+    for (auto a1a : symbols) { for (auto a1b : symbols) {
+    for (auto a2a : symbols) { for (auto a2b : symbols) {
+    for (auto a3a : symbols) { for (auto a3b : symbols) {
         PairSet candidate = {{a1a, a1b}, {a2a, a2b}, {a3a, a3b}};
-        if (isBalanced(candidate))
+        if (isBalanced(candidate)) {
             result.append(candidate);
+        }
+    }
+    }
+    }
+    }
+    }
     }
     return result;
 }
@@ -67,9 +74,11 @@ PairSet replayInstructions(PairSet start, const SymbolSwapEngine &engine)
                 givenSymbols.append(instr);
             }
         }
-        if (activeNodes.size() != 2)
+        if (activeNodes.size() != 2) {
             return start; // malformed step - let the caller's comparison fail
-        int a = activeNodes.at(0), b = activeNodes.at(1);
+        }
+        int a = activeNodes.at(0);
+        int b = activeNodes.at(1);
         start[a].removeOne(givenSymbols.at(0));
         start[a].append(givenSymbols.at(1));
         start[b].removeOne(givenSymbols.at(1));
@@ -201,8 +210,9 @@ void TestSymbolSwapEngine::allBalancedStartTargetPairsConverge()
             QVERIFY(engine.isSolved());
 
             auto replayed = replayInstructions(start, engine);
-            for (int node = 0; node < 3; ++node)
+            for (int node = 0; node < 3; ++node) {
                 QVERIFY(matchesSorted(replayed.at(node), target.at(node)));
+            }
 
             maxSteps = qMax(maxSteps, engine.numberOfSteps());
         }
@@ -220,24 +230,30 @@ void TestSymbolSwapEngine::allBalancedStartTargetPairsConverge()
 void TestSymbolSwapEngine::unbalancedTargetNeverFalselyClaimsSuccess()
 {
     const QVector<PairSet> balancedSets = allBalancedPairSets();
-    const PairSet fixedStart = balancedSets.first();
+    const PairSet& fixedStart = balancedSets.first();
 
     const QVector<SymbolTypes> symbols = {SymbolTypes::Dreieck, SymbolTypes::Viereck,
                                            SymbolTypes::Kreis};
     int tested = 0;
 
-    for (auto a1a : symbols) for (auto a1b : symbols)
-    for (auto a2a : symbols) for (auto a2b : symbols)
-    for (auto a3a : symbols) for (auto a3b : symbols) {
+    for (auto a1a : symbols) { for (auto a1b : symbols) {
+    for (auto a2a : symbols) { for (auto a2b : symbols) {
+    for (auto a3a : symbols) { for (auto a3b : symbols) {
         PairSet target = {{a1a, a1b}, {a2a, a2b}, {a3a, a3b}};
-        if (isBalanced(target))
+        if (isBalanced(target)) {
             continue;
+        }
 
         SymbolSwapEngine engine;
         engine.solve(fixedStart, target);
         ++tested;
 
         QVERIFY(!engine.isSolved());
+    }
+    }
+    }
+    }
+    }
     }
 
     qDebug() << "Exhaustively verified" << tested << "unbalanced targets all correctly report unsolved.";

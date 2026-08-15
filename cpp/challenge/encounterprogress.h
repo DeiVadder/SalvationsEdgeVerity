@@ -22,13 +22,13 @@ public:
     explicit EncounterProgress(QObject *parent = nullptr);
 
     Q_INVOKABLE void markShapeUsed(CalculateSteps::SymbolTypes shape);
-    Q_INVOKABLE bool isShapeAvailable(CalculateSteps::SymbolTypes shape) const;
-    Q_INVOKABLE QVector<CalculateSteps::SymbolTypes> availableShapes() const;
+    Q_INVOKABLE [[nodiscard]] bool isShapeAvailable(CalculateSteps::SymbolTypes shape) const;
+    Q_INVOKABLE [[nodiscard]] QVector<CalculateSteps::SymbolTypes> availableShapes() const;
     Q_INVOKABLE void resetEncounter();
 
-    bool challengeModeEnabled() const;
+    [[nodiscard]] bool challengeModeEnabled() const;
     void setChallengeModeEnabled(bool enabled);
-    int usedShapeCount() const;
+    [[nodiscard]] int usedShapeCount() const;
 
 signals:
     void challengeModeEnabledChanged();

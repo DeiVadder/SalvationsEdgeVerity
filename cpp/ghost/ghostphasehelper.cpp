@@ -5,8 +5,9 @@
 GhostPhaseHelper::GhostPhaseHelper(QObject *parent)
     : QObject{parent}
 {
-    for (int i = 0; i < PlayerCount; ++i)
+    for (int i = 0; i < PlayerCount; ++i) {
         m_players.append(new GhostPlayerSlot(this));
+    }
 }
 
 QList<QObject *> GhostPhaseHelper::players() const
@@ -16,6 +17,7 @@ QList<QObject *> GhostPhaseHelper::players() const
 
 void GhostPhaseHelper::reset()
 {
-    for (auto *player : m_players)
+    for (auto *player : m_players) {
         static_cast<GhostPlayerSlot *>(player)->reset();
+    }
 }

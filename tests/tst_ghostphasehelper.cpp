@@ -31,8 +31,9 @@ void TestGhostPhaseHelper::rosterHasSixSlots()
 {
     const auto players = m_helper->players();
     QCOMPARE(players.size(), 6);
-    for (auto *player : players)
+    for (auto *player : players) {
         QVERIFY(qobject_cast<GhostPlayerSlot *>(player) != nullptr);
+    }
 }
 
 void TestGhostPhaseHelper::resetClearsAllSlots()

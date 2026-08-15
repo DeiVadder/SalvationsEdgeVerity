@@ -8,8 +8,9 @@ using SymbolTypes = FastCleanseResolver::SymbolTypes;
 int ownerOf(const QVector<SymbolTypes> &ownSymbols, SymbolTypes symbol)
 {
     for (int i = 0; i < ownSymbols.size(); ++i) {
-        if (ownSymbols.at(i) == symbol)
+        if (ownSymbols.at(i) == symbol) {
             return i;
+        }
     }
     return -1;
 }
@@ -20,8 +21,9 @@ int ownerOf(const QVector<SymbolTypes> &ownSymbols, SymbolTypes symbol)
 int thirdPlayer(int self, int other)
 {
     for (int i = 0; i < 3; ++i) {
-        if (i != self && i != other)
+        if (i != self && i != other) {
             return i;
+        }
     }
     return -1;
 }
@@ -34,6 +36,10 @@ bool matchesTarget(QVector<SymbolTypes> room, QVector<SymbolTypes> target)
 }
 } // namespace
 
+// This is the 5-case decision table itself; each case is straightforward
+// on its own, and it's exhaustively covered by tst_fastcleanseresolver.cpp
+// (540+639 generated cases). Splitting it up risks the exhaustive tests
+// silently no longer covering the same logic paths.
 void FastCleanseResolver::resolve(const QVector<SymbolTypes> &ownSymbols,
                                    const QVector<QVector<SymbolTypes>> &wallPairs)
 {
@@ -41,17 +47,20 @@ void FastCleanseResolver::resolve(const QVector<SymbolTypes> &ownSymbols,
     m_roundCount = 0;
     m_solved = false;
 
-    if (ownSymbols.size() != 3 || wallPairs.size() != 3)
+    if (ownSymbols.size() != 3 || wallPairs.size() != 3) {
         return;
-    for (const auto &wall : wallPairs) {
-        if (wall.size() != 2)
-            return;
+    }
+    const bool anyWallWrongSize = std::any_of(wallPairs.begin(), wallPairs.end(),
+                                               [](const auto &wall) { return wall.size() != 2; });
+    if (anyWallWrongSize) {
+        return;
     }
 
     QVector<QVector<SymbolTypes>> rooms = wallPairs;
     QVector<QVector<SymbolTypes>> targets;
-    for (const auto &own : ownSymbols)
+    for (const auto &own : ownSymbols) {
         targets.append(CalculateSteps::fromBaseSymbol(own));
+    }
 
     const int maxRounds = 6;
     for (int round = 0; round < maxRounds; ++round) {
@@ -61,14 +70,16 @@ void FastCleanseResolver::resolve(const QVector<SymbolTypes> &ownSymbols,
             const QVector<SymbolTypes> &room = rooms.at(i);
             SymbolTypes own = ownSymbols.at(i);
 
-            if (matchesTarget(room, targets.at(i)))
+            if (matchesTarget(room, targets.at(i))) {
                 continue;
+            }
 
             if (room.size() == 2 && room.at(0) == own && room.at(1) == own) {
                 // {p,p}: give one p to each of the other two players.
                 for (int other = 0; other < 3; ++other) {
-                    if (other == i)
+                    if (other == i) {
                         continue;
+                    }
                     roundTransfers.append({round, i, other, own});
                 }
                 continue;
@@ -80,8 +91,9 @@ void FastCleanseResolver::resolve(const QVector<SymbolTypes> &ownSymbols,
                 // don't want a 3rd copy of their own symbol).
                 SymbolTypes n = room.at(0);
                 int recipient = thirdPlayer(i, ownerOf(ownSymbols, n));
-                if (recipient >= 0)
+                if (recipient >= 0) {
                     roundTransfers.append({round, i, recipient, n});
+                }
                 continue;
             }
 
@@ -90,8 +102,9 @@ void FastCleanseResolver::resolve(const QVector<SymbolTypes> &ownSymbols,
                 // ambiguous case - see class doc comment.
                 SymbolTypes n = (room.at(0) == own) ? room.at(1) : room.at(0);
                 int recipient = ownerOf(ownSymbols, n);
-                if (recipient >= 0)
+                if (recipient >= 0) {
                     roundTransfers.append({round, i, recipient, own});
+                }
                 continue;
             }
 
@@ -104,7 +117,7 @@ void FastCleanseResolver::resolve(const QVector<SymbolTypes> &ownSymbols,
                 SymbolTypes excess = CalculateSteps::Undefined;
                 int highestCount = 0;
                 for (auto s : room) {
-                    int c = room.count(s);
+                    int c = static_cast<int>(room.count(s));
                     if (c > highestCount) {
                         highestCount = c;
                         excess = s;
@@ -112,8 +125,9 @@ void FastCleanseResolver::resolve(const QVector<SymbolTypes> &ownSymbols,
                 }
                 if (highestCount >= 2) {
                     int recipient = thirdPlayer(i, ownerOf(ownSymbols, excess));
-                    if (recipient >= 0)
+                    if (recipient >= 0) {
                         roundTransfers.append({round, i, recipient, excess});
+                    }
                 }
                 continue;
             }
@@ -121,8 +135,9 @@ void FastCleanseResolver::resolve(const QVector<SymbolTypes> &ownSymbols,
             // nothing sensible to do this round.
         }
 
-        if (roundTransfers.isEmpty())
+        if (roundTransfers.isEmpty()) {
             break;
+        }
 
         m_transfers.append(roundTransfers);
         m_roundCount = round + 1;

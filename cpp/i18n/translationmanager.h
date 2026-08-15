@@ -31,7 +31,7 @@ public:
     // constructed - setLanguage() needs it to call retranslate().
     void setEngine(QQmlEngine *engine);
 
-    QString currentLanguage() const { return m_currentLanguage; }
+    [[nodiscard]] QString currentLanguage() const { return m_currentLanguage; }
 
     // languageCode: "en" or "de". Unknown codes fall back to "en".
     Q_INVOKABLE void setLanguage(const QString &languageCode);

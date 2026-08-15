@@ -21,16 +21,18 @@ QString symbolName(SymbolTypes s)
 QString describeSymbols(const QVector<SymbolTypes> &v)
 {
     QStringList parts;
-    for (auto s : v)
+    for (auto s : v) {
         parts << symbolName(s);
+    }
     return parts.join(",");
 }
 
 QString describeWalls(const QVector<QVector<SymbolTypes>> &walls)
 {
     QStringList parts;
-    for (const auto &w : walls)
+    for (const auto &w : walls) {
         parts << QString("{%1}").arg(describeSymbols(w));
+    }
     return parts.join(" ");
 }
 
@@ -60,8 +62,9 @@ QVector<QVector<SymbolTypes>> replayTransfers(const QVector<QVector<SymbolTypes>
 int countSymbol(const QVector<QVector<SymbolTypes>> &walls, SymbolTypes symbol)
 {
     int count = 0;
-    for (const auto &w : walls)
-        count += w.count(symbol);
+    for (const auto &w : walls) {
+        count += static_cast<int>(w.count(symbol));
+    }
     return count;
 }
 
@@ -224,15 +227,17 @@ void TestFastCleanseResolver::allBalancedConfigurationsConvergeToCorrectTarget()
 
     do {
         QVector<QVector<SymbolTypes>> targets;
-        for (auto own : ownPermutation)
+        for (auto own : ownPermutation) {
             targets.append(CalculateSteps::fromBaseSymbol(own));
+        }
 
-        for (auto a1a : symbols) for (auto a1b : symbols)
-        for (auto a2a : symbols) for (auto a2b : symbols)
-        for (auto a3a : symbols) for (auto a3b : symbols) {
+        for (auto a1a : symbols) { for (auto a1b : symbols) {
+        for (auto a2a : symbols) { for (auto a2b : symbols) {
+        for (auto a3a : symbols) { for (auto a3b : symbols) {
             QVector<QVector<SymbolTypes>> walls = {{a1a, a1b}, {a2a, a2b}, {a3a, a3b}};
-            if (!isBalanced(walls))
+            if (!isBalanced(walls)) {
                 continue;
+            }
 
             FastCleanseResolver resolver;
             resolver.resolve(ownPermutation, walls);
@@ -252,6 +257,11 @@ void TestFastCleanseResolver::allBalancedConfigurationsConvergeToCorrectTarget()
             }
 
             maxRoundsSeen = qMax(maxRoundsSeen, resolver.numberOfRounds());
+        }
+        }
+        }
+        }
+        }
         }
     } while (std::next_permutation(ownPermutation.begin(), ownPermutation.end()));
 
@@ -274,12 +284,13 @@ void TestFastCleanseResolver::allUnbalancedConfigurationsNeverFalselyClaimSucces
 
     int testedCount = 0;
 
-    for (auto a1a : symbols) for (auto a1b : symbols)
-    for (auto a2a : symbols) for (auto a2b : symbols)
-    for (auto a3a : symbols) for (auto a3b : symbols) {
+    for (auto a1a : symbols) { for (auto a1b : symbols) {
+    for (auto a2a : symbols) { for (auto a2b : symbols) {
+    for (auto a3a : symbols) { for (auto a3b : symbols) {
         QVector<QVector<SymbolTypes>> walls = {{a1a, a1b}, {a2a, a2b}, {a3a, a3b}};
-        if (isBalanced(walls))
+        if (isBalanced(walls)) {
             continue;
+        }
 
         FastCleanseResolver resolver;
         resolver.resolve(m_own, walls);
@@ -289,6 +300,11 @@ void TestFastCleanseResolver::allUnbalancedConfigurationsNeverFalselyClaimSucces
                  qPrintable(QString("Falsely claimed success for unbalanced walls=%1")
                                 .arg(describeWalls(walls))));
         QVERIFY(resolver.numberOfRounds() <= 6);
+    }
+    }
+    }
+    }
+    }
     }
 
     qDebug() << "Exhaustively verified" << testedCount

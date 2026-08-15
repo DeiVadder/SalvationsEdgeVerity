@@ -27,14 +27,14 @@ public:
     enum SymbolTypes {
         Undefined = 0,
         Dreieck = 1,
-        Viereck,
-        Kreis,
-        Kegel,
-        Wuerfel,
-        Zylinder,
-        Pyramide,
-        Prisma,
-        Kugel
+        Viereck = 2,
+        Kreis = 3,
+        Kegel = 4,
+        Wuerfel = 5,
+        Zylinder = 6,
+        Pyramide = 7,
+        Prisma = 8,
+        Kugel = 9
     };
     Q_ENUM(SymbolTypes)
     explicit CalculateSteps(QObject *parent = nullptr);
@@ -60,12 +60,12 @@ public:
     // The 3D shape statue `statue` needs to end up as (its dissection
     // target), cached from the last calculateSteps() call. Undefined if
     // the index is out of range or nothing has been calculated yet.
-    Q_INVOKABLE SymbolTypes targetShapeForStatue(int statue) const;
+    Q_INVOKABLE [[nodiscard]] SymbolTypes targetShapeForStatue(int statue) const;
     // False before any calculateSteps() call, and after one that got stuck
     // before reaching the target (no valid swap partner found - the
     // computed instruction list is then incomplete). True once a
     // calculateSteps() call actually reached the target.
-    Q_INVOKABLE bool isSolved() const;
+    Q_INVOKABLE [[nodiscard]] bool isSolved() const;
 
     Q_INVOKABLE bool checkIsValid(SymbolTypes innerStatue1,
                                   SymbolTypes innerStatue2,
@@ -74,7 +74,7 @@ public:
                                   SymbolTypes outerStatue2,
                                   SymbolTypes outerStatue3);
 
-    int calculationVersion() const { return m_calculationVersion; }
+    [[nodiscard]] int calculationVersion() const { return m_calculationVersion; }
 
 public slots:
     void reset();

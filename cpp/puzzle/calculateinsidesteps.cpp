@@ -1,5 +1,8 @@
 #include "calculateinsidesteps.h"
 
+#include <algorithm>
+#include <array>
+
 #include "fastcleanseresolver.h"
 #include "symbolswapengine.h"
 
@@ -41,8 +44,9 @@ void CalculateInsideSteps::calculateSteps(SymbolTypes player1Symbol,
     m_engine->solve(start, target);
 
     m_targetShapePerPlayer.clear();
-    for (const auto &pair : target)
+    for (const auto &pair : target) {
         m_targetShapePerPlayer.append(CalculateSteps::pairToShape(pair.at(0), pair.at(1)));
+    }
 
     bumpCalculationVersion();
 }
@@ -88,14 +92,16 @@ bool CalculateInsideSteps::checkIsValid(SymbolTypes player1Symbol,
                                          SymbolTypes player3Symbol)
 {
     if (!isBase2dSymbol(player1Symbol) || !isBase2dSymbol(player2Symbol)
-        || !isBase2dSymbol(player3Symbol))
+        || !isBase2dSymbol(player3Symbol)) {
         return false;
+    }
 
     // The game guarantees each solo player's own statue shows a different
     // symbol from the other two.
     if (player1Symbol == player2Symbol || player1Symbol == player3Symbol
-        || player2Symbol == player3Symbol)
+        || player2Symbol == player3Symbol) {
         return false;
+    }
 
     return true;
 }
@@ -107,22 +113,26 @@ bool CalculateInsideSteps::checkIsValidChallenge(SymbolTypes player1Symbol,
                                                   SymbolTypes outerTarget2,
                                                   SymbolTypes outerTarget3)
 {
-    if (!checkIsValid(player1Symbol, player2Symbol, player3Symbol))
+    if (!checkIsValid(player1Symbol, player2Symbol, player3Symbol)) {
         return false;
+    }
 
     QVector<QVector<SymbolTypes>> target = {CalculateSteps::toBaseSymbols(outerTarget1),
                                              CalculateSteps::toBaseSymbols(outerTarget2),
                                              CalculateSteps::toBaseSymbols(outerTarget3)};
 
     QVector<SymbolTypes> failure{CalculateSteps::Undefined, CalculateSteps::Undefined};
-    if (target.contains(failure))
+    if (target.contains(failure)) {
         return false;
+    }
 
-    int cntKreis{0}, cntDreieck{0}, cntViereck{0};
+    int cntKreis{0};
+    int cntDreieck{0};
+    int cntViereck{0};
     for (const auto &pair : target) {
-        cntKreis += pair.count(CalculateSteps::Kreis);
-        cntDreieck += pair.count(CalculateSteps::Dreieck);
-        cntViereck += pair.count(CalculateSteps::Viereck);
+        cntKreis += static_cast<int>(pair.count(CalculateSteps::Kreis));
+        cntDreieck += static_cast<int>(pair.count(CalculateSteps::Dreieck));
+        cntViereck += static_cast<int>(pair.count(CalculateSteps::Viereck));
     }
     return cntKreis == cntDreieck && cntKreis == cntViereck;
 }
@@ -139,19 +149,26 @@ bool CalculateInsideSteps::checkIsValidWall(SymbolTypes player1Symbol,
                                              SymbolTypes wall2a, SymbolTypes wall2b,
                                              SymbolTypes wall3a, SymbolTypes wall3b)
 {
-    if (!checkIsValid(player1Symbol, player2Symbol, player3Symbol))
+    if (!checkIsValid(player1Symbol, player2Symbol, player3Symbol)) {
         return false;
-
-    for (auto s : {wall1a, wall1b, wall2a, wall2b, wall3a, wall3b}) {
-        if (!isBase2dSymbol(s))
-            return false;
     }
 
-    int cntKreis{0}, cntDreieck{0}, cntViereck{0};
-    for (auto s : {wall1a, wall1b, wall2a, wall2b, wall3a, wall3b}) {
-        if (s == CalculateSteps::Kreis) ++cntKreis;
-        else if (s == CalculateSteps::Dreieck) ++cntDreieck;
-        else if (s == CalculateSteps::Viereck) ++cntViereck;
+    const std::array walls{wall1a, wall1b, wall2a, wall2b, wall3a, wall3b};
+    if (!std::all_of(walls.begin(), walls.end(), isBase2dSymbol)) {
+        return false;
+    }
+
+    int cntKreis{0};
+    int cntDreieck{0};
+    int cntViereck{0};
+    for (auto s : walls) {
+        if (s == CalculateSteps::Kreis) {
+            ++cntKreis;
+        } else if (s == CalculateSteps::Dreieck) {
+            ++cntDreieck;
+        } else if (s == CalculateSteps::Viereck) {
+            ++cntViereck;
+        }
     }
     return cntKreis == 2 && cntDreieck == 2 && cntViereck == 2;
 }
@@ -175,8 +192,9 @@ void CalculateInsideSteps::calculateStepsLFG(SymbolTypes player1Symbol,
     m_engine->solve(selfPairs, target);
 
     m_targetShapePerPlayer.clear();
-    for (const auto &pair : target)
+    for (const auto &pair : target) {
         m_targetShapePerPlayer.append(CalculateSteps::pairToShape(pair.at(0), pair.at(1)));
+    }
 
     bumpCalculationVersion();
 }
@@ -192,22 +210,26 @@ bool CalculateInsideSteps::checkIsValidWallChallenge(SymbolTypes player1Symbol,
                                                       SymbolTypes outerTarget3)
 {
     if (!checkIsValidWall(player1Symbol, player2Symbol, player3Symbol,
-                           wall1a, wall1b, wall2a, wall2b, wall3a, wall3b))
+                           wall1a, wall1b, wall2a, wall2b, wall3a, wall3b)) {
         return false;
+    }
 
     QVector<QVector<SymbolTypes>> target = {CalculateSteps::toBaseSymbols(outerTarget1),
                                              CalculateSteps::toBaseSymbols(outerTarget2),
                                              CalculateSteps::toBaseSymbols(outerTarget3)};
 
     QVector<SymbolTypes> failure{CalculateSteps::Undefined, CalculateSteps::Undefined};
-    if (target.contains(failure))
+    if (target.contains(failure)) {
         return false;
+    }
 
-    int cntKreis{0}, cntDreieck{0}, cntViereck{0};
+    int cntKreis{0};
+    int cntDreieck{0};
+    int cntViereck{0};
     for (const auto &pair : target) {
-        cntKreis += pair.count(CalculateSteps::Kreis);
-        cntDreieck += pair.count(CalculateSteps::Dreieck);
-        cntViereck += pair.count(CalculateSteps::Viereck);
+        cntKreis += static_cast<int>(pair.count(CalculateSteps::Kreis));
+        cntDreieck += static_cast<int>(pair.count(CalculateSteps::Dreieck));
+        cntViereck += static_cast<int>(pair.count(CalculateSteps::Viereck));
     }
     return cntKreis == cntDreieck && cntKreis == cntViereck;
 }

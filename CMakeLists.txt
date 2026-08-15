@@ -7,6 +7,13 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_AUTORCC ON)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
+if(CMAKE_CXX_COMPILER_ID MATCHES "Clang|GNU")
+    # No -Wpedantic: Qt's own generated code (e.g. qmlcache_loader.cpp's
+    # Q_GLOBAL_STATIC expansion) trips -Wvariadic-macro-arguments-omitted
+    # under C++17, which isn't something we can or should fix.
+    add_compile_options(-Wall -Wextra)
+endif()
+
 find_package(Qt6 6.11 REQUIRED COMPONENTS Quick Svg Test LinguistTools)
 
 qt_standard_project_setup(REQUIRES 6.11)

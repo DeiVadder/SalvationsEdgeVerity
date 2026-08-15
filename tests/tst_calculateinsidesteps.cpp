@@ -7,9 +7,11 @@ int countSymbol(const std::initializer_list<CalculateSteps::SymbolTypes> &walls,
                  CalculateSteps::SymbolTypes symbol)
 {
     int count = 0;
-    for (auto s : walls)
-        if (s == symbol)
+    for (auto s : walls) {
+        if (s == symbol) {
             ++count;
+        }
+    }
     return count;
 }
 } // namespace
@@ -104,8 +106,9 @@ void TestCalculateInsideSteps::calculateStepsConvergesToFromBaseSymbolTarget()
     for (int step = 0; step < m_calc->numberOfSteps(); ++step) {
         int nonUndefinedCount = 0;
         for (int player = 0; player < 3; ++player) {
-            if (m_calc->getInstructionForStep(step, player) != CalculateSteps::Undefined)
+            if (m_calc->getInstructionForStep(step, player) != CalculateSteps::Undefined) {
                 ++nonUndefinedCount;
+            }
         }
         QCOMPARE(nonUndefinedCount, 2);
     }
@@ -265,9 +268,9 @@ void TestCalculateInsideSteps::checkIsValidWallExhaustive()
     int testedCount = 0;
     int balancedCount = 0;
 
-    for (auto w1a : symbols) for (auto w1b : symbols)
-    for (auto w2a : symbols) for (auto w2b : symbols)
-    for (auto w3a : symbols) for (auto w3b : symbols) {
+    for (auto w1a : symbols) { for (auto w1b : symbols) {
+    for (auto w2a : symbols) { for (auto w2b : symbols) {
+    for (auto w3a : symbols) { for (auto w3b : symbols) {
         bool referenceBalanced =
             countSymbol({w1a, w1b, w2a, w2b, w3a, w3b}, CalculateSteps::Dreieck) == 2
             && countSymbol({w1a, w1b, w2a, w2b, w3a, w3b}, CalculateSteps::Viereck) == 2
@@ -278,8 +281,14 @@ void TestCalculateInsideSteps::checkIsValidWallExhaustive()
 
         QCOMPARE(actual, referenceBalanced);
         ++testedCount;
-        if (referenceBalanced)
+        if (referenceBalanced) {
             ++balancedCount;
+        }
+    }
+    }
+    }
+    }
+    }
     }
 
     QCOMPARE(testedCount, 729);

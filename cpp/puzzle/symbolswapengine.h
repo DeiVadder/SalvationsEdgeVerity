@@ -20,9 +20,9 @@ public:
     void solve(PairSet start, PairSet target);
     void reset();
 
-    int numberOfSteps() const { return m_swapOperations.size() / 2; }
-    SymbolTypes getInstructionForStep(int step, int node) const;
-    bool isSolved() const { return m_solved; }
+    [[nodiscard]] int numberOfSteps() const { return static_cast<int>(m_swapOperations.size()) / 2; }
+    [[nodiscard]] SymbolTypes getInstructionForStep(int step, int node) const;
+    [[nodiscard]] bool isSolved() const { return m_solved; }
 
 private:
     static void orderPairs(PairSet &pairs);

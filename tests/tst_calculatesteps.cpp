@@ -132,8 +132,9 @@ void TestCalculateSteps::getInstructionForStepValidRange()
     for (int step = 0; step < n; ++step) {
         int nonUndefinedCount = 0;
         for (int statue = 0; statue < 3; ++statue) {
-            if (m_calc->getInstructionForStep(step, statue) != CalculateSteps::Undefined)
+            if (m_calc->getInstructionForStep(step, statue) != CalculateSteps::Undefined) {
                 ++nonUndefinedCount;
+            }
         }
         QCOMPARE(nonUndefinedCount, 2);
     }
