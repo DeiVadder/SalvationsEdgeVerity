@@ -35,8 +35,7 @@ void CalculateSteps::calculateSteps(SymbolTypes innerStatue1,
 
 CalculateSteps::SymbolTypes CalculateSteps::getInstructionForStep(int step, int statue)
 {
-    // QVector< QPair<int,SymbolTypes> >
-    if (step > numberOfSteps())
+    if (step < 0 || step >= numberOfSteps())
         return Undefined;
     auto s1 = m_swapOperations.at(step * 2);
     auto s2 = m_swapOperations.at(step * 2 + 1);
@@ -109,13 +108,6 @@ void CalculateSteps::reset()
 QVector<CalculateSteps::SymbolTypes> CalculateSteps::toBaseSymbols(SymbolTypes type)
 {
     switch (type) {
-    // default:
-    case SymbolTypes::Undefined:
-    case SymbolTypes::Dreieck:
-    case SymbolTypes::Viereck:
-    case SymbolTypes::Kreis:
-        return {SymbolTypes::Undefined, SymbolTypes::Undefined};
-
     case SymbolTypes::Kegel:
         return {SymbolTypes::Dreieck, SymbolTypes::Kreis};
 
@@ -132,6 +124,13 @@ QVector<CalculateSteps::SymbolTypes> CalculateSteps::toBaseSymbols(SymbolTypes t
         return {SymbolTypes::Dreieck, SymbolTypes::Dreieck};
     case SymbolTypes::Kugel:
         return {SymbolTypes::Kreis, SymbolTypes::Kreis};
+
+    case SymbolTypes::Undefined:
+    case SymbolTypes::Dreieck:
+    case SymbolTypes::Viereck:
+    case SymbolTypes::Kreis:
+    default:
+        return {SymbolTypes::Undefined, SymbolTypes::Undefined};
     }
 }
 
@@ -214,97 +213,3 @@ bool CalculateSteps::findAndSwap(QVector<QVector<SymbolTypes>> &start,
     }
     return false;
 }
-
-/*
-bool CalculateSteps::findAndSwap(QVector<QVector<SymbolTypes> > &start, QVector<QVector<SymbolTypes> > &ziel) {
-    auto symbolToText = [](SymbolTypes symbol) ->QString{
-        if(symbol == Kreis)
-            return "Kreis";
-        if(symbol == Viereck)
-            return "Viereck";
-        if(symbol == Dreieck)
-            return "Dreieck";
-        return "";
-    };
-    for (int i = 0; i < start.size(); ++i) {
-        qDebug() << i << "of" << start.size();
-        if (start.at(i) != ziel.at(i)) {
-            //We have not match between start and stop, we have to switch
-            qDebug() << "Something to do"<< start.at(i) <<ziel.at(i);
-            auto &startPair = start[i];
-            auto &zielPair = ziel[i];
-            SymbolTypes wrongSymbol{Undefined};
-            SymbolTypes targetSymbol{Undefined};
-
-            // Check if the first symbol needs to switch
-            if (zielPair.contains(startPair.at(0))) {
-                // First symbol is part of the final configuration, so the second entry is wrong
-                wrongSymbol = startPair.at(1);
-                targetSymbol = zielPair.at(0) == startPair.at(0) ? zielPair.at(1) : zielPair.at(0);
-            } else {
-                // Second symbol is part of the final configuration, so the first entry is wrong
-                wrongSymbol = startPair.at(0);
-                targetSymbol = zielPair.at(1) == startPair.at(1) ? zielPair.at(0) : zielPair.at(1);
-            }
-
-            qDebug() << "Wrong symbol" <<wrongSymbol;
-            qDebug() << "targetSymbol"<< targetSymbol;
-
-            for (int j = 0; j < start.size(); ++j) {
-                if(i == j){
-                    continue;
-                }
-                qDebug() << "is not finished? " << (start.at(j) != ziel.at(j));
-                qDebug() << "Statue has symbol we need?"<< start.at(j).contains(targetSymbol) << start.at(j) << targetSymbol;
-                qDebug() << "Symbol is not part of the solution" << (!ziel.at(j).contains(targetSymbol)) <<ziel.at(j) << targetSymbol;
-                qDebug() << "there are currently 2 symbols" << (start.at(j).count(targetSymbol) == 2) << start.at(j).count(targetSymbol) << Qt::endl;
-                //if (start.at(j) != ziel.at(j) && start.at(j).contains(targetSymbol) && !ziel.at(j).contains(targetSymbol)) {
-                if (start.at(j) != ziel.at(j) && // Symbol is not finsihed
-                    start.at(j).contains(targetSymbol) &&//theres at least 1 symbol that can be changed
-                    (!ziel.at(j).contains(targetSymbol) || //Symbol is not part of the solution
-                    //if it is part of the solution, there are currently 2 of those symbols to take one from
-                     start.at(j).count(targetSymbol) == 2))
-                {
-                // if (start.at(j) != ziel.at(j) && start.at(j).contains(targetSymbol)) {
-                //     if(!ziel.at(j).contains(targetSymbol) || ziel.a) {
-                    qDebug() << "Remove at Statue "<< i+1  << "Symbol" << symbolToText(wrongSymbol);
-                    qDebug() << "Add at Statue "<< i+1  << "Symbol" << symbolToText(targetSymbol);
-                    qDebug() << "Remove at Statue "<< j+1  << "Symbol" << symbolToText(targetSymbol);
-                    qDebug() << "Add at Statue "<< j+1  << "Symbol" << symbolToText(wrongSymbol);
-
-                    start[j].removeOne(targetSymbol);
-                    start[j].append(wrongSymbol);
-                    start[i].removeOne(wrongSymbol);
-                    start[i].append(targetSymbol);
-                    m_tauschOperationen.append(QPair<int,SymbolTypes>{i,wrongSymbol});
-                    m_tauschOperationen.append(QPair<int,SymbolTypes>{j,targetSymbol});
-                    qDebug() << "---";
-                    return true;
-                    }
-                // }
-            }
-        }
-    }
-    return false;
-}
-*/
-
-/* relict 1
-    //Check if first Smybol needs to switch
-    if(zielPair.contains(startPair.at(0))) {
-        //Symbol part of finished configuration
-        //We have something to change, so 2nd entry is wrong
-        wrongSymbol = startPair.at(1);
-        //Need to ID Missing symbol
-        int indexCorrectPair = zielPair.indexOf(startPair.at(0));
-        targetSymbol = indexCorrectPair == 0 ? zielPair.at(1) : zielPair.at(0);
-    } else {
-        //2nd Symbol needs is part of end configuration
-        //so 1st entry is wrong
-        wrongSymbol = startPair.at(0);
-        //Need to ID Missing symbol
-        int indexCorrectPair = zielPair.indexOf(startPair.at(1));
-        targetSymbol = indexCorrectPair == 0 ? zielPair.at(0) : zielPair.at(1);
-    }
-
-*/

@@ -24,6 +24,10 @@ public:
     Q_ENUM(SymbolTypes)
     explicit CalculateSteps(QObject *parent = nullptr);
 
+    // Precondition: callers must call checkIsValid() with the same arguments first.
+    // calculateSteps() does not validate internally; invalid input will not hang
+    // (findAndSwap's stuck-case break prevents that) but produces an incomplete
+    // instruction set.
     Q_INVOKABLE void calculateSteps(SymbolTypes innerStatue1,
                                     SymbolTypes innerStatue2,
                                     SymbolTypes innerStatue3,
