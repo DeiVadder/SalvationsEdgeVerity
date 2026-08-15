@@ -16,6 +16,14 @@ Rectangle {
 
     property CalculateInsideSteps insideCalculator
     property var encounterProgress
+    // Mirrors ApplicationWindow's own wideLayout formula (main.qml) -
+    // computed locally since this panel is always given the full
+    // available area by main.qml, so its own aspect ratio is a reliable
+    // proxy for the window's. Side-by-side squeezes both halves into
+    // unusable slivers on narrow windows; below this ratio, show exactly
+    // one half at a time via the tab bar instead.
+    readonly property bool wideLayout: width >= height * 1.15
+    property int tab: 0 // 0 = setup, 1 = solution - only used when narrow
     readonly property var playerLabels: ["LEFT", "MID", "RIGHT"]
     readonly property var symbols2d: [Symbols.Dreieck, Symbols.Viereck, Symbols.Kreis]
     readonly property var symbols3d: [Symbols.Kegel, Symbols.Wuerfel, Symbols.Zylinder,
@@ -287,13 +295,66 @@ Rectangle {
     radius: 10
     border.color: "#2a2a2a"
 
-    Row {
-        anchors.fill: parent
-        anchors.margins: 16
-        spacing: 24
+    // Tab bar, narrow layout only - lets exactly one half be shown at a
+    // time instead of squeezing both side by side or risking one half
+    // getting pushed out of reach with no way to scroll back to it.
+    Rectangle {
+        id: insideTabBar
+        x: 16
+        y: 16
+        width: parent.width - 32
+        height: 32
+        radius: 6
+        color: "#161616"
+        border.color: "#333333"
+        visible: !root.wideLayout
+
+        Row {
+            anchors.fill: parent
+            anchors.margins: 2
+
+            Rectangle {
+                width: parent.width / 2
+                height: parent.height
+                radius: 5
+                color: root.tab === 0 ? "#3b82f6" : "transparent"
+                Text {
+                    anchors.centerIn: parent
+                    text: "Setup"
+                    color: root.tab === 0 ? "white" : "#999999"
+                    font.pixelSize: 12
+                }
+                MouseArea {
+                    anchors.fill: parent
+                    onClicked: root.tab = 0
+                }
+            }
+            Rectangle {
+                width: parent.width / 2
+                height: parent.height
+                radius: 5
+                color: root.tab === 1 ? "#3b82f6" : "transparent"
+                Text {
+                    anchors.centerIn: parent
+                    text: "Solution"
+                    color: root.tab === 1 ? "white" : "#999999"
+                    font.pixelSize: 12
+                }
+                MouseArea {
+                    anchors.fill: parent
+                    onClicked: root.tab = 1
+                }
+            }
+        }
+    }
 
         Column {
-            width: (parent.width - 24) / 2
+            id: leftCol
+            x: 16
+            y: root.wideLayout ? 16 : insideTabBar.height + 24
+            width: root.wideLayout ? (root.width - 24 - 32) / 2 : root.width - 32
+            height: root.height - y - 16
+            visible: root.wideLayout || root.tab === 0
             spacing: 18
 
             Rectangle {
@@ -595,8 +656,11 @@ Rectangle {
 
         Column {
             id: rightCol
-            width: (parent.width - 24) / 2
-            height: parent.height
+            x: root.wideLayout ? leftCol.x + leftCol.width + 24 : 16
+            y: root.wideLayout ? 16 : insideTabBar.height + 24
+            width: root.wideLayout ? (root.width - 24 - 32) / 2 : root.width - 32
+            height: root.height - y - 16
+            visible: root.wideLayout || root.tab === 1
             spacing: 14
 
             Text {
@@ -834,5 +898,4 @@ Rectangle {
                 }
             }
         }
-    }
 }

@@ -168,9 +168,22 @@ Rectangle {
     radius: 10
     border.color: "#2a2a2a"
 
-    Column {
+    // Whole-panel Flickable, not just the fill-anchored Column it used to
+    // be - a fixed-height Column silently clips/overflows when the panel
+    // is given less height than its content needs (narrow/short windows),
+    // with no way to scroll down to whatever got cut off.
+    Flickable {
         anchors.fill: parent
-        anchors.margins: 16
+        contentWidth: width
+        contentHeight: mainColumn.implicitHeight + 32
+        clip: true
+        boundsBehavior: Flickable.StopAtBounds
+
+    Column {
+        id: mainColumn
+        x: 16
+        y: 16
+        width: parent.width - 32
         spacing: 18
 
         Rectangle {
@@ -330,5 +343,6 @@ Rectangle {
                 onClicked: root.reset()
             }
         }
+    }
     }
 }

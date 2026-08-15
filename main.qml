@@ -153,30 +153,89 @@ ApplicationWindow {
             }
         }
 
-        // Outside puzzle: two-panel layout, side-by-side on wide windows,
-        // stacked on narrow/mobile ones.
+        // Outside puzzle: two-panel layout, side-by-side on wide windows.
+        // On narrow ones, side-by-side would squeeze both panels into
+        // unusable slivers, and simply stacking them risks pushing the
+        // second one below the visible window with no way to scroll back
+        // up/down to it - so instead exactly one full-size panel is shown
+        // at a time, switched via a tab bar. Single InputPanel/SolutionPanel
+        // instances throughout (repositioned/resized, never duplicated) -
+        // two separate instances would each hold their own independent
+        // input state and fight over the shared stepCalculator.
         Item {
+            id: outsideContainer
             width: parent.width
             height: parent.height - y
             visible: root.puzzleMode === 0
 
-            Flow {
-                anchors.fill: parent
-                spacing: 12
+            property int tab: 0 // 0 = selection, 1 = solution - only used when narrow
 
-                InputPanel {
-                    id: outsideInput
-                    width: root.wideLayout ? (parent.width - 12) * 0.42 : parent.width
-                    height: root.wideLayout ? parent.height : implicitHeight
-                    stepCalculator: stepCalculator
-                    encounterProgress: encounterProgress
-                }
+            Rectangle {
+                id: outsideTabBar
+                width: parent.width
+                height: 32
+                radius: 6
+                color: "#161616"
+                border.color: "#333333"
+                visible: !root.wideLayout
 
-                SolutionPanel {
-                    width: root.wideLayout ? (parent.width - 12) * 0.58 : parent.width
-                    height: root.wideLayout ? parent.height : 460
-                    stepCalculator: stepCalculator
+                Row {
+                    anchors.fill: parent
+                    anchors.margins: 2
+
+                    Rectangle {
+                        width: parent.width / 2
+                        height: parent.height
+                        radius: 5
+                        color: outsideContainer.tab === 0 ? "#3b82f6" : "transparent"
+                        Text {
+                            anchors.centerIn: parent
+                            text: "Selection"
+                            color: outsideContainer.tab === 0 ? "white" : "#999999"
+                            font.pixelSize: 12
+                        }
+                        MouseArea {
+                            anchors.fill: parent
+                            onClicked: outsideContainer.tab = 0
+                        }
+                    }
+                    Rectangle {
+                        width: parent.width / 2
+                        height: parent.height
+                        radius: 5
+                        color: outsideContainer.tab === 1 ? "#3b82f6" : "transparent"
+                        Text {
+                            anchors.centerIn: parent
+                            text: "Solution"
+                            color: outsideContainer.tab === 1 ? "white" : "#999999"
+                            font.pixelSize: 12
+                        }
+                        MouseArea {
+                            anchors.fill: parent
+                            onClicked: outsideContainer.tab = 1
+                        }
+                    }
                 }
+            }
+
+            InputPanel {
+                id: outsideInput
+                stepCalculator: stepCalculator
+                encounterProgress: encounterProgress
+                x: 0
+                y: root.wideLayout ? 0 : outsideTabBar.height + 8
+                width: root.wideLayout ? (parent.width - 12) * 0.42 : parent.width
+                height: parent.height - y
+                visible: root.wideLayout || outsideContainer.tab === 0
+            }
+
+            SolutionPanel {
+                stepCalculator: stepCalculator
+                x: root.wideLayout ? outsideInput.width + 12 : 0
+                y: root.wideLayout ? 0 : outsideTabBar.height + 8
+                width: root.wideLayout ? (parent.width - 12) * 0.58 : parent.width
+                height: parent.height - y
+                visible: root.wideLayout || outsideContainer.tab === 1
             }
         }
 

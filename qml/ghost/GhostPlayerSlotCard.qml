@@ -7,7 +7,14 @@ Rectangle {
 
     property var slot
     property string positionLabel: ""
-    property int index: 0
+    // Named slotIndex (not index) deliberately - the delegate that
+    // instantiates this also needs its own `required property int index`
+    // for Repeater's injection (see GhostPhaseHelperPanel.qml), and two
+    // same-named "index" properties (one inherited, one redeclared at the
+    // instantiation site) don't unify - the inner one silently stays at
+    // its default forever, which is why every card showed "PLAYER 1"
+    // regardless of position until this was split into two named props.
+    property int slotIndex: 0
 
     color: "#161616"
     radius: 8
@@ -23,7 +30,7 @@ Rectangle {
         spacing: 8
 
         Text {
-            text: "PLAYER " + (root.index + 1) + " / " + root.positionLabel
+            text: "PLAYER " + (root.slotIndex + 1) + " / " + root.positionLabel
             color: "#999999"
             font.pixelSize: 11
             font.bold: true

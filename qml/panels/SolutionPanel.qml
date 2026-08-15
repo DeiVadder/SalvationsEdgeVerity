@@ -53,9 +53,22 @@ Rectangle {
         text: ""
     }
 
-    Column {
+    // Whole-panel Flickable (was: fixed anchors.fill Column with only the
+    // step list separately scrollable) - so nothing above/below the step
+    // list (title, statue preview, copy button) can end up unreachable
+    // when the panel is given less height than its content needs.
+    Flickable {
         anchors.fill: parent
-        anchors.margins: 16
+        contentWidth: width
+        contentHeight: mainColumn.implicitHeight + 32
+        clip: true
+        boundsBehavior: Flickable.StopAtBounds
+
+    Column {
+        id: mainColumn
+        x: 16
+        y: 16
+        width: parent.width - 32
         spacing: 14
 
         Text {
@@ -108,42 +121,34 @@ Rectangle {
             }
         }
 
-        Flickable {
+        Column {
+            id: stepsColumn
             width: parent.width
-            height: 320
-            contentWidth: width
-            contentHeight: stepsColumn.implicitHeight
-            clip: true
+            spacing: 10
 
-            Column {
-                id: stepsColumn
-                width: parent.width
-                spacing: 10
+            Repeater {
+                model: root.stepCount
 
-                Repeater {
-                    model: root.stepCount
-
-                    delegate: StepCard {
-                        id: stepCard
-                        required property int index
-                        width: stepsColumn.width
-                        stepNumber: stepCard.index + 1
-                        nodeLabels: root.statueLabels
-                        instructions: root.calculationVersion >= 0 ? [
-                            root.stepCalculator.getInstructionForStep(stepCard.index, 0),
-                            root.stepCalculator.getInstructionForStep(stepCard.index, 1),
-                            root.stepCalculator.getInstructionForStep(stepCard.index, 2)
-                        ] : [0, 0, 0]
-                        expectedState: root.targetShapes
-                    }
+                delegate: StepCard {
+                    id: stepCard
+                    required property int index
+                    width: stepsColumn.width
+                    stepNumber: stepCard.index + 1
+                    nodeLabels: root.statueLabels
+                    instructions: root.calculationVersion >= 0 ? [
+                        root.stepCalculator.getInstructionForStep(stepCard.index, 0),
+                        root.stepCalculator.getInstructionForStep(stepCard.index, 1),
+                        root.stepCalculator.getInstructionForStep(stepCard.index, 2)
+                    ] : [0, 0, 0]
+                    expectedState: root.targetShapes
                 }
+            }
 
-                Text {
-                    visible: root.stepCount === 0
-                    text: "Select all shapes to see the solution."
-                    color: "#666666"
-                    font.pixelSize: 12
-                }
+            Text {
+                visible: root.stepCount === 0
+                text: "Select all shapes to see the solution."
+                color: "#666666"
+                font.pixelSize: 12
             }
         }
 
@@ -167,5 +172,6 @@ Rectangle {
                 onClicked: root.copyForChat()
             }
         }
+    }
     }
 }

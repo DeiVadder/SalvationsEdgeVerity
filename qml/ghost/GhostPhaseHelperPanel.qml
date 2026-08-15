@@ -127,6 +127,7 @@ Rectangle {
                         width: root.gridColumns === 1 ? cardFlow.width
                                                        : (cardFlow.width - cardFlow.spacing) / 2
                         slot: card.modelData
+                        slotIndex: card.index
                         positionLabel: root.positionLabelForIndex(card.index)
                     }
                 }
