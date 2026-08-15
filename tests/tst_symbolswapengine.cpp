@@ -2,7 +2,7 @@
 
 #include <algorithm>
 
-#include "symbolswapengine.h"
+#include "puzzle/symbolswapengine.h"
 
 using SymbolTypes = SymbolSwapEngine::SymbolTypes;
 using PairSet = SymbolSwapEngine::PairSet;

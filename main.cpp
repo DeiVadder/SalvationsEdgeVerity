@@ -1,10 +1,10 @@
 #include <QGuiApplication>
 #include <QQmlApplicationEngine>
 
-#include "calculateinsidesteps.h"
-#include "calculatesteps.h"
-#include "encounterprogress.h"
-#include "ghostphasehelper.h"
+#include "puzzle/calculateinsidesteps.h"
+#include "puzzle/calculatesteps.h"
+#include "challenge/encounterprogress.h"
+#include "ghost/ghostphasehelper.h"
 
 int main(int argc, char *argv[])
 {

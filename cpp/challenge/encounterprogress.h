@@ -5,7 +5,7 @@
 #include <QSet>
 #include <QVector>
 
-#include "calculatesteps.h"
+#include "puzzle/calculatesteps.h"
 
 // Tracks which of the 6 outside 3D shapes have been used to escape the solo
 // rooms across the whole encounter (all loops), for the "Varied Geometry"

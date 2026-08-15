@@ -1,5 +1,5 @@
 #include <QtTest>
-#include "encounterprogress.h"
+#include "challenge/encounterprogress.h"
 
 class TestEncounterProgress : public QObject
 {

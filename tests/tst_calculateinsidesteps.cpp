@@ -1,6 +1,6 @@
 #include <QtTest>
 
-#include "calculateinsidesteps.h"
+#include "puzzle/calculateinsidesteps.h"
 
 namespace {
 int countSymbol(const std::initializer_list<CalculateSteps::SymbolTypes> &walls,

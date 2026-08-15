@@ -1,5 +1,5 @@
 #include <QtTest>
-#include "calculatesteps.h"
+#include "puzzle/calculatesteps.h"
 
 class TestCalculateSteps : public QObject
 {

@@ -2,7 +2,7 @@
 
 #include <algorithm>
 
-#include "fastcleanseresolver.h"
+#include "puzzle/fastcleanseresolver.h"
 
 using SymbolTypes = CalculateSteps::SymbolTypes;
 

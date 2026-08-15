@@ -12,21 +12,23 @@ qt_standard_project_setup(REQUIRES 6.11)
 
 qt_add_executable(SalvationsEdgeVerity
     main.cpp
-    calculatesteps.cpp
-    calculatesteps.h
-    symbolswapengine.cpp
-    symbolswapengine.h
-    encounterprogress.cpp
-    encounterprogress.h
-    calculateinsidesteps.cpp
-    calculateinsidesteps.h
-    fastcleanseresolver.cpp
-    fastcleanseresolver.h
-    ghostplayerslot.cpp
-    ghostplayerslot.h
-    ghostphasehelper.cpp
-    ghostphasehelper.h
+    cpp/puzzle/calculatesteps.cpp
+    cpp/puzzle/calculatesteps.h
+    cpp/puzzle/symbolswapengine.cpp
+    cpp/puzzle/symbolswapengine.h
+    cpp/puzzle/calculateinsidesteps.cpp
+    cpp/puzzle/calculateinsidesteps.h
+    cpp/puzzle/fastcleanseresolver.cpp
+    cpp/puzzle/fastcleanseresolver.h
+    cpp/challenge/encounterprogress.cpp
+    cpp/challenge/encounterprogress.h
+    cpp/ghost/ghostplayerslot.cpp
+    cpp/ghost/ghostplayerslot.h
+    cpp/ghost/ghostphasehelper.cpp
+    cpp/ghost/ghostphasehelper.h
 )
+
+target_include_directories(SalvationsEdgeVerity PRIVATE ${CMAKE_SOURCE_DIR}/cpp)
 
 qt_add_qml_module(SalvationsEdgeVerity
     URI SalvationsEdgeVerityApp

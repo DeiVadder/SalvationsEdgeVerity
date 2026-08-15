@@ -1,5 +1,5 @@
 #include <QtTest>
-#include "ghostplayerslot.h"
+#include "ghost/ghostplayerslot.h"
 
 class TestGhostPlayerSlot : public QObject
 {

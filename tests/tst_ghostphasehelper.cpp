@@ -1,6 +1,6 @@
 #include <QtTest>
-#include "ghostphasehelper.h"
-#include "ghostplayerslot.h"
+#include "ghost/ghostphasehelper.h"
+#include "ghost/ghostplayerslot.h"
 
 class TestGhostPhaseHelper : public QObject
 {
