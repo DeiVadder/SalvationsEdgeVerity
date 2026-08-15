@@ -39,14 +39,13 @@ Rectangle {
         spacing: 10
 
         Row {
-            spacing: 24
+            spacing: 10
 
             Rectangle {
                 width: 26
                 height: 26
                 radius: 13
                 color: "#3b82f6"
-                anchors.verticalCenter: parent.verticalCenter
 
                 Text {
                     anchors.centerIn: parent
@@ -56,31 +55,43 @@ Rectangle {
                     font.pixelSize: 13
                 }
             }
+        }
 
-            // Each entry is a separate physical hand-off, spread apart
-            // (not squeezed together with a "⇄") so it's clear these are
-            // 2 different orbs carried in 2 different directions, done at
-            // the same time.
+        // Both this row and the TARGET SHAPE row below split the same
+        // width into the same 3 node-indexed columns, so a carry here
+        // lines up directly above/below that node's eventual target -
+        // makes the connection visible instead of needing to match up
+        // labels by reading.
+        Row {
+            id: swapRow
+            width: parent.width
+
             Repeater {
-                model: root.activeIndices
+                model: root.instructions.length
 
-                delegate: Row {
+                delegate: Item {
                     id: swapEntry
-                    required property var modelData
-                    spacing: 6
-                    anchors.verticalCenter: parent.verticalCenter
+                    required property int index
+                    width: swapRow.width / root.instructions.length
+                    height: swapContent.implicitHeight
 
-                    Image {
-                        width: 20
-                        height: 20
-                        source: ShapeIcons.iconSource(root.instructions[swapEntry.modelData])
-                        fillMode: Image.PreserveAspectFit
-                    }
-                    Text {
-                        text: qsTr("%1 → %2").arg(ShapeIcons.shapeName(root.instructions[swapEntry.modelData]))
-                                                   .arg(root.nodeLabels[swapEntry.modelData])
-                        color: "#dddddd"
-                        font.pixelSize: 13
+                    Row {
+                        id: swapContent
+                        visible: root.instructions[swapEntry.index] !== 0
+                        spacing: 6
+
+                        Image {
+                            width: 20
+                            height: 20
+                            source: ShapeIcons.iconSource(root.instructions[swapEntry.index])
+                            fillMode: Image.PreserveAspectFit
+                        }
+                        Text {
+                            text: qsTr("%1 → %2").arg(ShapeIcons.shapeName(root.instructions[swapEntry.index]))
+                                                       .arg(root.nodeLabels[swapEntry.index])
+                            color: "#dddddd"
+                            font.pixelSize: 13
+                        }
                     }
                 }
             }
@@ -100,26 +111,33 @@ Rectangle {
         }
 
         Row {
-            spacing: 14
+            id: targetRow
+            width: parent.width
 
             Repeater {
                 model: root.expectedState.length
 
-                delegate: Row {
+                delegate: Item {
                     id: stateEntry
                     required property int index
-                    spacing: 4
+                    width: targetRow.width / root.expectedState.length
+                    height: stateContent.implicitHeight
 
-                    Image {
-                        width: 18
-                        height: 18
-                        source: ShapeIcons.iconSource(root.expectedState[stateEntry.index])
-                        fillMode: Image.PreserveAspectFit
-                    }
-                    Text {
-                        text: ShapeIcons.shapeName(root.expectedState[stateEntry.index])
-                        color: "#cccccc"
-                        font.pixelSize: 12
+                    Row {
+                        id: stateContent
+                        spacing: 4
+
+                        Image {
+                            width: 18
+                            height: 18
+                            source: ShapeIcons.iconSource(root.expectedState[stateEntry.index])
+                            fillMode: Image.PreserveAspectFit
+                        }
+                        Text {
+                            text: ShapeIcons.shapeName(root.expectedState[stateEntry.index])
+                            color: "#cccccc"
+                            font.pixelSize: 12
+                        }
                     }
                 }
             }
