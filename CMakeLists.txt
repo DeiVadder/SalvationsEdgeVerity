@@ -55,6 +55,7 @@ qt_add_qml_module(SalvationsEdgeVerity
         qml/challenge/ShapeUsageTracker.qml
         qml/ghost/GhostPlayerSlotCard.qml
         qml/ghost/GhostPhaseHelperPanel.qml
+        qml/help/HelpDialog.qml
 )
 
 target_sources(SalvationsEdgeVerity PRIVATE rsc.qrc)

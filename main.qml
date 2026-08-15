@@ -7,6 +7,7 @@ import CalculateSteps 1.0
 import "qml/panels"
 import "qml/challenge"
 import "qml/ghost"
+import "qml/help"
 
 ApplicationWindow {
     id: root
@@ -52,7 +53,7 @@ ApplicationWindow {
                 font.pixelSize: 18
                 font.bold: true
                 anchors.verticalCenter: parent.verticalCenter
-                width: parent.width - modeToggle.width - languageToggle.width - resetButton.width - 36
+                width: parent.width - modeToggle.width - helpButton.width - languageToggle.width - resetButton.width - 48
                 elide: Text.ElideRight
             }
 
@@ -120,6 +121,29 @@ ApplicationWindow {
                             onClicked: root.puzzleMode = 2
                         }
                     }
+                }
+            }
+
+            Rectangle {
+                id: helpButton
+                width: 34
+                height: 34
+                radius: 6
+                color: "#161616"
+                border.color: "#333333"
+                anchors.verticalCenter: parent.verticalCenter
+
+                Text {
+                    anchors.centerIn: parent
+                    text: "?"
+                    color: "#dddddd"
+                    font.pixelSize: 15
+                    font.bold: true
+                }
+
+                MouseArea {
+                    anchors.fill: parent
+                    onClicked: helpDialog.open()
                 }
             }
 
@@ -323,5 +347,9 @@ ApplicationWindow {
             progress: encounterProgress
             visible: root.puzzleMode !== 2 && encounterProgress.challengeModeEnabled
         }
+    }
+
+    HelpDialog {
+        id: helpDialog
     }
 }
