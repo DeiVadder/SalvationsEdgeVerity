@@ -10,3 +10,6 @@ Thumbs.db
 build/
 build-wasm/
 compile_commands.json
+
+# Local Claude Code config - machine-specific, not for the repo
+.claude/
