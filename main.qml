@@ -21,6 +21,16 @@ ApplicationWindow {
     property int puzzleMode: 0
     readonly property bool wideLayout: width >= height * 1.15
 
+    // The puzzle panels below all claim their full remaining height in the
+    // root Column (height: parent.height - y) - without this, the
+    // "Varied Geometry" tracker stacked after them would get pushed
+    // entirely below the window's bottom edge whenever Challenge Mode is
+    // toggled on, since a Column positions each child after the previous
+    // one's bottom regardless of whether that leaves any room left.
+    readonly property real shapeTrackerReservedHeight:
+        (root.puzzleMode !== 2 && encounterProgress.challengeModeEnabled)
+        ? shapeUsageTracker.implicitHeight + 12 : 0
+
     CalculateSteps {
         id: stepCalculator
     }
@@ -250,7 +260,7 @@ ApplicationWindow {
         Item {
             id: outsideContainer
             width: parent.width
-            height: parent.height - y
+            height: parent.height - y - root.shapeTrackerReservedHeight
             visible: root.puzzleMode === 0
 
             property int tab: 0 // 0 = selection, 1 = solution - only used when narrow
@@ -353,7 +363,7 @@ ApplicationWindow {
         InsideRoomPanel {
             id: insidePanel
             width: parent.width
-            height: parent.height - y
+            height: parent.height - y - root.shapeTrackerReservedHeight
             visible: root.puzzleMode === 1
             insideCalculator: insideStepCalculator
             encounterProgress: encounterProgress
@@ -368,6 +378,7 @@ ApplicationWindow {
         }
 
         ShapeUsageTracker {
+            id: shapeUsageTracker
             width: parent.width
             progress: encounterProgress
             visible: root.puzzleMode !== 2 && encounterProgress.challengeModeEnabled

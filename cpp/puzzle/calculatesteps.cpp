@@ -114,6 +114,70 @@ bool CalculateSteps::checkIsValid(SymbolTypes innerStatue1,
     return true;
 }
 
+void CalculateSteps::calculateStepsChallenge(SymbolTypes outerStatue1,
+                                              SymbolTypes outerStatue2,
+                                              SymbolTypes outerStatue3,
+                                              SymbolTypes challengeTarget1,
+                                              SymbolTypes challengeTarget2,
+                                              SymbolTypes challengeTarget3)
+{
+    QVector<QVector<SymbolTypes>> start = {toBaseSymbols(outerStatue1),
+                                            toBaseSymbols(outerStatue2),
+                                            toBaseSymbols(outerStatue3)};
+    QVector<QVector<SymbolTypes>> stop = {toBaseSymbols(challengeTarget1),
+                                           toBaseSymbols(challengeTarget2),
+                                           toBaseSymbols(challengeTarget3)};
+
+    m_engine->solve(start, stop);
+
+    m_targetShapePerStatue = {challengeTarget1, challengeTarget2, challengeTarget3};
+
+    bumpCalculationVersion();
+}
+
+bool CalculateSteps::checkIsValidChallenge(SymbolTypes innerStatue1,
+                                            SymbolTypes innerStatue2,
+                                            SymbolTypes innerStatue3,
+                                            SymbolTypes challengeTarget1,
+                                            SymbolTypes challengeTarget2,
+                                            SymbolTypes challengeTarget3)
+{
+    QVector<SymbolTypes> inner = {innerStatue1, innerStatue2, innerStatue3};
+    for (auto s : inner) {
+        if (s != Dreieck && s != Viereck && s != Kreis) {
+            return false;
+        }
+    }
+    if (innerStatue1 == innerStatue2 || innerStatue1 == innerStatue3 || innerStatue2 == innerStatue3) {
+        return false;
+    }
+
+    QVector<QVector<SymbolTypes>> target = {toBaseSymbols(challengeTarget1),
+                                             toBaseSymbols(challengeTarget2),
+                                             toBaseSymbols(challengeTarget3)};
+
+    QVector<SymbolTypes> failure{Undefined, Undefined};
+    if (target.contains(failure)) {
+        return false;
+    }
+
+    for (int i = 0; i < 3; ++i) {
+        if (target.at(i).contains(inner.at(i))) {
+            return false;
+        }
+    }
+
+    int cntKreis{0};
+    int cntDreieck{0};
+    int cntViereck{0};
+    for (const auto &pair : target) {
+        cntKreis += static_cast<int>(pair.count(Kreis));
+        cntDreieck += static_cast<int>(pair.count(Dreieck));
+        cntViereck += static_cast<int>(pair.count(Viereck));
+    }
+    return cntKreis == cntDreieck && cntKreis == cntViereck;
+}
+
 CalculateSteps::SymbolTypes CalculateSteps::targetShapeForStatue(int statue) const
 {
     return m_targetShapePerStatue.value(statue, Undefined);

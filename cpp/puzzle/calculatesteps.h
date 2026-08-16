@@ -74,6 +74,39 @@ public:
                                   SymbolTypes outerStatue2,
                                   SymbolTypes outerStatue3);
 
+    // Challenge Mode: default distribution always targets fromBaseSymbol(inner)
+    // - one of the 3 MIXED shapes (Kegel/Zylinder/Prisma), since that formula
+    // never includes the statue's own inner symbol. "Varied Geometry" needs
+    // all 6 shapes used across the encounter, so the only shapes default can
+    // never produce are the 3 PURE ones (Pyramide/Wuerfel/Kugel) - Challenge
+    // Mode exists purely to redirect a statue toward one of those instead.
+    // Same reasoning as CalculateInsideSteps::calculateStepsChallenge().
+    // No inner-symbol parameters here (unlike calculateSteps()) - the
+    // target is given explicitly instead of derived from
+    // fromBaseSymbol(inner), so inner never enters the actual swap math,
+    // only checkIsValidChallenge()'s validation. Precondition: callers
+    // must call checkIsValidChallenge() with the matching inner/target
+    // arguments first.
+    Q_INVOKABLE void calculateStepsChallenge(SymbolTypes outerStatue1,
+                                              SymbolTypes outerStatue2,
+                                              SymbolTypes outerStatue3,
+                                              SymbolTypes challengeTarget1,
+                                              SymbolTypes challengeTarget2,
+                                              SymbolTypes challengeTarget3);
+    // Inner symbols must be valid/pairwise-distinct, the 3 challenge targets
+    // must be defined and balanced (each base symbol appears exactly twice
+    // across them), AND no target may contain its own statue's inner symbol
+    // - mechanically impossible, since a statue only ever holds/gives away
+    // copies of its own inner symbol and could never receive one back (only
+    // 2 copies of any base symbol exist in total, and the statue already
+    // holds both after the swap sequence normalizes it).
+    Q_INVOKABLE bool checkIsValidChallenge(SymbolTypes innerStatue1,
+                                            SymbolTypes innerStatue2,
+                                            SymbolTypes innerStatue3,
+                                            SymbolTypes challengeTarget1,
+                                            SymbolTypes challengeTarget2,
+                                            SymbolTypes challengeTarget3);
+
     [[nodiscard]] int calculationVersion() const { return m_calculationVersion; }
 
 public slots:

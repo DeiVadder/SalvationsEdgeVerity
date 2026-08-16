@@ -200,6 +200,12 @@ Item {
             return steps
         if (root.challengeMode && (root.target1 <= 0 || root.target2 <= 0 || root.target3 <= 0))
             return steps
+        // Disallowed input (e.g. a called shape containing its own
+        // position's symbol - see checkIsValidChallenge) must not still
+        // produce a displayed step list just because the local
+        // give-computation below doesn't itself validate anything.
+        if (root.hasNoSolution)
+            return steps
 
         var n = 0
         root.mySortTransfers.forEach(function (t) {
@@ -289,10 +295,13 @@ Item {
 
     // Copies the 3 final statue/escape-shape assignments - what the
     // outside team needs to know, not the inside room's own step list.
+    // Copies what's actually shown in the "Statue positions" row (each
+    // player's own 2D symbol) - not the computed final escape shape,
+    // which isn't shown there (see the Image source comment further down).
     function copyFinalShapes() {
-        var lines = [qsTr("Verity inside escape shapes:")]
+        var lines = []
         for (var i = 0; i < 3; ++i) {
-            lines.push(root.playerLabels[i] + ": " + ShapeIcons.shapeName(root.finalShapes[i]))
+            lines.push(root.playerLabels[i] + ": " + ShapeIcons.shapeName(root.playerValue(i)))
         }
         chatText.text = lines.join("\n")
         chatText.selectAll()
@@ -1049,12 +1058,27 @@ Item {
                     height: 22
                     radius: 5
                     color: "#2a2a2a"
-                    border.color: "#444444"
+                    border.color: copyButton.justCopied ? "#2e7d46" : "#444444"
                     anchors.verticalCenter: parent.verticalCenter
 
+                    property bool justCopied: false
+
+                    Behavior on border.color { ColorAnimation { duration: 120 } }
+
+                    // Brief "copied" confirmation - resets itself, no need
+                    // to track cancellation since a 2nd click just restarts
+                    // the same timer.
+                    Timer {
+                        id: copiedResetTimer
+                        interval: 1100
+                        onTriggered: copyButton.justCopied = false
+                    }
+
                     // Simple 2-square "copy" glyph, drawn manually instead
-                    // of relying on a clipboard emoji being in the font.
+                    // of relying on a clipboard emoji being in the font -
+                    // swapped for a checkmark right after copying.
                     Rectangle {
+                        visible: !copyButton.justCopied
                         x: 7
                         y: 5
                         width: 9
@@ -1065,6 +1089,7 @@ Item {
                         border.width: 1.3
                     }
                     Rectangle {
+                        visible: !copyButton.justCopied
                         x: 10
                         y: 8
                         width: 9
@@ -1074,10 +1099,22 @@ Item {
                         border.color: "#dddddd"
                         border.width: 1.3
                     }
+                    Text {
+                        visible: copyButton.justCopied
+                        anchors.centerIn: parent
+                        text: "✓"
+                        color: "#2e7d46"
+                        font.bold: true
+                        font.pixelSize: 14
+                    }
 
                     MouseArea {
                         anchors.fill: parent
-                        onClicked: root.copyFinalShapes()
+                        onClicked: {
+                            root.copyFinalShapes()
+                            copyButton.justCopied = true
+                            copiedResetTimer.restart()
+                        }
                     }
                 }
             }

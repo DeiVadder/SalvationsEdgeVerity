@@ -27,6 +27,11 @@ private slots:
     void targetShapeForStatueMatchesFromBaseSymbol();
     void isSolvedReflectsCalculationState();
     void calculationVersionBumpsOnEveryCall();
+
+    void checkIsValidChallenge_data();
+    void checkIsValidChallenge();
+    void calculateStepsChallengeConvergesToDefaultEquivalentTarget();
+    void calculateStepsChallengeHandlesPureDerangement();
 };
 
 void TestCalculateSteps::init()
@@ -209,6 +214,83 @@ void TestCalculateSteps::calculationVersionBumpsOnEveryCall()
     QCOMPARE(m_calc->calculationVersion(), previous + 1);
 
     QCOMPARE(spy.count(), 3);
+}
+
+// Same own-symbol/derangement reasoning as CalculateInsideSteps'
+// checkIsValidChallenge_data (see that file's comment): a target can never
+// include the statue's own inner symbol, which pins each of the 3 mixed
+// shapes to exactly one valid statue and forces any pure-shape usage into
+// a full 3-way derangement.
+void TestCalculateSteps::checkIsValidChallenge_data()
+{
+    QTest::addColumn<CalculateSteps::SymbolTypes>("t1");
+    QTest::addColumn<CalculateSteps::SymbolTypes>("t2");
+    QTest::addColumn<CalculateSteps::SymbolTypes>("t3");
+    QTest::addColumn<bool>("expectedValid");
+
+    // Wuerfel={Viereck,Viereck} at statue0 (inner Dreieck), Kugel={Kreis,Kreis}
+    // at statue1 (inner Viereck), Pyramide={Dreieck,Dreieck} at statue2
+    // (inner Kreis) - balanced, none at the statue matching its own symbol.
+    QTest::newRow("balanced, pure derangement")
+        << CalculateSteps::Wuerfel << CalculateSteps::Kugel << CalculateSteps::Pyramide << true;
+    // Exactly the default fromBaseSymbol(inner) split, entered explicitly.
+    QTest::newRow("balanced, all mixed")
+        << CalculateSteps::Zylinder << CalculateSteps::Kegel << CalculateSteps::Prisma << true;
+    QTest::newRow("unbalanced")
+        << CalculateSteps::Kugel << CalculateSteps::Kugel << CalculateSteps::Kugel << false;
+    QTest::newRow("undefined target slot")
+        << CalculateSteps::Kugel << CalculateSteps::Undefined << CalculateSteps::Pyramide << false;
+    // Kegel={Dreieck,Kreis} at statue0 (inner Dreieck) - contains its own
+    // symbol, mechanically impossible (a statue can only give away/hold
+    // copies of its own symbol, never receive one back).
+    QTest::newRow("target contains own symbol")
+        << CalculateSteps::Kegel << CalculateSteps::Kugel << CalculateSteps::Pyramide << false;
+}
+
+void TestCalculateSteps::checkIsValidChallenge()
+{
+    QFETCH(CalculateSteps::SymbolTypes, t1);
+    QFETCH(CalculateSteps::SymbolTypes, t2);
+    QFETCH(CalculateSteps::SymbolTypes, t3);
+    QFETCH(bool, expectedValid);
+
+    QCOMPARE(m_calc->checkIsValidChallenge(CalculateSteps::Dreieck, CalculateSteps::Viereck,
+                                            CalculateSteps::Kreis, t1, t2, t3),
+             expectedValid);
+}
+
+void TestCalculateSteps::calculateStepsChallengeConvergesToDefaultEquivalentTarget()
+{
+    QVERIFY(m_calc->checkIsValidChallenge(CalculateSteps::Dreieck, CalculateSteps::Viereck,
+                                           CalculateSteps::Kreis, CalculateSteps::Zylinder,
+                                           CalculateSteps::Kegel, CalculateSteps::Prisma));
+
+    m_calc->calculateStepsChallenge(CalculateSteps::Wuerfel, CalculateSteps::Pyramide,
+                                     CalculateSteps::Kugel, CalculateSteps::Zylinder,
+                                     CalculateSteps::Kegel, CalculateSteps::Prisma);
+
+    QVERIFY(m_calc->isSolved());
+    QCOMPARE(m_calc->targetShapeForStatue(0), CalculateSteps::Zylinder);
+    QCOMPARE(m_calc->targetShapeForStatue(1), CalculateSteps::Kegel);
+    QCOMPARE(m_calc->targetShapeForStatue(2), CalculateSteps::Prisma);
+}
+
+// The actual point of challenge mode: a pure-shape derangement instead of
+// the default one-each mixed split.
+void TestCalculateSteps::calculateStepsChallengeHandlesPureDerangement()
+{
+    QVERIFY(m_calc->checkIsValidChallenge(CalculateSteps::Dreieck, CalculateSteps::Viereck,
+                                           CalculateSteps::Kreis, CalculateSteps::Wuerfel,
+                                           CalculateSteps::Kugel, CalculateSteps::Pyramide));
+
+    m_calc->calculateStepsChallenge(CalculateSteps::Wuerfel, CalculateSteps::Pyramide,
+                                     CalculateSteps::Kugel, CalculateSteps::Wuerfel,
+                                     CalculateSteps::Kugel, CalculateSteps::Pyramide);
+
+    QVERIFY(m_calc->isSolved());
+    QCOMPARE(m_calc->targetShapeForStatue(0), CalculateSteps::Wuerfel);
+    QCOMPARE(m_calc->targetShapeForStatue(1), CalculateSteps::Kugel);
+    QCOMPARE(m_calc->targetShapeForStatue(2), CalculateSteps::Pyramide);
 }
 
 QTEST_MAIN(TestCalculateSteps)

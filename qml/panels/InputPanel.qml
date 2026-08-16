@@ -18,6 +18,17 @@ Rectangle {
     // row 1 holds the remaining 3 mixed-pair shapes.
     readonly property var symbols3d: [Symbols.Kegel, Symbols.Zylinder, Symbols.Prisma,
         Symbols.Pyramide, Symbols.Wuerfel, Symbols.Kugel]
+    readonly property var pureSymbols3d: [Symbols.Pyramide, Symbols.Wuerfel, Symbols.Kugel]
+
+    // Default distribution always targets fromBaseSymbol(inner) - one of
+    // the 3 MIXED shapes, since that formula never includes the statue's
+    // own inner symbol. Challenge Mode only ever needs to exist to reach
+    // one of the 3 PURE shapes instead (default can never produce those) -
+    // see calculatesteps.h's calculateStepsChallenge() doc comment. On by
+    // default; uncheck for the full 6-shape picker if a real call ever
+    // needs to reassign a mixed shape to a different statue instead.
+    property bool pureShapesOnly: true
+    readonly property var targetShapeOptions: root.pureShapesOnly ? root.pureSymbols3d : root.symbols3d
 
     property int inner1: 0
     property int inner2: 0
@@ -25,6 +36,13 @@ Rectangle {
     property int outer1: 0
     property int outer2: 0
     property int outer3: 0
+
+    // Challenge Mode only - the outside team's called escape shape per
+    // statue, overriding the default fromBaseSymbol(inner) target.
+    property int target1: 0
+    property int target2: 0
+    property int target3: 0
+    property int inferredTargetIndex: -1
 
     // Once 2 of the 3 inside symbols are picked (and distinct), the 3rd is
     // forced - the game always shows 3 pairwise-distinct callouts. Track
@@ -39,13 +57,80 @@ Rectangle {
 
     signal invalidInput()
 
+    readonly property bool challengeMode: root.encounterProgress
+        ? root.encounterProgress.challengeModeEnabled : false
+
     function reset() {
         inner1 = 0; inner2 = 0; inner3 = 0
         outer1 = 0; outer2 = 0; outer3 = 0
+        target1 = 0; target2 = 0; target3 = 0
         inferredInnerIndex = -1
         inferredOuterIndex = -1
+        inferredTargetIndex = -1
         hasNoSolution = false
         stepCalculator.reset()
+    }
+
+    function targetValue(idx) {
+        return idx === 0 ? target1 : (idx === 1 ? target2 : target3)
+    }
+
+    function setTargetValue(idx, value) {
+        if (idx === 0) target1 = value
+        else if (idx === 1) target2 = value
+        else target3 = value
+    }
+
+    function setTarget(idx, value) {
+        if (idx === inferredTargetIndex) {
+            inferredTargetIndex = -1
+        } else if (inferredTargetIndex >= 0) {
+            setTargetValue(inferredTargetIndex, 0)
+            inferredTargetIndex = -1
+        }
+        setTargetValue(idx, value)
+        maybeInferMissingTarget()
+        tryCalculate()
+    }
+
+    function maybeInferMissingTarget() {
+        var vals = [target1, target2, target3]
+        var setIdx = []
+        var zeroIdx = -1
+        for (var i = 0; i < 3; ++i) {
+            if (vals[i] > 0)
+                setIdx.push(i)
+            else
+                zeroIdx = i
+        }
+        if (setIdx.length === 2 && zeroIdx >= 0) {
+            var remaining = ShapeMath.remainingBasePair(vals[setIdx[0]], vals[setIdx[1]])
+            if (remaining.length === 2) {
+                var inferredShape = ShapeMath.shapeForBasePair(remaining[0], remaining[1])
+                if (inferredShape > 0) {
+                    setTargetValue(zeroIdx, inferredShape)
+                    inferredTargetIndex = zeroIdx
+                }
+            }
+        } else if (setIdx.length < 2) {
+            inferredTargetIndex = -1
+        }
+    }
+
+    // Clears any already-picked target that's no longer a selectable
+    // option after checking "pure shapes only".
+    function sanitizeTargetsForPureOnly() {
+        if (!root.pureShapesOnly)
+            return
+        for (var i = 0; i < 3; ++i) {
+            var v = targetValue(i)
+            if (v > 0 && root.pureSymbols3d.indexOf(v) === -1) {
+                setTargetValue(i, 0)
+                if (inferredTargetIndex === i)
+                    inferredTargetIndex = -1
+            }
+        }
+        maybeInferMissingTarget()
     }
 
     function outerValue(idx) {
@@ -156,6 +241,24 @@ Rectangle {
             invalidInput()
             return
         }
+
+        if (root.challengeMode) {
+            if (target1 <= 0 || target2 <= 0 || target3 <= 0) {
+                hasNoSolution = false
+                stepCalculator.reset()
+                return
+            }
+            if (!stepCalculator.checkIsValidChallenge(inner1, inner2, inner3, target1, target2, target3)) {
+                hasNoSolution = true
+                stepCalculator.reset()
+                invalidInput()
+                return
+            }
+            stepCalculator.calculateStepsChallenge(outer1, outer2, outer3, target1, target2, target3)
+            hasNoSolution = !stepCalculator.isSolved()
+            return
+        }
+
         stepCalculator.calculateSteps(inner1, inner2, inner3, outer1, outer2, outer3)
         hasNoSolution = !stepCalculator.isSolved()
     }
@@ -163,6 +266,11 @@ Rectangle {
     onInner1Changed: tryCalculate()
     onInner2Changed: tryCalculate()
     onInner3Changed: tryCalculate()
+    onChallengeModeChanged: tryCalculate()
+    onPureShapesOnlyChanged: {
+        sanitizeTargetsForPureOnly()
+        tryCalculate()
+    }
     onOuter1Changed: tryCalculate()
     onOuter2Changed: tryCalculate()
     onOuter3Changed: tryCalculate()
@@ -322,6 +430,104 @@ Rectangle {
                     onClicked: {
                         if (root.encounterProgress)
                             root.encounterProgress.challengeModeEnabled = !root.encounterProgress.challengeModeEnabled
+                    }
+                }
+            }
+
+            Row {
+                spacing: 8
+                anchors.verticalCenter: parent.verticalCenter
+
+                Rectangle {
+                    width: 18
+                    height: 18
+                    radius: 4
+                    anchors.verticalCenter: parent.verticalCenter
+                    color: root.pureShapesOnly ? "#3b82f6" : "#2a2a2a"
+                    border.color: "#555555"
+
+                    Text {
+                        anchors.centerIn: parent
+                        text: "✓"
+                        visible: root.pureShapesOnly
+                        color: "#ffffff"
+                        font.bold: true
+                        font.pixelSize: 12
+                    }
+
+                    MouseArea {
+                        anchors.fill: parent
+                        onClicked: root.pureShapesOnly = !root.pureShapesOnly
+                    }
+                }
+
+                Text {
+                    text: qsTr("Pure shapes only")
+                    color: "#cccccc"
+                    font.pixelSize: 13
+                    anchors.verticalCenter: parent.verticalCenter
+
+                    MouseArea {
+                        anchors.fill: parent
+                        onClicked: root.pureShapesOnly = !root.pureShapesOnly
+                    }
+                }
+            }
+        }
+
+        Text {
+            visible: root.challengeMode
+            text: qsTr("Default distribution always builds a mixed shape - Challenge Mode only needs to cover the 3 pure ones (Pyramide/Wuerfel/Kugel). Uncheck to pick any of the 6 instead.")
+            color: "#777777"
+            font.pixelSize: 10
+            wrapMode: Text.WordWrap
+            width: parent.width
+        }
+
+        Column {
+            width: parent.width
+            spacing: 6
+            visible: root.challengeMode
+
+            Text {
+                text: qsTr("Outside escape shapes (called by outside team)")
+                color: "#999999"
+                font.pixelSize: 11
+                wrapMode: Text.WordWrap
+                width: parent.width
+            }
+
+            Row {
+                id: targetRow
+                width: parent.width
+                spacing: 12
+
+                Repeater {
+                    model: 3
+
+                    delegate: Column {
+                        id: targetCol
+                        required property int index
+                        width: (targetRow.width - targetRow.spacing * 2) / 3
+                        spacing: 6
+
+                        Text {
+                            text: root.statueLabels[targetCol.index]
+                            color: "#999999"
+                            font.pixelSize: 11
+                            anchors.horizontalCenter: parent.horizontalCenter
+                        }
+
+                        ShapeGridSelector {
+                            columns: 3
+                            totalWidth: targetCol.width
+                            cellSpacing: 6
+                            options: root.targetShapeOptions
+                            selected: targetCol.index === 0 ? root.target1
+                                                             : (targetCol.index === 1 ? root.target2 : root.target3)
+                            selectionIsInferred: targetCol.index === root.inferredTargetIndex
+                            onTapped: (value) => root.setTarget(targetCol.index, value)
+                        }
                     }
                 }
             }
