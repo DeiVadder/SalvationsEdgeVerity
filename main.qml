@@ -255,6 +255,19 @@ ApplicationWindow {
 
             property int tab: 0 // 0 = selection, 1 = solution - only used when narrow
 
+            // Auto-advance to the Solution tab the moment a full solution
+            // becomes available (narrow layout only - wide shows both
+            // panels at once, no tab to jump). Keyed off a plain bool
+            // rather than numberOfSteps directly so re-solving with the
+            // same non-zero step count (e.g. tweaking an already-valid
+            // combination) doesn't yank the user back to Solution on every
+            // edit - only the false->true transition does that.
+            readonly property bool hasSolution: stepCalculator ? stepCalculator.numberOfSteps > 0 : false
+            onHasSolutionChanged: {
+                if (hasSolution && !root.wideLayout)
+                    outsideContainer.tab = 1
+            }
+
             Rectangle {
                 id: outsideTabBar
                 width: parent.width
@@ -311,16 +324,28 @@ ApplicationWindow {
                 y: root.wideLayout ? 0 : outsideTabBar.height + 8
                 width: root.wideLayout ? (parent.width - 12) * 0.42 : parent.width
                 height: parent.height - y
-                visible: root.wideLayout || outsideContainer.tab === 0
+                opacity: (root.wideLayout || outsideContainer.tab === 0) ? 1 : 0
+                visible: opacity > 0
+                enabled: root.wideLayout || outsideContainer.tab === 0
+                Behavior on opacity { NumberAnimation { duration: 200; easing.type: Easing.OutCubic } }
             }
 
             SolutionPanel {
+                id: outsideSolution
                 stepCalculator: stepCalculator
+                wideLayout: root.wideLayout
                 x: root.wideLayout ? outsideInput.width + 12 : 0
                 y: root.wideLayout ? 0 : outsideTabBar.height + 8
                 width: root.wideLayout ? (parent.width - 12) * 0.58 : parent.width
                 height: parent.height - y
-                visible: root.wideLayout || outsideContainer.tab === 1
+                opacity: (root.wideLayout || outsideContainer.tab === 1) ? 1 : 0
+                visible: opacity > 0
+                enabled: root.wideLayout || outsideContainer.tab === 1
+                Behavior on opacity { NumberAnimation { duration: 200; easing.type: Easing.OutCubic } }
+                onResetRequested: {
+                    outsideInput.reset()
+                    outsideContainer.tab = 0
+                }
             }
         }
 

@@ -30,6 +30,8 @@ qt_add_executable(SalvationsEdgeVerity
     cpp/puzzle/fastcleanseresolver.h
     cpp/puzzle/lfgsortresolver.cpp
     cpp/puzzle/lfgsortresolver.h
+    cpp/puzzle/lfgdistributeresolver.cpp
+    cpp/puzzle/lfgdistributeresolver.h
     cpp/challenge/encounterprogress.cpp
     cpp/challenge/encounterprogress.h
     cpp/ghost/ghostplayerslot.cpp
@@ -52,6 +54,7 @@ qt_add_qml_module(SalvationsEdgeVerity
         qml/panels/ShapeGridSelector.qml
         qml/panels/WallPairSelector.qml
         qml/panels/StepCard.qml
+        qml/panels/TransferStepCard.qml
         qml/panels/InputPanel.qml
         qml/panels/SolutionPanel.qml
         qml/panels/InsideRoomPanel.qml

@@ -104,7 +104,7 @@ Item {
                     var solutionHeading = qsTr("Solution")
                     var solutionBody = qsTr("Switch to the Solution tab (or view it side-by-side on wide windows) to see the computed swap sequence and “Copy for in-game chat”.")
                     var insideHeading = qsTr("Inside puzzle")
-                    var insideBody = qsTr("Pick each player's own 2D symbol, then mark which statue you are. Enter your own wall (2 symbols) to see what you personally give away this round - give any symbol that isn't yours to whichever player owns it, wait for your teammates, then distribute. Challenge Mode and the Fast shortcut are coming back later. UNVERIFIED against real gameplay - sanity-check it before trusting it in a live run.")
+                    var insideBody = qsTr("Pick each player's own 2D symbol, then mark which statue you are. Enter your own wall (2 symbols) to see what you personally give away this round - give any symbol that isn't yours to whichever player owns it, wait for your teammates, then distribute. In Challenge Mode, also enter the outside team's 3 called escape shapes so distribute targets those instead of the default split. The Fast shortcut is coming back later. UNVERIFIED against real gameplay - sanity-check it before trusting it in a live run.")
                     var ghostsHeading = qsTr("Ghosts")
                     var ghostsBody = qsTr("Manual 6-player roster: name, class, and a ghost or fashion note per player. “Copy ghost callouts” copies a summary for chat. No Bungie API involved - no key needed, nothing sent anywhere.")
                     var languageHeading = qsTr("Language")

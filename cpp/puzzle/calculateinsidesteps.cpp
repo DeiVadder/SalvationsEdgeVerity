@@ -4,6 +4,7 @@
 #include <array>
 
 #include "fastcleanseresolver.h"
+#include "lfgdistributeresolver.h"
 #include "lfgsortresolver.h"
 #include "symbolswapengine.h"
 
@@ -26,6 +27,7 @@ CalculateInsideSteps::CalculateInsideSteps(QObject *parent)
     : QObject{parent}
     , m_engine{std::make_unique<SymbolSwapEngine>()}
     , m_sortResolver{std::make_unique<LFGSortResolver>()}
+    , m_distributeResolver{std::make_unique<LFGDistributeResolver>()}
     , m_fastResolver{std::make_unique<FastCleanseResolver>()}
 {}
 
@@ -43,6 +45,7 @@ void CalculateInsideSteps::calculateSteps(SymbolTypes player1Symbol,
                                              CalculateSteps::fromBaseSymbol(player3Symbol)};
 
     m_engine->solve(start, target);
+    m_distributeResolver->resolve({player1Symbol, player2Symbol, player3Symbol});
 
     m_targetShapePerPlayer.clear();
     for (const auto &pair : target) {
@@ -67,6 +70,7 @@ void CalculateInsideSteps::calculateStepsChallenge(SymbolTypes player1Symbol,
                                              CalculateSteps::toBaseSymbols(outerTarget3)};
 
     m_engine->solve(start, target);
+    m_distributeResolver->reset();
 
     m_targetShapePerPlayer = {outerTarget1, outerTarget2, outerTarget3};
 
@@ -125,6 +129,20 @@ bool CalculateInsideSteps::checkIsValidChallenge(SymbolTypes player1Symbol,
     QVector<SymbolTypes> failure{CalculateSteps::Undefined, CalculateSteps::Undefined};
     if (target.contains(failure)) {
         return false;
+    }
+
+    // A player can never end up holding their own symbol: after sort they
+    // only hold copies of their own symbol (both of the game's only 2
+    // copies), so nobody else could ever hand them a 3rd one, and whatever
+    // they give away during distribute is - by the same logic - always
+    // their own symbol, never something they'd get back. So the outside
+    // team's called shape for a position can never include that position's
+    // own base symbol, in either of the 2 slots.
+    QVector<SymbolTypes> ownSymbols = {player1Symbol, player2Symbol, player3Symbol};
+    for (int i = 0; i < 3; ++i) {
+        if (target.at(i).contains(ownSymbols.at(i))) {
+            return false;
+        }
     }
 
     int cntKreis{0};
@@ -192,6 +210,7 @@ void CalculateInsideSteps::calculateStepsLFG(SymbolTypes player1Symbol,
 
     m_sortResolver->resolve(ownSymbols, wallPairs);
     m_engine->solve(selfPairs, target);
+    m_distributeResolver->resolve(ownSymbols);
 
     m_targetShapePerPlayer.clear();
     for (const auto &pair : target) {
@@ -223,6 +242,20 @@ bool CalculateInsideSteps::checkIsValidWallChallenge(SymbolTypes player1Symbol,
     QVector<SymbolTypes> failure{CalculateSteps::Undefined, CalculateSteps::Undefined};
     if (target.contains(failure)) {
         return false;
+    }
+
+    // A player can never end up holding their own symbol: after sort they
+    // only hold copies of their own symbol (both of the game's only 2
+    // copies), so nobody else could ever hand them a 3rd one, and whatever
+    // they give away during distribute is - by the same logic - always
+    // their own symbol, never something they'd get back. So the outside
+    // team's called shape for a position can never include that position's
+    // own base symbol, in either of the 2 slots.
+    QVector<SymbolTypes> ownSymbols = {player1Symbol, player2Symbol, player3Symbol};
+    for (int i = 0; i < 3; ++i) {
+        if (target.at(i).contains(ownSymbols.at(i))) {
+            return false;
+        }
     }
 
     int cntKreis{0};
@@ -257,6 +290,7 @@ void CalculateInsideSteps::calculateStepsLFGChallenge(SymbolTypes player1Symbol,
 
     m_sortResolver->resolve(ownSymbols, wallPairs);
     m_engine->solve(selfPairs, target);
+    m_distributeResolver->reset();
 
     m_targetShapePerPlayer = {outerTarget1, outerTarget2, outerTarget3};
 
@@ -286,6 +320,41 @@ CalculateInsideSteps::SymbolTypes CalculateInsideSteps::sortTransferSymbol(int i
 bool CalculateInsideSteps::isSortSolved() const
 {
     return m_sortResolver->isSolved();
+}
+
+int CalculateInsideSteps::numberOfDistributeRounds() const
+{
+    return m_distributeResolver->numberOfRounds();
+}
+
+int CalculateInsideSteps::numberOfDistributeTransfers() const
+{
+    return m_distributeResolver->numberOfTransfers();
+}
+
+int CalculateInsideSteps::distributeTransferRound(int index) const
+{
+    return m_distributeResolver->transfer(index).round;
+}
+
+int CalculateInsideSteps::distributeTransferFrom(int index) const
+{
+    return m_distributeResolver->transfer(index).fromPlayer;
+}
+
+int CalculateInsideSteps::distributeTransferTo(int index) const
+{
+    return m_distributeResolver->transfer(index).toPlayer;
+}
+
+CalculateInsideSteps::SymbolTypes CalculateInsideSteps::distributeTransferSymbol(int index) const
+{
+    return m_distributeResolver->transfer(index).symbol;
+}
+
+bool CalculateInsideSteps::isDistributeSolved() const
+{
+    return m_distributeResolver->isSolved();
 }
 
 void CalculateInsideSteps::calculateStepsFast(SymbolTypes player1Symbol,
@@ -348,6 +417,7 @@ void CalculateInsideSteps::reset()
 {
     m_engine->reset();
     m_sortResolver->reset();
+    m_distributeResolver->reset();
     m_fastResolver->reset();
     m_targetShapePerPlayer.clear();
     bumpCalculationVersion();

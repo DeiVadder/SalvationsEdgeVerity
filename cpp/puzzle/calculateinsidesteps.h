@@ -11,6 +11,7 @@
 class SymbolSwapEngine;
 class FastCleanseResolver;
 class LFGSortResolver;
+class LFGDistributeResolver;
 
 // Solves the inside/solo-room puzzle: 3 teleported players each start
 // holding one 2D symbol (pairwise distinct) and, via the sort+distribute
@@ -94,6 +95,20 @@ public:
                                             SymbolTypes outerTarget3);
     Q_INVOKABLE [[nodiscard]] SymbolTypes finalShapeForPlayer(int player) const;
     [[nodiscard]] int calculationVersion() const { return m_calculationVersion; }
+
+    // Distribute, default target only: direct-hand-off closed form (see
+    // lfgdistributeresolver.h) computed alongside calculateSteps() and
+    // calculateStepsLFG() - NOT the generic engine's numberOfSteps()/
+    // getInstructionForStep() above, which still relays through the 3rd
+    // player. Not populated by the Challenge-mode variants (pure-double
+    // targets have no closed form - see lfgdistributeresolver.h).
+    Q_INVOKABLE [[nodiscard]] int numberOfDistributeRounds() const;
+    Q_INVOKABLE [[nodiscard]] int numberOfDistributeTransfers() const;
+    Q_INVOKABLE [[nodiscard]] int distributeTransferRound(int index) const;
+    Q_INVOKABLE [[nodiscard]] int distributeTransferFrom(int index) const;
+    Q_INVOKABLE [[nodiscard]] int distributeTransferTo(int index) const;
+    Q_INVOKABLE [[nodiscard]] SymbolTypes distributeTransferSymbol(int index) const;
+    Q_INVOKABLE [[nodiscard]] bool isDistributeSolved() const;
 
     // LFG / Fast: both take the actual observed wall content per player
     // (2 symbols each, NOT assumed to include the player's own symbol -
@@ -188,6 +203,7 @@ private:
 
     std::unique_ptr<SymbolSwapEngine> m_engine;
     std::unique_ptr<LFGSortResolver> m_sortResolver;
+    std::unique_ptr<LFGDistributeResolver> m_distributeResolver;
     std::unique_ptr<FastCleanseResolver> m_fastResolver;
     QVector<SymbolTypes> m_targetShapePerPlayer;
     int m_calculationVersion = 0;

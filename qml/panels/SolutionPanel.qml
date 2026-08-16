@@ -8,6 +8,12 @@ Rectangle {
 
     property CalculateSteps stepCalculator
     readonly property var statueLabels: [qsTr("LEFT"), qsTr("MID"), qsTr("RIGHT")]
+    // See InputPanel.qml's matching property - Reset only shows here in
+    // narrow layout, where this is the tab the user is actually looking
+    // at once they have a result to reset.
+    property bool wideLayout: true
+
+    signal resetRequested()
 
     readonly property int stepCount: stepCalculator ? stepCalculator.numberOfSteps : 0
     // targetShapeForStatue()/getInstructionForStep() are plain method
@@ -152,24 +158,49 @@ Rectangle {
             }
         }
 
-        Rectangle {
-            width: 220
-            height: 38
-            radius: 6
-            color: root.stepCount > 0 ? "#3b82f6" : "#2a2a2a"
+        Row {
+            spacing: 10
 
-            Text {
-                anchors.centerIn: parent
-                text: qsTr("Copy for in-game chat")
-                color: root.stepCount > 0 ? "white" : "#777777"
-                font.pixelSize: 13
-                font.bold: true
+            Rectangle {
+                width: 220
+                height: 38
+                radius: 6
+                color: root.stepCount > 0 ? "#3b82f6" : "#2a2a2a"
+
+                Text {
+                    anchors.centerIn: parent
+                    text: qsTr("Copy for in-game chat")
+                    color: root.stepCount > 0 ? "white" : "#777777"
+                    font.pixelSize: 13
+                    font.bold: true
+                }
+
+                MouseArea {
+                    anchors.fill: parent
+                    enabled: root.stepCount > 0
+                    onClicked: root.copyForChat()
+                }
             }
 
-            MouseArea {
-                anchors.fill: parent
-                enabled: root.stepCount > 0
-                onClicked: root.copyForChat()
+            Rectangle {
+                width: 90
+                height: 38
+                radius: 6
+                color: "#2a2a2a"
+                border.color: "#444444"
+                visible: !root.wideLayout
+
+                Text {
+                    anchors.centerIn: parent
+                    text: qsTr("Reset")
+                    color: "#dddddd"
+                    font.pixelSize: 13
+                }
+
+                MouseArea {
+                    anchors.fill: parent
+                    onClicked: root.resetRequested()
+                }
             }
         }
     }

@@ -45,6 +45,8 @@ qt_add_executable(tst_calculateinsidesteps
     ${CMAKE_SOURCE_DIR}/cpp/puzzle/fastcleanseresolver.h
     ${CMAKE_SOURCE_DIR}/cpp/puzzle/lfgsortresolver.cpp
     ${CMAKE_SOURCE_DIR}/cpp/puzzle/lfgsortresolver.h
+    ${CMAKE_SOURCE_DIR}/cpp/puzzle/lfgdistributeresolver.cpp
+    ${CMAKE_SOURCE_DIR}/cpp/puzzle/lfgdistributeresolver.h
 )
 target_include_directories(tst_calculateinsidesteps PRIVATE ${CMAKE_SOURCE_DIR}/cpp)
 target_link_libraries(tst_calculateinsidesteps PRIVATE Qt6::Test Qt6::Core)
@@ -75,6 +77,19 @@ qt_add_executable(tst_lfgsortresolver
 target_include_directories(tst_lfgsortresolver PRIVATE ${CMAKE_SOURCE_DIR}/cpp)
 target_link_libraries(tst_lfgsortresolver PRIVATE Qt6::Test Qt6::Core)
 add_test(NAME tst_lfgsortresolver COMMAND tst_lfgsortresolver)
+
+qt_add_executable(tst_lfgdistributeresolver
+    tst_lfgdistributeresolver.cpp
+    ${CMAKE_SOURCE_DIR}/cpp/puzzle/lfgdistributeresolver.cpp
+    ${CMAKE_SOURCE_DIR}/cpp/puzzle/lfgdistributeresolver.h
+    ${CMAKE_SOURCE_DIR}/cpp/puzzle/calculatesteps.cpp
+    ${CMAKE_SOURCE_DIR}/cpp/puzzle/calculatesteps.h
+    ${CMAKE_SOURCE_DIR}/cpp/puzzle/symbolswapengine.cpp
+    ${CMAKE_SOURCE_DIR}/cpp/puzzle/symbolswapengine.h
+)
+target_include_directories(tst_lfgdistributeresolver PRIVATE ${CMAKE_SOURCE_DIR}/cpp)
+target_link_libraries(tst_lfgdistributeresolver PRIVATE Qt6::Test Qt6::Core)
+add_test(NAME tst_lfgdistributeresolver COMMAND tst_lfgdistributeresolver)
 
 qt_add_executable(tst_ghostplayerslot
     tst_ghostplayerslot.cpp
