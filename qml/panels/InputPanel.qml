@@ -20,13 +20,9 @@ Rectangle {
         Symbols.Pyramide, Symbols.Wuerfel, Symbols.Kugel]
     readonly property var pureSymbols3d: [Symbols.Pyramide, Symbols.Wuerfel, Symbols.Kugel]
 
-    // Default distribution always targets fromBaseSymbol(inner) - one of
-    // the 3 MIXED shapes, since that formula never includes the statue's
-    // own inner symbol. Challenge Mode only ever needs to exist to reach
-    // one of the 3 PURE shapes instead (default can never produce those) -
-    // see calculatesteps.h's calculateStepsChallenge() doc comment. On by
-    // default; uncheck for the full 6-shape picker if a real call ever
-    // needs to reassign a mixed shape to a different statue instead.
+    // Default target is always a mixed shape, so Challenge only ever
+    // needs to redirect toward a pure one - restrict the picker to those
+    // 3. On by default; uncheck for the full 6-shape picker.
     property bool pureShapesOnly: true
     readonly property var targetShapeOptions: root.pureShapesOnly ? root.pureSymbols3d : root.symbols3d
 

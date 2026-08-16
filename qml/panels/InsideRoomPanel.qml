@@ -4,39 +4,26 @@ import SymbolEnums 1.0
 import "../js/ShapeIcons.js" as ShapeIcons
 import "../js/ShapeMath.js" as ShapeMath
 
-// Inside/solo-room puzzle: each of the 3 teleported players picks their own
-// starting 2D symbol; the panel computes the cleanse/distribute swap
-// sequence and each player's final escape shape.
-//
-// NOTE: the underlying model (CalculateInsideSteps) is not verified against
-// real gameplay yet - see calculateinsidesteps.h. Treat this panel's output
-// with the same caution.
-// Same 2-frame layout as the outside puzzle (InputPanel + SolutionPanel):
-// this used to be a single bordered Rectangle wrapping both halves - now
-// setup and solution each get their own framed panel at the same 42/58
-// width split, for visual parity with the outside puzzle's layout.
+// Inside/solo-room puzzle: each of the 3 players picks their own starting
+// 2D symbol; computes the sort/distribute sequence + final escape shape.
+// UNVERIFIED against real gameplay - see calculateinsidesteps.h.
+// 2-frame layout (setup/solution, 42/58 split) matching the outside
+// puzzle's InputPanel/SolutionPanel.
 Item {
     id: root
 
     property CalculateInsideSteps insideCalculator
     property var encounterProgress
-    // Mirrors ApplicationWindow's own wideLayout formula (main.qml) -
-    // computed locally since this panel is always given the full
-    // available area by main.qml, so its own aspect ratio is a reliable
-    // proxy for the window's. Side-by-side squeezes both halves into
-    // unusable slivers on narrow windows; below this ratio, show exactly
-    // one half at a time via the tab bar instead.
+    // Mirrors ApplicationWindow's wideLayout formula - side-by-side would
+    // squeeze both halves into unusable slivers below this ratio.
     readonly property bool wideLayout: width >= height * 1.15
     property int tab: 0 // 0 = setup, 1 = solution - only used when narrow
 
-    // Auto-advance to the Solution tab once a solution becomes available
-    // (narrow layout only). Keyed off a bool, not stepCount directly, so
-    // re-solving while already valid (e.g. tweaking your own wall) doesn't
-    // yank the user back every time - only the false->true transition does.
-    // Not stepCount > 0 - that only means the 3 own symbols are valid, not
-    // that there's actually anything to show yet (mySteps also needs your
-    // position + wall entered, and in Challenge Mode the 3 targets too -
-    // switching before that just lands on an empty Solution tab).
+    // Auto-advance to Solution once real steps exist (narrow layout only).
+    // mySteps, not stepCount>0 - that only means own symbols are valid,
+    // not that anything's actually ready to show yet. Bool, not the raw
+    // count, so re-solving while already valid doesn't yank the tab back
+    // every time - only the false->true transition does.
     readonly property bool hasAnySolution: mySteps.length > 0
     onHasAnySolutionChanged: {
         if (hasAnySolution && !wideLayout)
@@ -51,15 +38,9 @@ Item {
         Symbols.Pyramide, Symbols.Wuerfel, Symbols.Kugel]
     readonly property var pureSymbols3d: [Symbols.Pyramide, Symbols.Wuerfel, Symbols.Kugel]
 
-    // Default (non-Challenge) LFG distribute always builds one of the 3
-    // MIXED shapes (fromBaseSymbol(own) never includes own's own symbol) -
-    // so a Challenge call only ever needs to exist to redirect distribute
-    // toward one of the 3 PURE shapes, which default can never produce.
-    // Restricting the picker to just those 3 removes the (currently
-    // unneeded) other 3 as an option - default already covers them. On by
-    // default; can be unchecked to get the full 6-shape picker back if a
-    // real call ever needs to reassign a mixed shape to a different
-    // position instead.
+    // Default distribute always builds a mixed shape, so Challenge only
+    // ever needs to redirect toward a pure one - restrict the picker to
+    // those 3. On by default; uncheck for the full 6-shape picker.
     property bool pureShapesOnly: true
     readonly property var targetShapeOptions: root.pureShapesOnly ? root.pureSymbols3d : root.symbols3d
 
@@ -87,11 +68,9 @@ Item {
     property int target3: 0
     property int inferredTargetIndex: -1
 
-    // What's actually on each player's wall right now (2 symbols each) -
-    // always required, drives the real LFG cleanse/distribute sequence
-    // (default) or the experimental Fast shortcut. UNVERIFIED AGAINST REAL
-    // GAMEPLAY - see calculateinsidesteps.h and fastcleanseresolver.h.
-    property string cleanseMethod: "lfg" // "lfg" (default) | "fast" (experimental)
+    // What's currently on the app user's own wall (2 symbols) - drives the
+    // sort/distribute sequence. UNVERIFIED AGAINST REAL GAMEPLAY - see
+    // calculateinsidesteps.h.
     property int wall1a: 0
     property int wall1b: 0
     property int wall2a: 0
@@ -100,24 +79,16 @@ Item {
     property int wall3b: 0
 
     readonly property int stepCount: insideCalculator ? insideCalculator.numberOfSteps : 0
-    // numberOfSteps only reflects the default/challenge/LFG-distribute
-    // engine - it doesn't change on every calculateStepsFast() call (Fast
-    // never touches that engine), so it can't reliably force a re-eval of
-    // Fast-mode-only bindings below (QML only re-fires dependents when a
-    // watched property's VALUE actually changes). calculationVersion is a
-    // plain counter bumped on every single calculate*/reset() call, so its
-    // value always differs from before - safe to depend on for this.
+    // Plain method calls (finalShapeForPlayer() etc.) aren't bindable -
+    // calculationVersion is a plain counter bumped on every single
+    // calculate*/reset() call, so QML always sees it change and re-runs
+    // dependent bindings, unlike numberOfSteps which can legitimately
+    // repeat across two different calculations.
     readonly property int calculationVersion: insideCalculator ? insideCalculator.calculationVersion : 0
     readonly property var finalShapes: (insideCalculator && root.calculationVersion >= 0)
         ? [insideCalculator.finalShapeForPlayer(0), insideCalculator.finalShapeForPlayer(1),
            insideCalculator.finalShapeForPlayer(2)]
         : [0, 0, 0]
-    readonly property int fastRoundCount: (insideCalculator && root.calculationVersion >= 0)
-        ? insideCalculator.numberOfFastRounds() : 0
-    readonly property int fastTransferCount: (insideCalculator && root.calculationVersion >= 0)
-        ? insideCalculator.numberOfFastTransfers() : 0
-    readonly property int distributeRoundCount: (insideCalculator && root.calculationVersion >= 0)
-        ? insideCalculator.numberOfDistributeRounds() : 0
     readonly property int distributeTransferCount: (insideCalculator && root.calculationVersion >= 0)
         ? insideCalculator.numberOfDistributeTransfers() : 0
 
@@ -138,11 +109,8 @@ Item {
         return result
     }
 
-    // Your own final pair, shown as the last "combine and leave" step.
-    // Default: the 2 OTHER symbols besides your own. Challenge Mode: the
-    // base pair of whichever outside 3D shape was called for YOUR position
-    // (target1/2/3 - can be a pure double, e.g. both your own symbol, if
-    // the outside team calls that shape for you).
+    // Own final pair for the "combine and leave" step. Default: the 2
+    // other symbols. Challenge: base pair of the shape called for you.
     readonly property var myFinalPair: {
         if (root.myPosition < 0)
             return []
@@ -159,13 +127,9 @@ Item {
         return root.symbols2d.filter(function (s) { return s !== mine })
     }
 
-    // Challenge Mode's distribute gives: for every OTHER position, check
-    // how many copies of your own symbol their called outside shape needs
-    // (0, 1, or 2 - a pure double at their position needs both of yours) -
-    // direct hand-off, same "does the recipient's target need MY symbol"
-    // principle as the default rotation, just driven by the called shapes
-    // instead of the fixed "everyone gets the other two" split. No wall or
-    // engine needed - target1/2/3 and the 3 own symbols are already known.
+    // Challenge distribute gives: for every other position, how many
+    // copies of your own symbol their called shape needs (0-2) - direct
+    // hand-off, no wall or engine needed.
     readonly property var myChallengeDistributeGives: {
         var result = []
         if (root.myPosition < 0)
@@ -188,22 +152,16 @@ Item {
         return result
     }
 
-    // The full LFG flow collapsed into ONE numbered list of only the
-    // app user's own actions - no rows for the other 2 players' own
-    // give/receive traffic (pure noise for a single-player companion app;
-    // you don't need to know who gives to you, only what YOU give and
-    // when to wait). Mirrors the outside puzzle's flat numbered step list
-    // instead of the old per-phase/per-round sectioned layout.
+    // Full LFG flow as ONE numbered list of the app user's own actions -
+    // no rows for the other 2 players' give/receive traffic.
     readonly property var mySteps: {
         var steps = []
         if (root.myPosition < 0 || !root.myWallComplete)
             return steps
         if (root.challengeMode && (root.target1 <= 0 || root.target2 <= 0 || root.target3 <= 0))
             return steps
-        // Disallowed input (e.g. a called shape containing its own
-        // position's symbol - see checkIsValidChallenge) must not still
-        // produce a displayed step list just because the local
-        // give-computation below doesn't itself validate anything.
+        // Disallowed input must not still produce a step list - the local
+        // give-computation below doesn't validate anything itself.
         if (root.hasNoSolution)
             return steps
 
@@ -215,12 +173,9 @@ Item {
 
         steps.push({type: "wait", text: qsTr("Wait until all 3 players have sorted, then distribute")})
 
-        // Both of your distribute gives back-to-back, no wait in between -
-        // their relative order doesn't matter to you (which of your 2 own
-        // symbols you hand over first isn't something you control anyway,
-        // same as not controlling which new symbol a knight kill drops on
-        // your wall) - only ONE wait belongs here, after both, until the 2
-        // new symbols actually show up on your wall.
+        // Both distribute gives back-to-back, no wait between - their
+        // order doesn't matter to you. One wait after both, until the 2
+        // new symbols show up on your wall.
         var myDistributeGives = root.challengeMode
             ? root.myChallengeDistributeGives
             : root.distributeTransfersForRound(0)
@@ -241,29 +196,6 @@ Item {
         }
 
         return steps
-    }
-
-    function fastTransfersForRound(round) {
-        var result = []
-        if (!insideCalculator)
-            return result
-        // Read calculationVersion directly (not just fastTransferCount,
-        // an intermediate derived value that can legitimately repeat
-        // across two different calculations with the same transfer
-        // count) so this binding always re-evaluates on recalculation.
-        if (root.calculationVersion < 0)
-            return result
-        var total = root.fastTransferCount
-        for (var i = 0; i < total; ++i) {
-            if (insideCalculator.fastTransferRound(i) === round) {
-                result.push({
-                    from: insideCalculator.fastTransferFrom(i),
-                    to: insideCalculator.fastTransferTo(i),
-                    symbol: insideCalculator.fastTransferSymbol(i)
-                })
-            }
-        }
-        return result
     }
 
     function wallValue(idx, slot) {
@@ -293,11 +225,8 @@ Item {
         return idx === 0 ? target1 : (idx === 1 ? target2 : target3)
     }
 
-    // Copies the 3 final statue/escape-shape assignments - what the
-    // outside team needs to know, not the inside room's own step list.
-    // Copies what's actually shown in the "Statue positions" row (each
-    // player's own 2D symbol) - not the computed final escape shape,
-    // which isn't shown there (see the Image source comment further down).
+    // Copies what's shown in the "Statue positions" row (own 2D symbols) -
+    // not the computed final escape shape, which isn't shown there.
     function copyFinalShapes() {
         var lines = []
         for (var i = 0; i < 3; ++i) {
@@ -412,21 +341,10 @@ Item {
         }
     }
 
-    // Distribute-phase math only ever depends on the 3 players' own
-    // symbols (fromBaseSymbol(own) - see calculateinsidesteps.cpp), never
-    // on wall contents, so it can always be computed once all 3 own
-    // symbols are picked. Sort-phase (what YOU give away) is computed
-    // separately below from your own wall alone - see mySortTransfers.
-    // Fast is hidden for now (see the hidden UI block below) - restore the
-    // old wall-based calculateStepsFast() flow here if that comes back.
     // calculateSteps() always runs regardless of Challenge Mode - its
-    // distribute output isn't used for display anymore (see mySteps /
-    // myChallengeDistributeGives, both computed locally with no wall or
-    // engine needed), it's only kept so stepCount stays a reliable "own
-    // symbols are valid" signal for the hint text below. Challenge Mode's
-    // own extra validity check (target balance) doesn't need wall data
-    // either - checkIsValidChallenge() only looks at the 3 own symbols +
-    // the 3 called target shapes.
+    // distribute output isn't used for display (see mySteps /
+    // myChallengeDistributeGives, computed locally, no wall needed), it's
+    // only kept so stepCount stays a reliable "own symbols valid" signal.
     function tryCalculate() {
         if (player1 <= 0 || player2 <= 0 || player3 <= 0) {
             hasNoSolution = false
@@ -456,12 +374,8 @@ Item {
         tryCalculate()
     }
 
-    // What YOU personally give away this round: any foreign symbol on your
-    // own wall goes to whichever of the 3 players owns it - the only
-    // teammate data this needs is their OWN symbols (already picked above),
-    // not their wall contents, so teammates' walls are no longer collected
-    // in the UI. Matches the 2 confirmed special cases: wall already shows
-    // 2x your own symbol -> 0 gives; wall shows 0x your own symbol -> 2 gives.
+    // What YOU give away this round: any foreign symbol on your wall goes
+    // to whoever owns it - only needs their own symbols, not their walls.
     readonly property var mySortTransfers: {
         var result = []
         if (root.myPosition < 0)
@@ -491,10 +405,8 @@ Item {
         text: ""
     }
 
-    // Tab bar, narrow layout only - lets exactly one half be shown at a
-    // time instead of squeezing both side by side or risking one half
-    // getting pushed out of reach with no way to scroll back to it.
-    // Full-width, unframed - matches the outside puzzle's outsideTabBar.
+    // Tab bar, narrow layout only - shows one half at a time instead of
+    // squeezing both side by side. Matches outsideTabBar's style.
     Rectangle {
         id: insideTabBar
         x: 0
@@ -583,9 +495,7 @@ Item {
                 }
             }
 
-            // Category 1: your own symbols + your wall - everything needed
-            // for the sort phase, grouped in one card since the wall input
-            // directly follows from having picked the symbols above it.
+            // Category 1: own symbols + wall - everything for sort phase.
             Rectangle {
                 width: parent.width
                 height: symbolsCategory.implicitHeight + 28
@@ -732,16 +642,12 @@ Item {
                         width: parent.width
                     }
 
-                    // Only your own wall is needed (see mySortTransfers
-                    // above) - teammates' walls would just be noise here.
-                    // Positioned by explicit x (not a Row of 3 columns)
-                    // because QtQuick's Row positioner excludes invisible
-                    // children from layout entirely - with only 1 of 3
-                    // columns ever visible, a Row collapsed everything back
-                    // to the leftmost slot instead of reserving the other 2
-                    // columns' space. Same per-column width/spacing math as
-                    // the LEFT/MID/RIGHT symbol row above so it still lines
-                    // up under the matching column.
+                    // Only own wall shown. Positioned by explicit x, not a
+                    // Row of 3 columns - Row excludes invisible children
+                    // from layout, which collapsed everything to the left
+                    // when only 1 of 3 columns was ever visible. Same
+                    // per-column width/spacing as the symbol row above so
+                    // it still lines up under the matching column.
                     Item {
                         id: wallAlignArea
                         width: parent.width
@@ -783,9 +689,7 @@ Item {
                 }
             }
 
-            // Category 2: Challenge Mode - its own card, separate from the
-            // symbol/wall inputs above since it's an optional add-on that
-            // only changes the distribute target, not the sort phase.
+            // Category 2: Challenge Mode - own card, only affects distribute.
             Rectangle {
                 width: parent.width
                 height: challengeCategory.implicitHeight + 28
@@ -951,39 +855,6 @@ Item {
                     width: parent.width
                 }
 
-                // LFG/Fast method choice - hidden for now (comes later),
-                // sort is always computed the LFG way in the meantime.
-                Row {
-                    spacing: 10
-                    visible: false
-
-                    Repeater {
-                        model: [{key: "lfg", label: qsTr("LFG")}, {key: "fast", label: qsTr("Fast (Experimental)")}]
-
-                        delegate: Rectangle {
-                            id: methodButton
-                            required property var modelData
-                            width: methodLabel.implicitWidth + 20
-                            height: 28
-                            radius: 6
-                            color: root.cleanseMethod === modelData.key ? "#3b82f6" : "#2a2a2a"
-                            border.color: "#444444"
-
-                            Text {
-                                id: methodLabel
-                                anchors.centerIn: parent
-                                text: methodButton.modelData.label
-                                color: "#ffffff"
-                                font.pixelSize: 12
-                            }
-
-                            MouseArea {
-                                anchors.fill: parent
-                                onClicked: root.cleanseMethod = methodButton.modelData.key
-                            }
-                        }
-                    }
-                }
             }
 
             Rectangle {
@@ -1049,9 +920,8 @@ Item {
                     anchors.verticalCenter: parent.verticalCenter
                 }
 
-                // Copies the final statue/shape assignments (not the step
-                // list) - what the outside team needs called out in chat,
-                // e.g. to plan Challenge Mode targets around it.
+                // Copies the statue/symbol assignments, not the step list -
+                // what the outside team needs called out in chat.
                 Rectangle {
                     id: copyButton
                     width: 28
@@ -1149,10 +1019,8 @@ Item {
                             border.color: shapeEntry.isMe ? "#3b82f6" : "#333333"
                             border.width: shapeEntry.isMe ? 2 : 1
 
-                            // Seeded live from the own-symbol picks on the
-                            // left (not the computed final escape shape -
-                            // that's redundant with the distribute phase's
-                            // own "Combine" footer further down).
+                            // Seeded from own-symbol picks, not the final
+                            // escape shape (already shown by "Combine" below).
                             Image {
                                 anchors.centerIn: parent
                                 width: 40
@@ -1181,15 +1049,11 @@ Item {
                     width: parent.width
                     spacing: 10
 
-                    // LFG (default): your own steps only, one flat numbered
-                    // list (matches the outside puzzle's StepCard list) -
-                    // no rows for the other 2 players' own give/receive
-                    // traffic, since you only need to act on your own steps
-                    // and wait for the rest.
+                    // Own steps only, flat numbered list (matches outside's
+                    // StepCard list) - no rows for the other 2 players.
                     Column {
                         width: stepsColumn.width
                         spacing: 10
-                        visible: root.cleanseMethod === "lfg"
 
                         Text {
                             visible: root.myWallComplete && root.mySteps.length === 0
@@ -1199,7 +1063,7 @@ Item {
                         }
 
                         Repeater {
-                            model: root.cleanseMethod === "lfg" ? root.mySteps : []
+                            model: root.mySteps
 
                             delegate: Item {
                                 id: stepEntry
@@ -1244,73 +1108,6 @@ Item {
                         }
                     }
 
-                    // Fast (experimental): local decision-table rounds, no sync callout.
-                    Column {
-                        width: stepsColumn.width
-                        spacing: 10
-                        visible: root.cleanseMethod === "fast"
-
-                        Repeater {
-                            model: root.cleanseMethod === "fast" ? root.fastRoundCount : 0
-
-                            delegate: Column {
-                                id: fastRoundBlock
-                                required property int index
-                                width: stepsColumn.width
-                                spacing: 6
-
-                                Text {
-                                    text: qsTr("ROUND %1").arg(fastRoundBlock.index + 1)
-                                    color: "#888888"
-                                    font.pixelSize: 10
-                                    font.letterSpacing: 1
-                                }
-
-                                Repeater {
-                                    model: root.fastTransfersForRound(fastRoundBlock.index)
-
-                                    delegate: Rectangle {
-                                        id: transferRow
-                                        required property var modelData
-                                        readonly property bool involvesMe: root.myPosition >= 0
-                                            && (modelData.from === root.myPosition || modelData.to === root.myPosition)
-                                        width: stepsColumn.width
-                                        height: 34
-                                        radius: 6
-                                        color: transferRow.involvesMe ? "#1e3a5f" : "#161616"
-                                        border.color: transferRow.involvesMe ? "#3b82f6" : "#333333"
-
-                                        Row {
-                                            anchors.left: parent.left
-                                            anchors.leftMargin: 10
-                                            anchors.verticalCenter: parent.verticalCenter
-                                            spacing: 8
-
-                                            Text {
-                                                text: qsTr("%1 gives").arg(root.playerLabels[modelData.from])
-                                                color: "#dddddd"
-                                                font.pixelSize: 12
-                                            }
-
-                                            Image {
-                                                width: 20
-                                                height: 20
-                                                fillMode: Image.PreserveAspectFit
-                                                source: ShapeIcons.iconSource(modelData.symbol)
-                                            }
-
-                                            Text {
-                                                text: qsTr("to %1").arg(root.playerLabels[modelData.to])
-                                                color: "#dddddd"
-                                                font.pixelSize: 12
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-
                     Text {
                         visible: !root.hasNoSolution && root.stepCount === 0
                         text: qsTr("Select each player's own symbol to see the solution.")
@@ -1325,12 +1122,9 @@ Item {
                         font.pixelSize: 12
                     }
 
-                    // Appended as the last item in the scrollable list
-                    // (not a fixed footer below the Flickable) - a footer
-                    // outside the scroll area could end up pushed almost
-                    // off-screen on short windows with a long step list.
-                    // Narrow layout only (wide layout keeps just the one
-                    // Reset, on the Setup side).
+                    // Last item in the scrollable list, not a fixed footer
+                    // below it - a footer could end up pushed off-screen on
+                    // short windows. Narrow layout only.
                     Rectangle {
                         width: 90
                         height: 34

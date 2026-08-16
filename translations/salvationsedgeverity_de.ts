@@ -136,8 +136,8 @@
     </message>
     <message>
         <location filename="../qml/help/HelpDialog.qml" line="107"/>
-        <source>Pick each player&apos;s own 2D symbol, then mark which statue you are. Enter your own wall (2 symbols) to see what you personally give away this round - give any symbol that isn&apos;t yours to whichever player owns it, wait for your teammates, then distribute. In Challenge Mode, also enter the outside team&apos;s 3 called escape shapes so distribute targets those instead of the default split. The Fast shortcut is coming back later. UNVERIFIED against real gameplay - sanity-check it before trusting it in a live run.</source>
-        <translation>Wähle das eigene 2D-Symbol jedes Spielers, dann markiere welche Statue du bist. Gib deine eigene Wand ein (2 Symbole), um zu sehen, was du in dieser Runde abgibst - gib jedes Symbol, das nicht deins ist, an den Spieler ab, dem es gehört, warte auf deine Mitspieler und verteile dann. Gib im Challenge-Modus zusätzlich die 3 vom Außen-Team angesagten Fluchtformen ein, damit das Verteilen diese statt der Standard-Aufteilung anpeilt. Die Fast-Abkürzung kommt später zurück. UNBESTÄTIGT gegen echtes Gameplay - vor dem Vertrauen in einem echten Run gegenchecken.</translation>
+        <source>Pick each player&apos;s own 2D symbol, then mark which statue you are. Enter your own wall (2 symbols) to see what you personally give away this round - give any symbol that isn&apos;t yours to whichever player owns it, wait for your teammates, then distribute. In Challenge Mode, also enter the outside team&apos;s 3 called escape shapes so distribute targets those instead of the default split. UNVERIFIED against real gameplay - sanity-check it before trusting it in a live run.</source>
+        <translation>Wähle das eigene 2D-Symbol jedes Spielers, dann markiere welche Statue du bist. Gib deine eigene Wand ein (2 Symbole), um zu sehen, was du in dieser Runde abgibst - gib jedes Symbol, das nicht deins ist, an den Spieler ab, dem es gehört, warte auf deine Mitspieler und verteile dann. Gib im Challenge-Modus zusätzlich die 3 vom Außen-Team angesagten Fluchtformen ein, damit das Verteilen diese statt der Standard-Aufteilung anpeilt. UNBESTÄTIGT gegen echtes Gameplay - vor dem Vertrauen in einem echten Run gegenchecken.</translation>
     </message>
     <message>
         <location filename="../qml/help/HelpDialog.qml" line="108"/>
@@ -178,42 +178,42 @@
         <translation>RECHTS</translation>
     </message>
     <message>
-        <location filename="../qml/panels/InputPanel.qml" line="310"/>
+        <location filename="../qml/panels/InputPanel.qml" line="306"/>
         <source>No solution for this combination - check your inputs</source>
         <translation>Keine Lösung für diese Kombination - Eingaben prüfen</translation>
     </message>
     <message>
-        <location filename="../qml/panels/InputPanel.qml" line="317"/>
+        <location filename="../qml/panels/InputPanel.qml" line="313"/>
         <source>Select all inside 2D shapes</source>
         <translation>Alle inneren 2D-Symbole auswählen</translation>
     </message>
     <message>
-        <location filename="../qml/panels/InputPanel.qml" line="359"/>
+        <location filename="../qml/panels/InputPanel.qml" line="355"/>
         <source>Select all outside 3D shapes</source>
         <translation>Alle äußeren 3D-Formen auswählen</translation>
     </message>
     <message>
-        <location filename="../qml/panels/InputPanel.qml" line="405"/>
+        <location filename="../qml/panels/InputPanel.qml" line="401"/>
         <source>Challenge Mode</source>
         <translation>Challenge-Modus</translation>
     </message>
     <message>
-        <location filename="../qml/panels/InputPanel.qml" line="465"/>
+        <location filename="../qml/panels/InputPanel.qml" line="461"/>
         <source>Pure shapes only</source>
         <translation>Nur reine Formen</translation>
     </message>
     <message>
-        <location filename="../qml/panels/InputPanel.qml" line="480"/>
+        <location filename="../qml/panels/InputPanel.qml" line="476"/>
         <source>Default distribution always builds a mixed shape - Challenge Mode only needs to cover the 3 pure ones (Pyramide/Wuerfel/Kugel). Uncheck to pick any of the 6 instead.</source>
         <translation>Standard-Verteilung baut immer eine gemischte Form - Challenge-Modus muss nur die 3 reinen abdecken (Pyramide/Würfel/Kugel). Deaktivieren um aus allen 6 zu wählen.</translation>
     </message>
     <message>
-        <location filename="../qml/panels/InputPanel.qml" line="493"/>
+        <location filename="../qml/panels/InputPanel.qml" line="489"/>
         <source>Outside escape shapes (called by outside team)</source>
         <translation>Äußere Fluchtformen (vom Außen-Team angesagt)</translation>
     </message>
     <message>
-        <location filename="../qml/panels/InputPanel.qml" line="545"/>
+        <location filename="../qml/panels/InputPanel.qml" line="541"/>
         <source>Reset</source>
         <translation>Zurücksetzen</translation>
     </message>
@@ -221,166 +221,141 @@
 <context>
     <name>InsideRoomPanel</name>
     <message>
-        <location filename="../qml/panels/InsideRoomPanel.qml" line="45"/>
+        <location filename="../qml/panels/InsideRoomPanel.qml" line="32"/>
         <source>LEFT</source>
         <translation>LINKS</translation>
     </message>
     <message>
-        <location filename="../qml/panels/InsideRoomPanel.qml" line="45"/>
+        <location filename="../qml/panels/InsideRoomPanel.qml" line="32"/>
         <source>MID</source>
         <translation>MITTE</translation>
     </message>
     <message>
-        <location filename="../qml/panels/InsideRoomPanel.qml" line="45"/>
+        <location filename="../qml/panels/InsideRoomPanel.qml" line="32"/>
         <source>RIGHT</source>
         <translation>RECHTS</translation>
     </message>
     <message>
-        <location filename="../qml/panels/InsideRoomPanel.qml" line="235"/>
+        <location filename="../qml/panels/InsideRoomPanel.qml" line="190"/>
         <source>Wait until the 2 new symbols show up on your wall</source>
         <translation>Warten bis die 2 neuen Symbole auf deiner Wand erscheinen</translation>
     </message>
     <message>
-        <location filename="../qml/panels/InsideRoomPanel.qml" line="520"/>
+        <location filename="../qml/panels/InsideRoomPanel.qml" line="432"/>
         <source>Setup</source>
         <translation>Einrichtung</translation>
     </message>
     <message>
-        <location filename="../qml/panels/InsideRoomPanel.qml" line="536"/>
-        <location filename="../qml/panels/InsideRoomPanel.qml" line="1035"/>
+        <location filename="../qml/panels/InsideRoomPanel.qml" line="448"/>
+        <location filename="../qml/panels/InsideRoomPanel.qml" line="906"/>
         <source>Solution</source>
         <translation>Lösung</translation>
     </message>
     <message>
-        <location filename="../qml/panels/InsideRoomPanel.qml" line="580"/>
+        <location filename="../qml/panels/InsideRoomPanel.qml" line="492"/>
         <source>No solution for this combination - check your inputs</source>
         <translation>Keine Lösung für diese Kombination - Eingaben prüfen</translation>
     </message>
     <message>
-        <location filename="../qml/panels/InsideRoomPanel.qml" line="604"/>
+        <location filename="../qml/panels/InsideRoomPanel.qml" line="514"/>
         <source>Solo room symbols</source>
         <translation>Solo-Raum-Symbole</translation>
     </message>
     <message>
-        <location filename="../qml/panels/InsideRoomPanel.qml" line="611"/>
+        <location filename="../qml/panels/InsideRoomPanel.qml" line="521"/>
         <source>Each player&apos;s own statue symbol - your own is required, teammates&apos; are only needed so the give/take instructions can name the right person</source>
         <translation>Das eigene Statuen-Symbol jedes Spielers - deines ist erforderlich, die deiner Mitspieler werden nur gebraucht, damit die Geben/Nehmen-Anweisungen die richtige Person nennen können</translation>
     </message>
     <message>
-        <location filename="../qml/panels/InsideRoomPanel.qml" line="622"/>
+        <location filename="../qml/panels/InsideRoomPanel.qml" line="532"/>
         <source>Which statue are you?</source>
         <translation>Welche Statue bist du?</translation>
     </message>
     <message>
-        <location filename="../qml/panels/InsideRoomPanel.qml" line="661"/>
+        <location filename="../qml/panels/InsideRoomPanel.qml" line="571"/>
         <source>Which statue shows which symbol?</source>
         <translation>Welche Statue zeigt welches Symbol?</translation>
     </message>
     <message>
-        <location filename="../qml/panels/InsideRoomPanel.qml" line="682"/>
-        <location filename="../qml/panels/InsideRoomPanel.qml" line="761"/>
-        <location filename="../qml/panels/InsideRoomPanel.qml" line="1136"/>
+        <location filename="../qml/panels/InsideRoomPanel.qml" line="592"/>
+        <location filename="../qml/panels/InsideRoomPanel.qml" line="667"/>
+        <location filename="../qml/panels/InsideRoomPanel.qml" line="1006"/>
         <source>%1 (You)</source>
         <translation>%1 (Du)</translation>
     </message>
     <message>
-        <location filename="../qml/panels/InsideRoomPanel.qml" line="719"/>
+        <location filename="../qml/panels/InsideRoomPanel.qml" line="629"/>
         <source>Your wall right now</source>
         <translation>Deine Wand gerade eben</translation>
     </message>
     <message>
-        <location filename="../qml/panels/InsideRoomPanel.qml" line="727"/>
+        <location filename="../qml/panels/InsideRoomPanel.qml" line="637"/>
         <source>2 symbols - tap a 2nd symbol to complete the pair, or double-tap one symbol for 2 of the same</source>
         <translation>2 Symbole - tippe ein 2. Symbol um das Paar zu vervollständigen, oder doppeltippe ein Symbol für 2 vom Gleichen</translation>
     </message>
     <message>
-        <location filename="../qml/panels/InsideRoomPanel.qml" line="808"/>
+        <location filename="../qml/panels/InsideRoomPanel.qml" line="712"/>
         <source>Challenge Mode</source>
         <translation>Challenge-Modus</translation>
     </message>
     <message>
-        <location filename="../qml/panels/InsideRoomPanel.qml" line="869"/>
+        <location filename="../qml/panels/InsideRoomPanel.qml" line="773"/>
         <source>Pure shapes only</source>
         <translation>Nur reine Formen</translation>
     </message>
     <message>
-        <location filename="../qml/panels/InsideRoomPanel.qml" line="884"/>
+        <location filename="../qml/panels/InsideRoomPanel.qml" line="788"/>
         <source>Default distribute always builds a mixed shape - Challenge Mode only needs to cover the 3 pure ones (Pyramide/Wuerfel/Kugel). Uncheck to pick any of the 6 instead.</source>
         <translation>Standard-Verteilen baut immer eine gemischte Form - Challenge-Modus muss nur die 3 reinen abdecken (Pyramide/Würfel/Kugel). Deaktivieren um aus allen 6 zu wählen.</translation>
     </message>
     <message>
-        <location filename="../qml/panels/InsideRoomPanel.qml" line="897"/>
+        <location filename="../qml/panels/InsideRoomPanel.qml" line="801"/>
         <source>Outside escape shapes (called by outside team)</source>
         <translation>Äußere Fluchtformen (vom Außen-Team angesagt)</translation>
     </message>
     <message>
-        <location filename="../qml/panels/InsideRoomPanel.qml" line="711"/>
+        <location filename="../qml/panels/InsideRoomPanel.qml" line="621"/>
         <source>Sort: give away any wall symbol that isn&apos;t your own to whoever owns it, wait for teammates, then distribute.</source>
         <translation>Sortieren: gib jedes Wand-Symbol, das nicht deins ist, an den Besitzer ab, warte auf Mitspieler, dann verteilen.</translation>
     </message>
     <message>
-        <location filename="../qml/panels/InsideRoomPanel.qml" line="961"/>
-        <source>LFG</source>
-        <translation>LFG</translation>
-    </message>
-    <message>
-        <location filename="../qml/panels/InsideRoomPanel.qml" line="961"/>
-        <source>Fast (Experimental)</source>
-        <translation>Fast (Experimentell)</translation>
-    </message>
-    <message>
-        <location filename="../qml/panels/InsideRoomPanel.qml" line="728"/>
+        <location filename="../qml/panels/InsideRoomPanel.qml" line="638"/>
         <source>Pick which statue you are above to enter your wall</source>
         <translation>Wähle oben deine Statue aus, um deine Wand einzugeben</translation>
     </message>
     <message>
-        <location filename="../qml/panels/InsideRoomPanel.qml" line="947"/>
+        <location filename="../qml/panels/InsideRoomPanel.qml" line="851"/>
         <source>Note: the triangle/square/circle row further up (2 symbols) is a separate pick from your own symbol above it - it&apos;s what&apos;s currently on your statue&apos;s wall, not necessarily your own symbol.</source>
         <translation>Hinweis: die Dreieck/Viereck/Kreis-Reihe weiter oben (2 Symbole) ist eine eigene Auswahl, getrennt von deinem Symbol darüber - sie zeigt, was gerade an deiner Statuen-Wand ist, nicht zwangsläufig dein eigenes Symbol.</translation>
     </message>
     <message>
-        <location filename="../qml/panels/InsideRoomPanel.qml" line="1046"/>
+        <location filename="../qml/panels/InsideRoomPanel.qml" line="917"/>
         <source>Statue positions</source>
         <translation>Statuen-Positionen</translation>
     </message>
     <message>
-        <location filename="../qml/panels/InsideRoomPanel.qml" line="1316"/>
+        <location filename="../qml/panels/InsideRoomPanel.qml" line="1113"/>
         <source>Select each player&apos;s own symbol to see the solution.</source>
         <translation>Wähle das eigene Symbol jedes Spielers, um die Lösung zu sehen.</translation>
     </message>
     <message>
-        <location filename="../qml/panels/InsideRoomPanel.qml" line="1323"/>
+        <location filename="../qml/panels/InsideRoomPanel.qml" line="1120"/>
         <source>Enter your wall above to see the sort and distribute steps.</source>
         <translation>Gib oben deine Wand ein, um die Sortier- und Verteilschritte zu sehen.</translation>
     </message>
     <message>
-        <location filename="../qml/panels/InsideRoomPanel.qml" line="998"/>
-        <location filename="../qml/panels/InsideRoomPanel.qml" line="1344"/>
+        <location filename="../qml/panels/InsideRoomPanel.qml" line="869"/>
+        <location filename="../qml/panels/InsideRoomPanel.qml" line="1138"/>
         <source>Reset</source>
         <translation>Zurücksetzen</translation>
     </message>
     <message>
-        <location filename="../qml/panels/InsideRoomPanel.qml" line="1263"/>
-        <source>ROUND %1</source>
-        <translation>RUNDE %1</translation>
-    </message>
-    <message>
-        <location filename="../qml/panels/InsideRoomPanel.qml" line="1290"/>
-        <source>%1 gives</source>
-        <translation>%1 gibt</translation>
-    </message>
-    <message>
-        <location filename="../qml/panels/InsideRoomPanel.qml" line="1196"/>
+        <location filename="../qml/panels/InsideRoomPanel.qml" line="1060"/>
         <source>Nothing to give - you already have 2 of your own symbol</source>
         <translation>Nichts abzugeben - du hast bereits 2x dein eigenes Symbol</translation>
     </message>
     <message>
-        <location filename="../qml/panels/InsideRoomPanel.qml" line="1303"/>
-        <source>to %1</source>
-        <translation>an %1</translation>
-    </message>
-    <message>
-        <location filename="../qml/panels/InsideRoomPanel.qml" line="216"/>
+        <location filename="../qml/panels/InsideRoomPanel.qml" line="174"/>
         <source>Wait until all 3 players have sorted, then distribute</source>
         <translation>Warten bis alle 3 Spieler sortiert haben, dann verteilen</translation>
     </message>
@@ -571,32 +546,32 @@
         <translation>Salvation&apos;s Edge Verity Encounter</translation>
     </message>
     <message>
-        <location filename="../main.qml" line="90"/>
+        <location filename="../main.qml" line="80"/>
         <source>Outside</source>
         <translation>Außen</translation>
     </message>
     <message>
-        <location filename="../main.qml" line="107"/>
+        <location filename="../main.qml" line="97"/>
         <source>Inside</source>
         <translation>Innen</translation>
     </message>
     <message>
-        <location filename="../main.qml" line="124"/>
+        <location filename="../main.qml" line="114"/>
         <source>Ghosts</source>
         <translation>Geister</translation>
     </message>
     <message>
-        <location filename="../main.qml" line="232"/>
+        <location filename="../main.qml" line="222"/>
         <source>Reset</source>
         <translation>Zurücksetzen</translation>
     </message>
     <message>
-        <location filename="../main.qml" line="301"/>
+        <location filename="../main.qml" line="291"/>
         <source>Selection</source>
         <translation>Auswahl</translation>
     </message>
     <message>
-        <location filename="../main.qml" line="317"/>
+        <location filename="../main.qml" line="307"/>
         <source>Solution</source>
         <translation>Lösung</translation>
     </message>

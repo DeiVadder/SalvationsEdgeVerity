@@ -131,13 +131,7 @@ bool CalculateInsideSteps::checkIsValidChallenge(SymbolTypes player1Symbol,
         return false;
     }
 
-    // A player can never end up holding their own symbol: after sort they
-    // only hold copies of their own symbol (both of the game's only 2
-    // copies), so nobody else could ever hand them a 3rd one, and whatever
-    // they give away during distribute is - by the same logic - always
-    // their own symbol, never something they'd get back. So the outside
-    // team's called shape for a position can never include that position's
-    // own base symbol, in either of the 2 slots.
+    // No target may contain its own player's symbol - see the header doc.
     QVector<SymbolTypes> ownSymbols = {player1Symbol, player2Symbol, player3Symbol};
     for (int i = 0; i < 3; ++i) {
         if (target.at(i).contains(ownSymbols.at(i))) {
@@ -244,13 +238,7 @@ bool CalculateInsideSteps::checkIsValidWallChallenge(SymbolTypes player1Symbol,
         return false;
     }
 
-    // A player can never end up holding their own symbol: after sort they
-    // only hold copies of their own symbol (both of the game's only 2
-    // copies), so nobody else could ever hand them a 3rd one, and whatever
-    // they give away during distribute is - by the same logic - always
-    // their own symbol, never something they'd get back. So the outside
-    // team's called shape for a position can never include that position's
-    // own base symbol, in either of the 2 slots.
+    // No target may contain its own player's symbol - see the header doc.
     QVector<SymbolTypes> ownSymbols = {player1Symbol, player2Symbol, player3Symbol};
     for (int i = 0; i < 3; ++i) {
         if (target.at(i).contains(ownSymbols.at(i))) {

@@ -13,43 +13,18 @@ class FastCleanseResolver;
 class LFGSortResolver;
 class LFGDistributeResolver;
 
-// Solves the inside/solo-room puzzle: 3 teleported players each start
-// holding one 2D symbol (pairwise distinct) and, via the sort+distribute
-// mechanic, end up holding a target pair to combine into their escape
-// shape. Modeled as start={{p,p}} (each player's own symbol as a trivial
-// self-pair) -> target, reusing the same SymbolSwapEngine the outside
-// puzzle (CalculateSteps) uses.
-//
-// Two target modes:
-// - Default (calculateSteps()): target=fromBaseSymbol(p) - each player ends
-//   up with the two OTHER symbols. True whenever the outside team isn't
-//   running a challenge that needs a "pure" double escape shape
-//   (Wuerfel/Pyramide/Kugel) from the inside room.
-// - Challenge (calculateStepsChallenge()): target is dictated directly by
-//   the outside caller's 3 chosen outside 3D shapes (relayed verbally,
-//   since inside players can't see the outside statues) via
-//   toBaseSymbols(). If one of those shapes is a pure double, the matching
-//   player receives both copies of that base symbol instead of the default
-//   one-each split - the generic swap engine handles this without special
-//   casing, since it's simply a different (still balanced) target set.
-//
-// NOTE: the target formula and the claim that this reproduces a real
-// sort/distribute step sequence are derived from research + user
-// description, not verified against actual gameplay. Sanity-check the
-// computed target pairs / a sample step sequence before relying on this
-// for a real raid (see Plan 2's "Offene Frage 1").
+// Inside/solo-room puzzle: 3 players each start with 1 own symbol, sort
+// then distribute to reach a target pair to combine into an escape shape.
+// Default target = fromBaseSymbol(own) (the 2 other symbols). Challenge
+// target = outside team's 3 called shapes instead (can include a pure
+// double). UNVERIFIED against real gameplay.
 class CalculateInsideSteps : public QObject
 {
     Q_OBJECT
     Q_PROPERTY(int numberOfSteps READ numberOfSteps NOTIFY numberOfStepsChanged FINAL)
-    // Bumped on every calculateSteps*/reset() call, regardless of which
-    // internal engine it touches. numberOfSteps alone isn't a reliable
-    // QML re-evaluation trigger for calculateStepsFast()/calculateStepsLFG()
-    // cleanse phase, since those don't necessarily change numberOfSteps's
-    // own value (e.g. Fast never touches the distribute engine at all) -
-    // QML only re-fires dependent bindings when a watched property's VALUE
-    // changes, not merely when its NOTIFY signal fires. This counter always
-    // changes, so it's always safe to depend on for that trick.
+    // Bumps on every calculate*/reset() call - unlike numberOfSteps, whose
+    // VALUE can legitimately repeat across calls, so QML can't rely on it
+    // alone to know a recalculation happened.
     Q_PROPERTY(int calculationVersion READ calculationVersion NOTIFY calculationVersionChanged FINAL)
 public:
     using SymbolTypes = CalculateSteps::SymbolTypes;
@@ -62,13 +37,8 @@ public:
                                      SymbolTypes player2Symbol,
                                      SymbolTypes player3Symbol);
 
-    // Challenge-mode variant: each player's final held pair is dictated by
-    // the outside caller's 3 outside 3D shapes (outerTargetN) instead of
-    // always being "the two other symbols". Needed whenever one of those
-    // shapes is a pure double (Wuerfel/Pyramide/Kugel) - the corresponding
-    // player must then receive both copies of one base symbol instead of
-    // the default one-each split. Precondition: callers must call
-    // checkIsValidChallenge() with the same arguments first.
+    // Target = the outside caller's 3 shapes instead of the default split.
+    // Precondition: checkIsValidChallenge() with the same arguments first.
     Q_INVOKABLE void calculateStepsChallenge(SymbolTypes player1Symbol,
                                               SymbolTypes player2Symbol,
                                               SymbolTypes player3Symbol,
@@ -82,11 +52,9 @@ public:
     Q_INVOKABLE bool checkIsValid(SymbolTypes player1Symbol,
                                    SymbolTypes player2Symbol,
                                    SymbolTypes player3Symbol);
-    // Validates a calculateStepsChallenge() call: player symbols must pass
-    // the normal checkIsValid(), and the 3 outer target shapes must be
-    // defined and balanced (each base symbol appears exactly twice across
-    // them - the same invariant CalculateSteps::checkIsValid() enforces for
-    // the outside puzzle, since these ARE that puzzle's 3 statue targets).
+    // Player symbols valid + distinct, targets defined + balanced (each
+    // base symbol twice), and no target contains its own player's symbol
+    // (mechanically impossible - see calculatesteps.h's checkIsValidChallenge).
     Q_INVOKABLE bool checkIsValidChallenge(SymbolTypes player1Symbol,
                                             SymbolTypes player2Symbol,
                                             SymbolTypes player3Symbol,
@@ -97,11 +65,9 @@ public:
     [[nodiscard]] int calculationVersion() const { return m_calculationVersion; }
 
     // Distribute, default target only: direct-hand-off closed form (see
-    // lfgdistributeresolver.h) computed alongside calculateSteps() and
-    // calculateStepsLFG() - NOT the generic engine's numberOfSteps()/
-    // getInstructionForStep() above, which still relays through the 3rd
-    // player. Not populated by the Challenge-mode variants (pure-double
-    // targets have no closed form - see lfgdistributeresolver.h).
+    // lfgdistributeresolver.h), computed alongside calculateSteps() -
+    // NOT the generic engine above. Not populated by Challenge (pure-double
+    // targets have no closed form).
     Q_INVOKABLE [[nodiscard]] int numberOfDistributeRounds() const;
     Q_INVOKABLE [[nodiscard]] int numberOfDistributeTransfers() const;
     Q_INVOKABLE [[nodiscard]] int distributeTransferRound(int index) const;
@@ -110,12 +76,11 @@ public:
     Q_INVOKABLE [[nodiscard]] SymbolTypes distributeTransferSymbol(int index) const;
     Q_INVOKABLE [[nodiscard]] bool isDistributeSolved() const;
 
-    // LFG / Fast: both take the actual observed wall content per player
-    // (2 symbols each, NOT assumed to include the player's own symbol -
-    // see fastcleanseresolver.h for why no fixed derivation from the 3
-    // own-symbols exists) instead of assuming an already-cleansed
-    // self-pair start. UNVERIFIED AGAINST REAL GAMEPLAY - see
-    // fastcleanseresolver.h and Plan 2's "Offene Frage 1".
+    // LFG/Fast: take the actual observed wall content per player (2
+    // symbols each, not assumed to include their own symbol). Not called
+    // by the current UI (see InsideRoomPanel.qml's mySortTransfers, which
+    // computes the app user's own sort steps locally instead) - kept as
+    // tested API for a possible multi-player-visible view later.
     Q_INVOKABLE bool checkIsValidWall(SymbolTypes player1Symbol,
                                        SymbolTypes player2Symbol,
                                        SymbolTypes player3Symbol,
@@ -123,12 +88,9 @@ public:
                                        SymbolTypes wall2a, SymbolTypes wall2b,
                                        SymbolTypes wall3a, SymbolTypes wall3b);
 
-    // LFG: two sequential phases - sort (every foreign wall symbol goes
-    // directly to its owner, via LFGSortResolver - NOT the generic
-    // pairwise-swap SymbolSwapEngine, see lfgsortresolver.h for why) then
-    // distribute (self-pair -> fromBaseSymbol(p), same as the default
-    // calculateSteps()). Real-world equivalent: an explicit "wait until
-    // everyone has sorted" callout sits between the two phases.
+    // Sort (every foreign wall symbol directly to its owner, via
+    // LFGSortResolver - not the generic engine, see lfgsortresolver.h)
+    // then distribute (same target formula as calculateSteps()).
     Q_INVOKABLE void calculateStepsLFG(SymbolTypes player1Symbol,
                                         SymbolTypes player2Symbol,
                                         SymbolTypes player3Symbol,
@@ -141,13 +103,8 @@ public:
     Q_INVOKABLE [[nodiscard]] SymbolTypes sortTransferSymbol(int index) const;
     Q_INVOKABLE [[nodiscard]] bool isSortSolved() const;
 
-    // LFG + Challenge: sort phase unchanged (every foreign wall symbol to
-    // its owner), but the distribute phase targets the outside caller's 3
-    // shapes instead of the default fromBaseSymbol(p) - still needs the
-    // generic SymbolSwapEngine there (already proven exhaustively, see
-    // tst_symbolswapengine.cpp, to converge for ANY balanced target, not
-    // just the default one - unlike sort/default-distribute, a pure-double
-    // challenge target has no simple direct-transfer closed form).
+    // Sort unchanged; distribute targets the outside caller's 3 shapes via
+    // the generic engine (no closed form for pure-double targets).
     // Precondition: checkIsValidWallChallenge().
     Q_INVOKABLE bool checkIsValidWallChallenge(SymbolTypes player1Symbol,
                                                 SymbolTypes player2Symbol,
@@ -168,15 +125,10 @@ public:
                                                  SymbolTypes outerTarget2,
                                                  SymbolTypes outerTarget3);
 
-    // Fast: local per-player decision table, no phases, no synchronization
-    // callout - see FastCleanseResolver. Deliberately NOT offered in
-    // Challenge mode: the decision table's 5 cases were derived and
-    // exhaustively verified only for the default "two other symbols"
-    // target shape. Generic Challenge targets (in particular pure-double
-    // ones) can produce a room/target combination none of the 5 cases
-    // matches (e.g. wall={B,C}, own=A, target={A,A}) - the player would
-    // simply never act, silently stuck forever. Fixing that needs a real
-    // redesign + fresh exhaustive verification, not a parameter add.
+    // Local per-player decision table, no sync callout - see
+    // FastCleanseResolver. Only valid for the default target (its 5 cases
+    // were verified for "two other symbols" only) - not offered in
+    // Challenge mode. Not called by the current UI (no reachable button).
     Q_INVOKABLE void calculateStepsFast(SymbolTypes player1Symbol,
                                          SymbolTypes player2Symbol,
                                          SymbolTypes player3Symbol,

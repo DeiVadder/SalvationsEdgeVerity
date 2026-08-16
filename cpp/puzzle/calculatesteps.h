@@ -13,15 +13,9 @@ class CalculateSteps : public QObject
 {
     Q_OBJECT
     Q_PROPERTY(int numberOfSteps READ numberOfSteps NOTIFY numberOfStepsChanged FINAL)
-    // Bumped on every calculateSteps()/reset() call. numberOfSteps alone
-    // isn't a reliable QML re-evaluation trigger for bindings that only
-    // call plain Q_INVOKABLE methods (e.g. targetShapeForStatue(),
-    // getInstructionForStep()) - two different valid (inner,outer)
-    // combinations can produce the same step count with different actual
-    // instructions, and QML only re-fires a dependent binding when a
-    // watched property's VALUE changes, not merely when its NOTIFY signal
-    // fires with an unchanged value. This counter always changes, so it's
-    // always safe to depend on for that trick (see SolutionPanel.qml).
+    // Bumps on every calculateSteps()/reset() call - unlike numberOfSteps,
+    // whose VALUE can legitimately repeat across calls, so QML can't rely
+    // on it alone to know a recalculation happened.
     Q_PROPERTY(int calculationVersion READ calculationVersion NOTIFY calculationVersionChanged FINAL)
 public:
     enum SymbolTypes {
@@ -74,32 +68,22 @@ public:
                                   SymbolTypes outerStatue2,
                                   SymbolTypes outerStatue3);
 
-    // Challenge Mode: default distribution always targets fromBaseSymbol(inner)
-    // - one of the 3 MIXED shapes (Kegel/Zylinder/Prisma), since that formula
-    // never includes the statue's own inner symbol. "Varied Geometry" needs
-    // all 6 shapes used across the encounter, so the only shapes default can
-    // never produce are the 3 PURE ones (Pyramide/Wuerfel/Kugel) - Challenge
-    // Mode exists purely to redirect a statue toward one of those instead.
-    // Same reasoning as CalculateInsideSteps::calculateStepsChallenge().
-    // No inner-symbol parameters here (unlike calculateSteps()) - the
-    // target is given explicitly instead of derived from
-    // fromBaseSymbol(inner), so inner never enters the actual swap math,
-    // only checkIsValidChallenge()'s validation. Precondition: callers
-    // must call checkIsValidChallenge() with the matching inner/target
-    // arguments first.
+    // Challenge Mode: default target (fromBaseSymbol(inner)) is always one
+    // of the 3 mixed shapes, so Challenge exists to redirect a statue
+    // toward a pure one instead - same reasoning as
+    // CalculateInsideSteps::calculateStepsChallenge(). No inner-symbol
+    // params (unlike calculateSteps()) - target is given explicitly, inner
+    // only matters for checkIsValidChallenge()'s validation. Precondition:
+    // checkIsValidChallenge() with matching inner/target args first.
     Q_INVOKABLE void calculateStepsChallenge(SymbolTypes outerStatue1,
                                               SymbolTypes outerStatue2,
                                               SymbolTypes outerStatue3,
                                               SymbolTypes challengeTarget1,
                                               SymbolTypes challengeTarget2,
                                               SymbolTypes challengeTarget3);
-    // Inner symbols must be valid/pairwise-distinct, the 3 challenge targets
-    // must be defined and balanced (each base symbol appears exactly twice
-    // across them), AND no target may contain its own statue's inner symbol
-    // - mechanically impossible, since a statue only ever holds/gives away
-    // copies of its own inner symbol and could never receive one back (only
-    // 2 copies of any base symbol exist in total, and the statue already
-    // holds both after the swap sequence normalizes it).
+    // Inner symbols valid/distinct, targets defined + balanced, and no
+    // target contains its own statue's inner symbol - mechanically
+    // impossible (a statue only ever holds/gives away its own symbol).
     Q_INVOKABLE bool checkIsValidChallenge(SymbolTypes innerStatue1,
                                             SymbolTypes innerStatue2,
                                             SymbolTypes innerStatue3,

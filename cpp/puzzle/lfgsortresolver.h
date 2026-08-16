@@ -6,25 +6,13 @@
 #include "calculatesteps.h"
 
 // Deterministic "give your foreign wall symbol directly to its owner"
-// protocol for the inside/solo-room puzzle's LFG method - what the app
-// used to call the "cleanse" phase, renamed "sort" since ending up
-// holding 2 copies of your own symbol is just a byproduct shared by both
-// the Sort and Fast approaches, not the point of this phase itself (see
-// calculateinsidesteps.h).
-//
-// Unlike the outside puzzle, a solo room's wall isn't a fixed-size pair
-// at every intermediate moment - a player can transiently hold anywhere
-// from 0 to 6 symbols while gives are in flight (confirmed 2026-08-16).
-// So this does NOT reuse SymbolSwapEngine's pairwise-swap model at all:
-// every foreign symbol on a wall goes directly, in one synchronized
-// round, to whichever of the other 2 players actually owns it - no
-// relaying through a 3rd party, which a generic pairwise-swap search can
-// end up doing even though it still reaches the right final state.
-//
-// Confirmed against a real reported sort sequence (own+1 foreign wall,
-// 2026-08-16). The "wall holds 0 copies of own symbol" case (2 transfers
-// from the same player) is inferred from the same conversation but not
-// independently confirmed - see Plan 2's "Offene Frage 1".
+// protocol for the inside puzzle's LFG sort phase. Doesn't reuse
+// SymbolSwapEngine's pairwise-swap model - a solo room's wall isn't a
+// fixed-size pair mid-round (0-6 symbols transiently possible), and a
+// generic pairwise-swap search can relay a symbol through an uninvolved
+// 3rd player instead of a direct hand-off. Confirmed against a real
+// reported sort sequence (2026-08-16); the "0 copies of own symbol" case
+// (2 transfers from one player) is inferred, not independently confirmed.
 class LFGSortResolver
 {
 public:
