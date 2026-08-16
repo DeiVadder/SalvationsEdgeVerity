@@ -57,16 +57,13 @@ Supported platforms: macOS (desktop) and WebAssembly (browser, see Method 1). An
 
 ## Usage
 
-**SalvationsEdgeVerity** is a helper app for the Destiny 2 raid "Salvation's Edge," specifically for Encounter 4: Verity.
+**SalvationsEdgeVerity** is a helper app for the Destiny 2 raid "Salvation's Edge," specifically for Encounter 4: Verity. The header switches between three modes:
 
-1. **Call Outs by Teleported Players**: Players who are teleported call out the symbols (Triangle, Square, or Circle) from left to right for each statue. Select the order of these symbols in Line 1 of the app.
-2. ![image](https://github.com/DeiVadder/SalvationsEdgeVerity/assets/31315448/56e00e36-0fea-40c1-bf14-2c3222354348)
+- **Outside**: teleported players call out the 2D symbol (Triangle/Square/Circle) each statue shows, left to right - enter those under "Select all Inside 2D shapes". Players outside then read off the 3D shape each statue currently holds - enter those under "Select all outside 3D shapes". The app calculates the swap sequence needed to reach the correct shapes, one numbered step at a time, plus a "Copy for in-game chat" button to paste the result straight into chat.
+- **Inside**: for the 3 solo players in the Verity room. Pick which statue you are, everyone's own symbol, and your current wall - the app gives you your personal sort/distribute steps and final combine shape.
+- **Ghosts**: a 6-player roster helper for the Ghost resurrection phase (name, class, notes).
 
-3. **3D Forms Entry by Outside Players**: Players outside observe the 3D forms that the statues are holding and select the 3d shapes they see from the selection in Line 2 of the app.
-4. ![image](https://github.com/DeiVadder/SalvationsEdgeVerity/assets/31315448/6d28ee91-22ba-4402-90f9-05768e99ad5d)
-
-5. **Calculate Steps**: The app calculates the necessary steps (Step 1, Step 2, etc.) required to complete the encounter successfully.
-6. ![image](https://github.com/DeiVadder/SalvationsEdgeVerity/assets/31315448/334b0157-6e91-413b-8da5-5a1d25bd0ec6)
+Both Outside and Inside support an optional **Challenge Mode** ("Varied Geometry") toggle, which restricts the target escape shape to one of the 3 "pure" shapes (Pyramid/Cube/Sphere) instead of the default. The app itself is available in English and German (flag toggle, top right).
 
 
 ## Contributing
