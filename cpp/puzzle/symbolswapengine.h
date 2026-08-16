@@ -22,6 +22,9 @@ public:
 
     [[nodiscard]] int numberOfSteps() const { return static_cast<int>(m_swapOperations.size()) / 2; }
     [[nodiscard]] SymbolTypes getInstructionForStep(int step, int node) const;
+    // Each node's pair right after step `step` completes (not the overall
+    // final target) - a snapshot taken after every successful swap.
+    [[nodiscard]] SymbolPair stateAfterStep(int step, int node) const;
     [[nodiscard]] bool isSolved() const { return m_solved; }
 
 private:
@@ -30,6 +33,7 @@ private:
     bool findAndSwap(PairSet &start, PairSet &target);
 
     QVector<QPair<int, SymbolTypes>> m_swapOperations;
+    QVector<PairSet> m_stateAfterStep;
     bool m_solved = false;
 };
 

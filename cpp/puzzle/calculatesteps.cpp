@@ -50,6 +50,15 @@ CalculateSteps::SymbolTypes CalculateSteps::getInstructionForStep(int step, int 
     return m_engine->getInstructionForStep(step, statue);
 }
 
+CalculateSteps::SymbolTypes CalculateSteps::shapeAfterStep(int step, int statue)
+{
+    const auto pair = m_engine->stateAfterStep(step, statue);
+    if (pair.size() != 2) {
+        return Undefined;
+    }
+    return pairToShape(pair.at(0), pair.at(1));
+}
+
 bool CalculateSteps::isSolved() const
 {
     return m_engine->isSolved();

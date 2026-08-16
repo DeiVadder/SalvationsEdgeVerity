@@ -3,6 +3,7 @@
 void SymbolSwapEngine::solve(PairSet start, PairSet target)
 {
     m_swapOperations.clear();
+    m_stateAfterStep.clear();
     m_solved = false;
 
     while (!isFinished(start, target)) {
@@ -12,6 +13,7 @@ void SymbolSwapEngine::solve(PairSet start, PairSet target)
         if (!findAndSwap(start, target)) {
             break;
         }
+        m_stateAfterStep.append(start);
     }
 
     orderPairs(start);
@@ -22,7 +24,16 @@ void SymbolSwapEngine::solve(PairSet start, PairSet target)
 void SymbolSwapEngine::reset()
 {
     m_swapOperations.clear();
+    m_stateAfterStep.clear();
     m_solved = false;
+}
+
+SymbolSwapEngine::SymbolPair SymbolSwapEngine::stateAfterStep(int step, int node) const
+{
+    if (step < 0 || step >= m_stateAfterStep.size() || node < 0 || node >= m_stateAfterStep.at(step).size()) {
+        return {SymbolTypes::Undefined, SymbolTypes::Undefined};
+    }
+    return m_stateAfterStep.at(step).at(node);
 }
 
 SymbolSwapEngine::SymbolTypes SymbolSwapEngine::getInstructionForStep(int step, int node) const

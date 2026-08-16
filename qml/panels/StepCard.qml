@@ -9,10 +9,8 @@ Rectangle {
     property var nodeLabels: [qsTr("LEFT"), qsTr("MID"), qsTr("RIGHT")]
     // instructions[i] = symbol handed to node i this step, or 0 if untouched
     property var instructions: [0, 0, 0]
-    // targetState[i] = the shape/symbol node i needs to end up as overall
-    // (not a per-step intermediate state - showing the true intermediate
-    // state after each individual step would need replaying the swap
-    // sequence, deferred as a follow-up)
+    // expectedState[i] = the shape node i actually holds right after THIS
+    // step (not the overall final target).
     property var expectedState: [0, 0, 0]
     // Node index to call out as "you" (e.g. the Inside panel's own solo
     // statue) - tints that column in both rows below. -1 = no highlight,
@@ -107,11 +105,9 @@ Rectangle {
         anchors.leftMargin: 14
         spacing: 10
 
-        // Both this row and the TARGET SHAPE row below split the same
-        // width into the same 3 node-indexed columns, so a carry here
-        // lines up directly above/below that node's eventual target -
-        // makes the connection visible instead of needing to match up
-        // labels by reading.
+        // Both this row and the row below split the same width into the
+        // same 3 node-indexed columns, so a carry here lines up directly
+        // above/below that node's state after this step.
         Row {
             id: swapRow
             width: parent.width
@@ -162,7 +158,7 @@ Rectangle {
         }
 
         Text {
-            text: qsTr("TARGET SHAPE")
+            text: qsTr("STATE AFTER THIS STEP")
             color: "#888888"
             font.pixelSize: 10
             font.letterSpacing: 1

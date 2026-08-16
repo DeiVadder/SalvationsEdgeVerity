@@ -146,7 +146,11 @@ Rectangle {
                         root.stepCalculator.getInstructionForStep(stepCard.index, 1),
                         root.stepCalculator.getInstructionForStep(stepCard.index, 2)
                     ] : [0, 0, 0]
-                    expectedState: root.targetShapes
+                    expectedState: root.calculationVersion >= 0 ? [
+                        root.stepCalculator.shapeAfterStep(stepCard.index, 0),
+                        root.stepCalculator.shapeAfterStep(stepCard.index, 1),
+                        root.stepCalculator.shapeAfterStep(stepCard.index, 2)
+                    ] : [0, 0, 0]
                 }
             }
 

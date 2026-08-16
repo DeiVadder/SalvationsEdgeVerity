@@ -472,17 +472,17 @@
         <translation>Statuen-Positionen</translation>
     </message>
     <message>
-        <location filename="../qml/panels/SolutionPanel.qml" line="155"/>
+        <location filename="../qml/panels/SolutionPanel.qml" line="159"/>
         <source>Select all shapes to see the solution.</source>
         <translation>Alle Formen auswählen, um die Lösung zu sehen.</translation>
     </message>
     <message>
-        <location filename="../qml/panels/SolutionPanel.qml" line="172"/>
+        <location filename="../qml/panels/SolutionPanel.qml" line="176"/>
         <source>Copy for in-game chat</source>
         <translation>Für Ingame-Chat kopieren</translation>
     </message>
     <message>
-        <location filename="../qml/panels/SolutionPanel.qml" line="195"/>
+        <location filename="../qml/panels/SolutionPanel.qml" line="199"/>
         <source>Reset</source>
         <translation>Zurücksetzen</translation>
     </message>
@@ -505,14 +505,14 @@
         <translation>RECHTS</translation>
     </message>
     <message>
-        <location filename="../qml/panels/StepCard.qml" line="148"/>
+        <location filename="../qml/panels/StepCard.qml" line="144"/>
         <source>%1 → %2</source>
         <translation>%1 → %2</translation>
     </message>
     <message>
-        <location filename="../qml/panels/StepCard.qml" line="165"/>
-        <source>TARGET SHAPE</source>
-        <translation>ZIELFORM</translation>
+        <location filename="../qml/panels/StepCard.qml" line="161"/>
+        <source>STATE AFTER THIS STEP</source>
+        <translation>ZUSTAND NACH DIESEM SCHRITT</translation>
     </message>
 </context>
 <context>

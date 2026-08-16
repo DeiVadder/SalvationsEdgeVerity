@@ -17,6 +17,7 @@ private slots:
     void checkIsValid();
 
     void calculateStepsKnownScenario();
+    void shapeAfterStepMatchesHandTrace();
 
     void getInstructionForStepOffByOne();
     void getInstructionForStepNegativeIndex();
@@ -110,6 +111,34 @@ void TestCalculateSteps::calculateStepsKnownScenario()
     QCOMPARE(m_calc->getInstructionForStep(1, 0), CalculateSteps::Undefined);
     QCOMPARE(m_calc->getInstructionForStep(1, 1), CalculateSteps::Dreieck);
     QCOMPARE(m_calc->getInstructionForStep(1, 2), CalculateSteps::Kreis);
+}
+
+// Same scenario as calculateStepsKnownScenario(), hand-traced further:
+// statue0/statue2 swap in step 0 (Viereck<->Kreis), landing both on
+// {Viereck,Kreis}=Zylinder; statue1 stays Pyramide. Step 1 swaps
+// statue1/statue2 (Dreieck<->Kreis), landing on the final Kegel/Prisma -
+// statue0 is untouched in step 1, so it's still Zylinder, not yet its
+// eventual different value if there were a 3rd step.
+void TestCalculateSteps::shapeAfterStepMatchesHandTrace()
+{
+    m_calc->calculateSteps(CalculateSteps::Dreieck, CalculateSteps::Viereck, CalculateSteps::Kreis,
+                            CalculateSteps::Wuerfel, CalculateSteps::Pyramide, CalculateSteps::Kugel);
+
+    QCOMPARE(m_calc->shapeAfterStep(0, 0), CalculateSteps::Zylinder);
+    QCOMPARE(m_calc->shapeAfterStep(0, 1), CalculateSteps::Pyramide);
+    QCOMPARE(m_calc->shapeAfterStep(0, 2), CalculateSteps::Zylinder);
+
+    QCOMPARE(m_calc->shapeAfterStep(1, 0), CalculateSteps::Zylinder);
+    QCOMPARE(m_calc->shapeAfterStep(1, 1), CalculateSteps::Kegel);
+    QCOMPARE(m_calc->shapeAfterStep(1, 2), CalculateSteps::Prisma);
+
+    // Final step's per-node state must match the overall target.
+    QCOMPARE(m_calc->shapeAfterStep(1, 0), m_calc->targetShapeForStatue(0));
+    QCOMPARE(m_calc->shapeAfterStep(1, 1), m_calc->targetShapeForStatue(1));
+    QCOMPARE(m_calc->shapeAfterStep(1, 2), m_calc->targetShapeForStatue(2));
+
+    QCOMPARE(m_calc->shapeAfterStep(-1, 0), CalculateSteps::Undefined);
+    QCOMPARE(m_calc->shapeAfterStep(2, 0), CalculateSteps::Undefined);
 }
 
 void TestCalculateSteps::getInstructionForStepOffByOne()

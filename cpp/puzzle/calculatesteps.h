@@ -51,6 +51,9 @@ public:
 
     Q_INVOKABLE int numberOfSteps();
     Q_INVOKABLE SymbolTypes getInstructionForStep(int step, int statue);
+    // The 3D shape `statue` actually holds right after step `step`
+    // completes - not the overall final target (see targetShapeForStatue()).
+    Q_INVOKABLE SymbolTypes shapeAfterStep(int step, int statue);
     // The 3D shape statue `statue` needs to end up as (its dissection
     // target), cached from the last calculateSteps() call. Undefined if
     // the index is out of range or nothing has been calculated yet.
