@@ -11,24 +11,18 @@ Item {
     property var options: []
     property int columns: 3
     property int selected: 0
-    // True when `selected` was auto-filled by the parent (e.g. the last of
-    // 3 symbols inferred once the other 2 are known) rather than tapped by
-    // the user - rendered with an amber border instead of blue so the user
-    // can see it's a guess they can still override.
+    // True when `selected` was auto-filled by the parent (inferred, not
+    // tapped) - rendered amber instead of blue so it reads as a guess.
     property bool selectionIsInferred: false
     property real cellSpacing: 8
-    // If set (>=0), cellSize is derived from this instead of the explicit
-    // cellSize below - avoids fixed-pixel cells overflowing a narrower
-    // parent (which would silently misalign click hit-testing).
+    // If set (>=0), cellSize derives from this instead - avoids fixed-pixel
+    // cells overflowing a narrower parent.
     property real totalWidth: -1
     property real cellSize: totalWidth >= 0 ? (totalWidth - (columns - 1) * cellSpacing) / columns : 56
 
-    // Emitted on tap; `selected` itself is meant to stay a pure one-way
-    // binding from the parent (e.g. `selected: someModel.value`) - the
-    // parent should update its own source-of-truth from this signal rather
-    // than have this component self-assign `selected`, which would
-    // permanently sever that binding (QML: an imperative write to a bound
-    // property replaces the binding) and break external resets.
+    // `selected` stays a pure one-way binding from the parent - this signal
+    // lets the parent update its own source of truth instead of us
+    // self-assigning `selected`, which would sever that binding.
     signal tapped(var value)
 
     implicitWidth: grid.implicitWidth
@@ -46,10 +40,8 @@ Item {
                 id: cell
                 required property var modelData
 
-                // 3D shapes (4-9) are each a combination of 2 of the 3 base
-                // 2D symbols (see ShapeMath.baseSymbolsFor) - shown on hover
-                // since the combination isn't otherwise visible once picked.
-                // 2D options (1-3) have no such breakdown.
+                // 3D shapes (4-9) combine 2 of the 3 base 2D symbols - shown
+                // on hover since it's not otherwise visible once picked.
                 readonly property bool is3dShape: cell.modelData >= 4
                 readonly property var baseSymbols: cell.is3dShape ? ShapeMath.baseSymbolsFor(cell.modelData) : []
 

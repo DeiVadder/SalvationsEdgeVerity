@@ -46,6 +46,8 @@ void CalculateInsideSteps::calculateSteps(SymbolTypes player1Symbol,
 
     m_engine->solve(start, target);
     m_distributeResolver->resolve({player1Symbol, player2Symbol, player3Symbol});
+    m_sortResolver->reset();
+    m_fastResolver->reset();
 
     m_targetShapePerPlayer.clear();
     for (const auto &pair : target) {
@@ -71,6 +73,8 @@ void CalculateInsideSteps::calculateStepsChallenge(SymbolTypes player1Symbol,
 
     m_engine->solve(start, target);
     m_distributeResolver->reset();
+    m_sortResolver->reset();
+    m_fastResolver->reset();
 
     m_targetShapePerPlayer = {outerTarget1, outerTarget2, outerTarget3};
 
@@ -205,6 +209,7 @@ void CalculateInsideSteps::calculateStepsLFG(SymbolTypes player1Symbol,
     m_sortResolver->resolve(ownSymbols, wallPairs);
     m_engine->solve(selfPairs, target);
     m_distributeResolver->resolve(ownSymbols);
+    m_fastResolver->reset();
 
     m_targetShapePerPlayer.clear();
     for (const auto &pair : target) {
@@ -279,6 +284,7 @@ void CalculateInsideSteps::calculateStepsLFGChallenge(SymbolTypes player1Symbol,
     m_sortResolver->resolve(ownSymbols, wallPairs);
     m_engine->solve(selfPairs, target);
     m_distributeResolver->reset();
+    m_fastResolver->reset();
 
     m_targetShapePerPlayer = {outerTarget1, outerTarget2, outerTarget3};
 
@@ -356,6 +362,9 @@ void CalculateInsideSteps::calculateStepsFast(SymbolTypes player1Symbol,
     QVector<QVector<SymbolTypes>> wallPairs = {{wall1a, wall1b}, {wall2a, wall2b}, {wall3a, wall3b}};
 
     m_fastResolver->resolve(ownSymbols, wallPairs);
+    m_engine->reset();
+    m_sortResolver->reset();
+    m_distributeResolver->reset();
 
     m_targetShapePerPlayer.clear();
     for (auto own : ownSymbols) {

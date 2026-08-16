@@ -13,9 +13,8 @@ Rectangle {
     property var encounterProgress
     readonly property var statueLabels: [qsTr("LEFT"), qsTr("MID"), qsTr("RIGHT")]
     readonly property var symbols2d: [Symbols.Dreieck, Symbols.Viereck, Symbols.Kreis]
-    // Row 2 (Pyramide/Wuerfel/Kugel) are the 3 "pure double" shapes,
-    // ordered to match symbols2d's Dreieck/Viereck/Kreis columns above -
-    // row 1 holds the remaining 3 mixed-pair shapes.
+    // Row 2 = the 3 "pure double" shapes, ordered to match symbols2d;
+    // row 1 = the 3 mixed-pair shapes.
     readonly property var symbols3d: [Symbols.Kegel, Symbols.Zylinder, Symbols.Prisma,
         Symbols.Pyramide, Symbols.Wuerfel, Symbols.Kugel]
     readonly property var pureSymbols3d: [Symbols.Pyramide, Symbols.Wuerfel, Symbols.Kugel]
@@ -40,14 +39,11 @@ Rectangle {
     property int target3: 0
     property int inferredTargetIndex: -1
 
-    // Once 2 of the 3 inside symbols are picked (and distinct), the 3rd is
-    // forced - the game always shows 3 pairwise-distinct callouts. Track
-    // which slot (if any) currently holds that inferred guess so it can be
-    // highlighted and still overridden by the user.
+    // Once 2 of 3 inside symbols are picked (distinct), the 3rd is forced -
+    // tracks which slot (if any) holds that guess so it stays overridable.
     property int inferredInnerIndex: -1
     // Each base 2D symbol appears exactly twice across the 3 outside 3D
-    // shapes (checkIsValid() enforces this). Once 2 of the 3 shapes are
-    // picked, the base-symbol pair needed for the 3rd is always forced.
+    // shapes (checkIsValid() enforces this) - so the 3rd shape is forced too.
     property int inferredOuterIndex: -1
     property bool hasNoSolution: false
 
@@ -275,10 +271,8 @@ Rectangle {
     radius: 10
     border.color: "#2a2a2a"
 
-    // Whole-panel Flickable, not just the fill-anchored Column it used to
-    // be - a fixed-height Column silently clips/overflows when the panel
-    // is given less height than its content needs (narrow/short windows),
-    // with no way to scroll down to whatever got cut off.
+    // Whole-panel Flickable, not a fixed-height Column - that silently
+    // clipped content on narrow/short windows with no way to scroll down.
     Flickable {
         anchors.fill: parent
         contentWidth: width

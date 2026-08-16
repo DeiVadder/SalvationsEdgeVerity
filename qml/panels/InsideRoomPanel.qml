@@ -4,11 +4,9 @@ import SymbolEnums 1.0
 import "../js/ShapeIcons.js" as ShapeIcons
 import "../js/ShapeMath.js" as ShapeMath
 
-// Inside/solo-room puzzle: each of the 3 players picks their own starting
-// 2D symbol; computes the sort/distribute sequence + final escape shape.
+// Inside/solo-room puzzle: 3 players pick their own starting 2D symbol;
+// computes the sort/distribute sequence + final escape shape.
 // UNVERIFIED against real gameplay - see calculateinsidesteps.h.
-// 2-frame layout (setup/solution, 42/58 split) matching the outside
-// puzzle's InputPanel/SolutionPanel.
 Item {
     id: root
 
@@ -21,9 +19,7 @@ Item {
 
     // Auto-advance to Solution once real steps exist (narrow layout only).
     // mySteps, not stepCount>0 - that only means own symbols are valid,
-    // not that anything's actually ready to show yet. Bool, not the raw
-    // count, so re-solving while already valid doesn't yank the tab back
-    // every time - only the false->true transition does.
+    // not that anything's ready to show yet.
     readonly property bool hasAnySolution: mySteps.length > 0
     onHasAnySolutionChanged: {
         if (hasAnySolution && !wideLayout)
@@ -31,9 +27,8 @@ Item {
     }
     readonly property var playerLabels: [qsTr("LEFT"), qsTr("MID"), qsTr("RIGHT")]
     readonly property var symbols2d: [Symbols.Dreieck, Symbols.Viereck, Symbols.Kreis]
-    // Row 2 (Pyramide/Wuerfel/Kugel) are the 3 "pure double" shapes,
-    // ordered to match symbols2d's Dreieck/Viereck/Kreis columns above -
-    // row 1 holds the remaining 3 mixed-pair shapes.
+    // Row 2 = the 3 "pure double" shapes, ordered to match symbols2d;
+    // row 1 = the 3 mixed-pair shapes.
     readonly property var symbols3d: [Symbols.Kegel, Symbols.Zylinder, Symbols.Prisma,
         Symbols.Pyramide, Symbols.Wuerfel, Symbols.Kugel]
     readonly property var pureSymbols3d: [Symbols.Pyramide, Symbols.Wuerfel, Symbols.Kugel]
@@ -48,9 +43,8 @@ Item {
     property int player2: 0
     property int player3: 0
 
-    // Which statue/room the app's user is personally standing at - purely
-    // a display hint (highlights "your" column/step everywhere below), the
-    // solver itself treats all 3 nodes identically. -1 = not marked yet.
+    // Which statue is "you" - display hint only (highlights "your"
+    // column/step below), solver treats all 3 nodes identically. -1 = unset.
     property int myPosition: -1
 
     // Same "2 distinct picks force the 3rd" inference as InputPanel's inside
@@ -80,33 +74,27 @@ Item {
 
     readonly property int stepCount: insideCalculator ? insideCalculator.numberOfSteps : 0
     // Plain method calls (finalShapeForPlayer() etc.) aren't bindable -
-    // calculationVersion is a plain counter bumped on every single
-    // calculate*/reset() call, so QML always sees it change and re-runs
-    // dependent bindings, unlike numberOfSteps which can legitimately
-    // repeat across two different calculations.
+    // calculationVersion is a counter bumped on every calculate*/reset()
+    // call, so QML always re-runs bindings depending on it.
     readonly property int calculationVersion: insideCalculator ? insideCalculator.calculationVersion : 0
-    readonly property var finalShapes: (insideCalculator && root.calculationVersion >= 0)
-        ? [insideCalculator.finalShapeForPlayer(0), insideCalculator.finalShapeForPlayer(1),
-           insideCalculator.finalShapeForPlayer(2)]
-        : [0, 0, 0]
-    readonly property int distributeTransferCount: (insideCalculator && root.calculationVersion >= 0)
-        ? insideCalculator.numberOfDistributeTransfers() : 0
-
-    function distributeTransfersForRound(round) {
-        var result = []
-        if (!insideCalculator || root.calculationVersion < 0)
-            return result
-        var total = root.distributeTransferCount
-        for (var i = 0; i < total; ++i) {
-            if (insideCalculator.distributeTransferRound(i) === round) {
-                result.push({
-                    from: insideCalculator.distributeTransferFrom(i),
-                    to: insideCalculator.distributeTransferTo(i),
-                    symbol: insideCalculator.distributeTransferSymbol(i)
-                })
+    // Both rounds in one pass over the Q_INVOKABLE data - avoids fetching
+    // the same C++ transfer list twice (once per round) on every rebuild.
+    readonly property var myDistributeTransfersByRound: {
+        var rounds = [[], []]
+        if (insideCalculator && root.calculationVersion >= 0) {
+            var total = insideCalculator.numberOfDistributeTransfers()
+            for (var i = 0; i < total; ++i) {
+                var round = insideCalculator.distributeTransferRound(i)
+                if (round >= 0 && round < 2) {
+                    rounds[round].push({
+                        from: insideCalculator.distributeTransferFrom(i),
+                        to: insideCalculator.distributeTransferTo(i),
+                        symbol: insideCalculator.distributeTransferSymbol(i)
+                    })
+                }
             }
         }
-        return result
+        return rounds
     }
 
     // Own final pair for the "combine and leave" step. Default: the 2
@@ -178,8 +166,8 @@ Item {
         // new symbols show up on your wall.
         var myDistributeGives = root.challengeMode
             ? root.myChallengeDistributeGives
-            : root.distributeTransfersForRound(0)
-                .concat(root.distributeTransfersForRound(1))
+            : root.myDistributeTransfersByRound[0]
+                .concat(root.myDistributeTransfersByRound[1])
                 .filter(function (t) { return t.from === root.myPosition })
         myDistributeGives.forEach(function (t) {
             n++
@@ -342,9 +330,8 @@ Item {
     }
 
     // calculateSteps() always runs regardless of Challenge Mode - its
-    // distribute output isn't used for display (see mySteps /
-    // myChallengeDistributeGives, computed locally, no wall needed), it's
-    // only kept so stepCount stays a reliable "own symbols valid" signal.
+    // distribute output isn't used for display (mySteps computes that
+    // locally), it just keeps stepCount a reliable validity signal.
     function tryCalculate() {
         if (player1 <= 0 || player2 <= 0 || player3 <= 0) {
             hasNoSolution = false
@@ -642,12 +629,10 @@ Item {
                         width: parent.width
                     }
 
-                    // Only own wall shown. Positioned by explicit x, not a
-                    // Row of 3 columns - Row excludes invisible children
-                    // from layout, which collapsed everything to the left
-                    // when only 1 of 3 columns was ever visible. Same
-                    // per-column width/spacing as the symbol row above so
-                    // it still lines up under the matching column.
+                    // Only own wall shown. Explicit x, not a Row of 3
+                    // columns - Row excludes invisible children from
+                    // layout, collapsing everything left. Same column
+                    // width/spacing as the symbol row above so it lines up.
                     Item {
                         id: wallAlignArea
                         width: parent.width
@@ -1057,7 +1042,18 @@ Item {
 
                         Text {
                             visible: root.myWallComplete && root.mySteps.length === 0
+                                      && !root.hasNoSolution
+                                      && (!root.challengeMode || (root.target1 > 0 && root.target2 > 0 && root.target3 > 0))
                             text: qsTr("Nothing to give - you already have 2 of your own symbol")
+                            color: "#888888"
+                            font.pixelSize: 11
+                        }
+
+                        Text {
+                            visible: root.myWallComplete && root.mySteps.length === 0
+                                      && !root.hasNoSolution && root.challengeMode
+                                      && !(root.target1 > 0 && root.target2 > 0 && root.target3 > 0)
+                            text: qsTr("Enter the outside team's called escape shapes above to see your steps")
                             color: "#888888"
                             font.pixelSize: 11
                         }

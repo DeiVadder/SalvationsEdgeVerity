@@ -50,6 +50,8 @@ private slots:
     void checkIsValidWallChallenge();
     void calculateStepsLFGChallengeConvergesToOuterTargets();
     void calculateStepsLFGChallengeHandlesPureDouble();
+
+    void crossModeCallsDoNotLeakStaleGetters();
 };
 
 void TestCalculateInsideSteps::init()
@@ -537,6 +539,38 @@ void TestCalculateInsideSteps::calculateStepsLFGChallengeHandlesPureDouble()
     QCOMPARE(m_calc->finalShapeForPlayer(0), CalculateSteps::Wuerfel);
     QCOMPARE(m_calc->finalShapeForPlayer(1), CalculateSteps::Kugel);
     QCOMPARE(m_calc->finalShapeForPlayer(2), CalculateSteps::Pyramide);
+}
+
+// Regression: each calculate*() call must reset the resolvers it doesn't
+// itself populate, so a getter for an unrelated mode can't report a stale
+// result from an earlier, unrelated call.
+void TestCalculateInsideSteps::crossModeCallsDoNotLeakStaleGetters()
+{
+    m_calc->calculateStepsFast(CalculateSteps::Dreieck, CalculateSteps::Viereck,
+                                CalculateSteps::Kreis, CalculateSteps::Dreieck,
+                                CalculateSteps::Dreieck, CalculateSteps::Viereck,
+                                CalculateSteps::Viereck, CalculateSteps::Kreis,
+                                CalculateSteps::Kreis);
+    QVERIFY(m_calc->isFastSolved());
+
+    m_calc->calculateSteps(CalculateSteps::Dreieck, CalculateSteps::Viereck, CalculateSteps::Kreis);
+    QVERIFY(!m_calc->isFastSolved());
+    QCOMPARE(m_calc->numberOfFastTransfers(), 0);
+
+    m_calc->calculateStepsLFG(CalculateSteps::Dreieck, CalculateSteps::Viereck,
+                               CalculateSteps::Kreis, CalculateSteps::Viereck,
+                               CalculateSteps::Kreis, CalculateSteps::Dreieck,
+                               CalculateSteps::Kreis, CalculateSteps::Dreieck,
+                               CalculateSteps::Viereck);
+    QVERIFY(m_calc->isSortSolved());
+
+    m_calc->calculateStepsFast(CalculateSteps::Dreieck, CalculateSteps::Viereck,
+                                CalculateSteps::Kreis, CalculateSteps::Dreieck,
+                                CalculateSteps::Dreieck, CalculateSteps::Viereck,
+                                CalculateSteps::Viereck, CalculateSteps::Kreis,
+                                CalculateSteps::Kreis);
+    QVERIFY(!m_calc->isSortSolved());
+    QCOMPARE(m_calc->numberOfSortTransfers(), 0);
 }
 
 QTEST_MAIN(TestCalculateInsideSteps)
