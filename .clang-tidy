@@ -1,0 +1,49 @@
+---
+# Checked and cleaned up manually; see CMakeLists.txt for
+# CMAKE_EXPORT_COMPILE_COMMANDS (needed for clang-tidy/clangd to find
+# per-file compiler flags - both this project's own tooling and Qt
+# Creator's built-in clang-tidy integration read compile_commands.json).
+Checks: >
+  -*,
+  clang-analyzer-*,
+  bugprone-*,
+  performance-*,
+  readability-*,
+  portability-*,
+  modernize-*,
+  -modernize-use-trailing-return-type,
+  -bugprone-easily-swappable-parameters,
+  -readability-identifier-length,
+  -performance-enum-size,
+  -readability-redundant-access-specifiers,
+  -readability-convert-member-functions-to-static,
+  -readability-function-cognitive-complexity
+# bugprone-easily-swappable-parameters: most of this codebase's C++ API
+# mirrors QML calls with several adjacent SymbolTypes parameters (one per
+# statue/player/wall slot) - that's the natural shape of the domain, not
+# an accident; wrapping each in a distinct named type would be a much
+# larger refactor for marginal benefit in a single-developer hobby project.
+# readability-identifier-length: short names like a/b/s/n/i/j are used
+# deliberately in small, tightly-scoped math/symbol-juggling helpers
+# (pair swapping, symbol counting) - renaming them to satisfy a length
+# minimum would hurt readability there, not help it.
+# performance-enum-size: SymbolTypes is exposed to QML via Q_ENUM and
+# used throughout as a plain int; shrinking its underlying type saves
+# nothing measurable here and isn't worth the risk of Qt's meta-type/
+# QVariant marshalling assuming an int-sized enum.
+# readability-redundant-access-specifiers: doesn't understand Qt's
+# `public slots:` - it only sees "public" and flags it as a duplicate of
+# a preceding plain "public:", even though the `slots` keyword is
+# semantically meaningful to the Qt meta-object system.
+# readability-convert-member-functions-to-static: doesn't understand
+# Q_INVOKABLE (needs an instance to call from QML) or QtTest's private
+# slots (invoked via QMetaObject on a live test instance) - both would
+# break if actually made static.
+# readability-function-cognitive-complexity: fires mainly on the
+# deliberately exhaustive combinatorics test functions (hundreds to
+# thousands of generated cases per tst_*.cpp) and the hand-verified
+# decision-table/solver core (FastCleanseResolver::resolve(),
+# SymbolSwapEngine::findAndSwap()) - "complex" by nature of what they
+# enumerate/implement, not a sign of tangled control flow to fix.
+WarningsAsErrors: ''
+HeaderFilterRegex: 'cpp/.*'

@@ -1,17 +1,15 @@
 <RCC>
     <qresource prefix="/">
-        <file>images/Kegel.png</file>
-        <file>images/Kugel.png</file>
-        <file>images/Prisma.png</file>
-        <file>images/Pyramide.png</file>
-        <file>images/Wuerfel.png</file>
-        <file>images/Zylinder.png</file>
-        <file>images/Dreieck.png</file>
-        <file>images/Kreis.png</file>
-        <file>images/Viereck.png</file>
-        <file>images/reset.svg</file>
-        <file>images/orientationCol.png</file>
-        <file>images/orientationRow.png</file>
-        <file>images/orientationRowCol.png</file>
+        <file>images/svg/dreieck.svg</file>
+        <file>images/svg/viereck.svg</file>
+        <file>images/svg/kreis.svg</file>
+        <file>images/svg/kegel.svg</file>
+        <file>images/svg/wuerfel.svg</file>
+        <file>images/svg/zylinder.svg</file>
+        <file>images/svg/pyramide.svg</file>
+        <file>images/svg/prisma.svg</file>
+        <file>images/svg/kugel.svg</file>
+        <file>images/svg/flags/flag_en.svg</file>
+        <file>images/svg/flags/flag_de.svg</file>
     </qresource>
 </RCC>

@@ -1,0 +1,21 @@
+# cppcheck --enable=all --library=qt --suppressions-list=.cppcheck-suppressions --project=build/compile_commands.json
+
+# QString/QList are implicitly-shared (copy-on-write) in Qt - "returning by
+# value" from these Q_PROPERTY/Q_INVOKABLE getters is a refcount bump, not a
+# real copy. By-value is also the idiomatic, expected shape for a property
+# getter exposed to QML/the meta-object system throughout this codebase and
+# the rest of Qt itself - not worth deviating from for a non-measurable gain.
+returnByReference:cpp/i18n/translationmanager.h
+returnByReference:cpp/ghost/ghostplayerslot.h
+returnByReference:cpp/ghost/ghostphasehelper.h
+
+# Only visible from QML (Q_INVOKABLE/Q_PROPERTY) or from main.cpp, neither
+# of which cppcheck's whole-program analysis can see call sites for.
+unusedFunction
+
+# cppcheck doesn't know Qt's Q_ENUM/slots/Q_GLOBAL_STATIC/Q_UNUSED/
+# QT_MANGLE_NAMESPACE macros even with --library=qt for some expansions,
+# and can't meaningfully analyze Qt/qmlcachegen-generated files under build/.
+unknownMacro
+preprocessorErrorDirective
+missingIncludeSystem
